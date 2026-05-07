@@ -19,7 +19,7 @@ function App(){
     <TweaksPanel title="Tweaks · console.config">
       <TweakSection title="Theme">
         <TweakRadio label="Mode" value={t.theme} options={[['dark','Dark'],['light','Light']]} onChange={v => setTweak('theme', v)} />
-        <TweakRadio label="Accent" value={t.accent} options={[['amber','Amber'],['green','Green'],['cyan','Cyan'],['red','Red']]} onChange={v => setTweak('accent', v)} />
+        <TweakRadio label="Accent" value={t.accent} options={[['emerald','Emerald'],['indigo','Indigo'],['amber','Amber'],['green','Green'],['cyan','Cyan'],['red','Red']]} onChange={v => setTweak('accent', v)} />
       </TweakSection>
 
       <TweakSection title="Layout">
