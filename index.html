@@ -385,8 +385,29 @@ body[data-grid="true"]::before {
 .term-input-line {
   display: flex;
   align-items: center;
-  padding: 6px 16px 16px;
-  background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.2));
+  padding: 8px 16px 12px;
+  border-top: 1px solid var(--line-2);
+  background: rgba(255,255,255,0.03);
+  cursor: text;
+}
+.term-input-field {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+/* Prominent idle block cursor — shown only when empty and not focused */
+.term-input-field:has(input:placeholder-shown:not(:focus))::after {
+  content: '';
+  display: inline-block;
+  width: 9px;
+  height: 15px;
+  background: var(--accent);
+  animation: caret 0.9s step-end infinite;
+  box-shadow: 0 0 10px var(--accent), 0 0 22px color-mix(in oklab, var(--accent) 40%, transparent);
+  border-radius: 1px;
+  margin-left: 1px;
+  flex-shrink: 0;
 }
 .term-input {
   flex: 1;
@@ -397,6 +418,13 @@ body[data-grid="true"]::before {
   font-family: var(--mono);
   font-size: 12.5px;
   caret-color: var(--accent);
+  caret-shape: block;
+  min-width: 0;
+}
+.term-input::placeholder {
+  color: var(--ink-2);
+  opacity: 0.75;
+  letter-spacing: 0.01em;
 }
 .term-cursor {
   display: inline-block;
@@ -409,20 +437,39 @@ body[data-grid="true"]::before {
 }
 @keyframes caret { 50% { opacity: 0; } }
 .term-tip {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
   font-size: 10px;
   color: var(--ink-4);
-  padding: 0 16px 8px;
+  padding: 3px 16px 10px;
   letter-spacing: 0.04em;
 }
-.term-tip kbd {
-  display: inline-block;
-  padding: 1px 5px;
-  border: 1px solid var(--line-2);
-  border-radius: 2px;
+.term-tip-label {
   font-family: var(--mono);
-  font-size: 9.5px;
-  color: var(--ink-3);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  margin-right: 2px;
+  flex-shrink: 0;
 }
+.term-tip kbd {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border: 1px solid var(--line-2);
+  border-radius: 3px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-3);
+  background: rgba(255,255,255,0.025);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.term-tip kbd:hover { color: var(--accent); border-color: var(--accent); }
 
 /* ------- SECTION HEADER ------- */
 section.block {
@@ -1104,10 +1151,13 @@ section.block {
         <div class="terminal-body" id="term-body"></div>
         <div class="term-input-line">
           <span class="term-prompt">~/c137 ❯</span>
-          <input class="term-input" id="term-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="type a command…">
+          <span class="term-input-field">
+            <input class="term-input" id="term-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="type here → try 'help'">
+          </span>
         </div>
         <div class="term-tip">
-          TRY: <kbd>help</kbd> · <kbd>about</kbd> · <kbd>projects</kbd> · <kbd>stack</kbd> · <kbd>hire</kbd> · <kbd>clear</kbd> · <kbd>sudo --pls</kbd>
+          <span class="term-tip-label">try</span>
+          <kbd>help</kbd><kbd>about</kbd><kbd>projects</kbd><kbd>stack</kbd><kbd>hire</kbd><kbd>clear</kbd><kbd>sudo --pls</kbd>
         </div>
       </div>
     </div>
