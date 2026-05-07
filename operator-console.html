@@ -3,6 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Oleg Hanukayev — Platform, DevOps &amp; MLOps Engineer. 10 years building production infrastructure for F500 SaaS, fintech, and AI systems.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Oleg Hanukayev — Console">
+<meta property="og:description" content="Platform, DevOps &amp; MLOps Engineer. 10 years building production infrastructure for F500 SaaS, fintech, and AI systems.">
+<meta property="og:url" content="https://see-137.github.io/digital-business-card">
+<meta property="og:image" content="https://see-137.github.io/digital-business-card/assets/og-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Oleg Hanukayev — Console">
+<meta name="twitter:description" content="Platform, DevOps &amp; MLOps Engineer. 10 years building production infrastructure for F500 SaaS, fintech, and AI systems.">
 <title>Oleg Hanukayev — Console</title>
 
 <template id="__bundler_thumbnail" data-bg-color="#0a0a0c">
@@ -1084,6 +1093,21 @@ section.block {
 
 /* ------- TWEAKS PANEL ------- */
 #tweaks-root { font-family: var(--sans); }
+
+/* ------- MOBILE ------- */
+@media (max-width: 768px) {
+  section.block { padding-top: 48px; padding-bottom: 48px; }
+  .footer-block { padding-top: 48px; padding-bottom: 32px; }
+  /* projects + deploy-log: collapse to projects list only */
+  #projects { grid-template-columns: 1fr !important; }
+  #projects > div:last-child { display: none; }
+}
+@media (max-width: 480px) {
+  section.block { padding-top: 36px; padding-bottom: 36px; }
+  .terminal-wrap { height: 360px; }
+  .term-tip { display: none; }
+  .hero { padding: 32px var(--pad) 24px; }
+}
 </style>
 </head>
 <body data-grid="true">
@@ -1407,162 +1431,6 @@ section.block {
   </div>
 </section>
 
-<!-- ============== ARCHITECTURE DIAGRAM (legacy/hidden) ============== -->
-<section class="block" style="display:none">
-  <div class="block-inner">
-    <div class="section-num">[02.5] / TOPOLOGY</div>
-    <h2 class="section-title">How the <span class="ital">stack</span> talks to itself.</h2>
-    <p class="section-sub">// hidden</p>
-
-    <div class="arch-frame reveal">
-      <svg class="arch-svg" id="arch-svg" viewBox="0 0 1200 540" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)"/>
-          </marker>
-          <pattern id="dotPattern" width="20" height="20" patternUnits="userSpaceOnUse">
-            <circle cx="1" cy="1" r="0.8" fill="var(--line-2)"/>
-          </pattern>
-        </defs>
-
-        <rect x="0" y="0" width="1200" height="540" fill="url(#dotPattern)" opacity="0.4"/>
-
-        <!-- LAYER LABELS -->
-        <text x="20" y="40" font-family="var(--mono)" font-size="10" fill="var(--ink-4)" letter-spacing="2">CLIENT TIER</text>
-        <text x="20" y="190" font-family="var(--mono)" font-size="10" fill="var(--ink-4)" letter-spacing="2">PLATFORM</text>
-        <text x="20" y="350" font-family="var(--mono)" font-size="10" fill="var(--ink-4)" letter-spacing="2">DATA + AI</text>
-        <text x="20" y="500" font-family="var(--mono)" font-size="10" fill="var(--ink-4)" letter-spacing="2">OBSERVE</text>
-
-        <!-- DIVIDER LINES -->
-        <line x1="0" y1="55" x2="1200" y2="55" stroke="var(--line)" stroke-dasharray="2,4"/>
-        <line x1="0" y1="205" x2="1200" y2="205" stroke="var(--line)" stroke-dasharray="2,4"/>
-        <line x1="0" y1="365" x2="1200" y2="365" stroke="var(--line)" stroke-dasharray="2,4"/>
-
-        <!-- CLIENT NODES -->
-        <g class="node" data-node="client">
-          <rect x="180" y="80" width="140" height="80" rx="3" fill="var(--bg-3)" stroke="var(--line-2)"/>
-          <text x="250" y="110" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--ink)">WEB / SaaS</text>
-          <text x="250" y="128" text-anchor="middle" font-family="var(--mono)" font-size="9" fill="var(--ink-3)">React · Next.js</text>
-          <text x="250" y="144" text-anchor="middle" font-family="var(--mono)" font-size="9" fill="var(--accent)">finpulse.me</text>
-        </g>
-        <g class="node" data-node="agents">
-          <rect x="380" y="80" width="140" height="80" rx="3" fill="var(--bg-3)" stroke="var(--line-2)"/>
-          <text x="450" y="110" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--ink)">AI AGENTS</text>
-          <text x="450" y="128" text-anchor="middle" font-family="var(--mono)" font-size="9" fill="var(--ink-3)">Claude · MCP</text>
-          <text x="450" y="144" text-anchor="middle" font-family="var(--mono)" font-size="9" fill="var(--accent)">orchestrators</text>
-        </g>
-        <g class="node" data-node="ops">
-          <rect x="580" y="80" width="140" height="80" rx="3" fill="var(--bg-3)" stroke="var(--line-2)"/>
-          <text x="650" y="110" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--ink)">INTERNAL OPS</text>
-          <text x="650" y="128" text-anchor="middle" font-family="var(--mono)" font-size="9" fill="var(--ink-3)">CLI · dashboards</text>
-          <text x="650" y="144" text-anchor="middle" font-family="var(--mono)" font-size="9" fill="var(--accent)">CMA · POLYBOTS</text>
-        </g>
-
-        <!-- PLATFORM -->
-        <g class="node" data-node="api">
-          <rect x="180" y="230" width="140" height="80" rx="3" fill="var(--bg-3)" stroke="var(--line-2)"/>
-          <text x="250" y="260" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--ink)">API GATEWAY</text>
-          <text x="250" y="278" text-anchor="middle" font-family="var(--mono)" font-size="9" fill="var(--ink-3)">CloudFront · WAF</text>
-          <text x="250" y="294" text-anchor="middle" font-family="var(--mono)" font-size="9" fill="var(--accent)">edge.tls</text>
-        </g>
-        <g class="node" data-node="eks">
-          <rect x="380" y="230" width="340" height="80" rx="3" fill="var(--bg-3)" stroke="var(--accent)" stroke-width="1.5"/>
-          <text x="550" y="258" text-anchor="middle" font-family="var(--mono)" font-size="13" fill="var(--ink)" font-weight="600">EKS · MULTI-TENANT KUBERNETES</text>
-          <text x="550" y="278" text-anchor="middle" font-family="var(--mono)" font-size="10" fill="var(--ink-3)">helm · argocd · gpu node-pools · ai validators</text>
-          <text x="550" y="296" text-anchor="middle" font-family="var(--mono)" font-size="10" fill="var(--accent)">86% F500 · zero-downtime blue/green</text>
-        </g>
-        <g class="node" data-node="lambda">
-          <rect x="780" y="230" width="140" height="80" rx="3" fill="var(--bg-3)" stroke="var(--line-2)"/>
-          <text x="850" y="260" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--ink)">LAMBDA / FN</text>
-          <text x="850" y="278" text-anchor="middle" font-family="var(--mono)" font-size="9" fill="var(--ink-3)">contact · webhook</text>
-          <text x="850" y="294" text-anchor="middle" font-family="var(--mono)" font-size="9" fill="var(--accent)">python 3.12</text>
-        </g>
-        <g class="node" data-node="iac">
-          <rect x="980" y="230" width="140" height="80" rx="3" fill="var(--bg-3)" stroke="var(--line-2)"/>
-          <text x="1050" y="260" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--ink)">IaC LAYER</text>
-          <text x="1050" y="278" text-anchor="middle" font-family="var(--mono)" font-size="9" fill="var(--ink-3)">Terraform · GHA</text>
-          <text x="1050" y="294" text-anchor="middle" font-family="var(--mono)" font-size="9" fill="var(--accent)">OIDC · GitOps</text>
-        </g>
-
-        <!-- DATA / AI -->
-        <g class="node" data-node="rag">
-          <rect x="180" y="385" width="200" height="80" rx="3" fill="var(--bg-3)" stroke="var(--line-2)"/>
-          <text x="280" y="415" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--ink)">RAG PIPELINE</text>
-          <text x="280" y="433" text-anchor="middle" font-family="var(--mono)" font-size="9" fill="var(--ink-3)">Bedrock + Elasticsearch</text>
-          <text x="280" y="449" text-anchor="middle" font-family="var(--mono)" font-size="9" fill="var(--accent)">embed → retrieve → ground</text>
-        </g>
-        <g class="node" data-node="storage">
-          <rect x="440" y="385" width="160" height="80" rx="3" fill="var(--bg-3)" stroke="var(--line-2)"/>
-          <text x="520" y="415" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--ink)">STORAGE</text>
-          <text x="520" y="433" text-anchor="middle" font-family="var(--mono)" font-size="9" fill="var(--ink-3)">S3 · RDS · vectors</text>
-          <text x="520" y="449" text-anchor="middle" font-family="var(--mono)" font-size="9" fill="var(--accent)">replicated · KMS</text>
-        </g>
-        <g class="node" data-node="cost">
-          <rect x="660" y="385" width="200" height="80" rx="3" fill="var(--bg-3)" stroke="var(--accent)" stroke-width="1.5"/>
-          <text x="760" y="415" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--ink)">CMA · COST AGENT</text>
-          <text x="760" y="433" text-anchor="middle" font-family="var(--mono)" font-size="9" fill="var(--ink-3)">LLM-spend monitor</text>
-          <text x="760" y="449" text-anchor="middle" font-family="var(--mono)" font-size="9" fill="var(--accent)">open-source · docker</text>
-        </g>
-        <g class="node" data-node="datadog">
-          <rect x="920" y="385" width="200" height="80" rx="3" fill="var(--bg-3)" stroke="var(--line-2)"/>
-          <text x="1020" y="415" text-anchor="middle" font-family="var(--mono)" font-size="11" fill="var(--ink)">OBSERVABILITY</text>
-          <text x="1020" y="433" text-anchor="middle" font-family="var(--mono)" font-size="9" fill="var(--ink-3)">Datadog · ELK · Grafana</text>
-          <text x="1020" y="449" text-anchor="middle" font-family="var(--mono)" font-size="9" fill="var(--accent)">SLO · alerts · traces</text>
-        </g>
-
-        <!-- CONNECTIONS -->
-        <g stroke="var(--accent)" stroke-width="1.2" fill="none" opacity="0.85">
-          <path d="M250 160 L250 230" marker-end="url(#arr)" class="flow"/>
-          <path d="M450 160 L490 230" marker-end="url(#arr)" class="flow"/>
-          <path d="M650 160 L600 230" marker-end="url(#arr)" class="flow"/>
-
-          <path d="M320 270 L380 270" marker-end="url(#arr)" class="flow"/>
-          <path d="M720 270 L780 270" marker-end="url(#arr)" class="flow"/>
-          <path d="M920 270 L980 270" marker-end="url(#arr)" class="flow"/>
-
-          <path d="M480 310 L320 385" marker-end="url(#arr)" class="flow"/>
-          <path d="M550 310 L520 385" marker-end="url(#arr)" class="flow"/>
-          <path d="M650 310 L740 385" marker-end="url(#arr)" class="flow"/>
-          <path d="M850 310 L1000 385" marker-end="url(#arr)" class="flow"/>
-
-          <path d="M380 425 L440 425" marker-end="url(#arr)" class="flow"/>
-          <path d="M600 425 L660 425" marker-end="url(#arr)" class="flow"/>
-          <path d="M860 425 L920 425" marker-end="url(#arr)" class="flow"/>
-        </g>
-
-        <!-- packets -->
-        <circle r="3" fill="var(--accent)" id="packet-1">
-          <animateMotion dur="3s" repeatCount="indefinite" path="M250 160 L250 230 L380 270 L520 385"/>
-        </circle>
-        <circle r="3" fill="var(--green)" id="packet-2">
-          <animateMotion dur="4s" repeatCount="indefinite" path="M450 160 L490 230 L720 270 L760 385"/>
-        </circle>
-        <circle r="3" fill="var(--accent)" id="packet-3">
-          <animateMotion dur="3.5s" repeatCount="indefinite" path="M650 160 L600 230 L850 310 L1000 385"/>
-        </circle>
-      </svg>
-
-      <div class="arch-legend">
-        <div class="item"><span class="swatch" style="background:var(--bg-3); border-color:var(--line-2)"></span>SERVICE NODE</div>
-        <div class="item"><span class="swatch" style="background:var(--bg-3); border-color:var(--accent)"></span>SHIPPED-BY-ME</div>
-        <div class="item"><span class="swatch" style="background:var(--accent)"></span>SYNC FLOW</div>
-        <div class="item"><span class="swatch" style="background:var(--green)"></span>AI / AGENT TRAFFIC</div>
-        <div class="item" style="margin-left:auto; color:var(--ink-4)">v 3.7.2 · last applied 11m ago</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============== PROJECTS (legacy/hidden — now fused into systems) ============== -->
-<section class="block" id="projects-legacy" style="display:none">
-  <div class="block-inner">
-    <div class="section-num">[03] / DEPLOYMENTS</div>
-    <h2 class="section-title">Things I built that <span class="ital">stayed up.</span></h2>
-    <p class="section-sub">// hidden — fused into systems</p>
-
-    <div class="projects-strip-legacy"></div>
-  </div>
-</section>
 
 <!-- ============== STACK MATRIX ============== -->
 <section class="block" id="stack">
@@ -1635,7 +1503,7 @@ section.block {
       <div class="cc-left">
         <div class="cc-eyebrow">// open to conversations</div>
         <h3 class="cc-headline">Senior platform, DevOps &amp; MLOps roles — happy to chat.</h3>
-        <a href="mailto:hello@c137.ops" class="btn btn-primary cc-cta">hello@c137.ops <span class="arrow">→</span></a>
+        <a href="mailto:oleghanukayev@gmail.com" class="btn btn-primary cc-cta">oleghanukayev@gmail.com <span class="arrow">→</span></a>
       </div>
       <div class="cc-right">
         <div class="cc-row"><span>GMAIL</span><a href="mailto:oleghanukayev@gmail.com">@oleghanukayev</a></div>
@@ -1665,9 +1533,9 @@ section.block {
 <script type="text/babel" src="tweaks-panel.jsx?v=2"></script>
 
 <!-- main scripts -->
-<script src="terminal.js?v=3"></script>
-<script src="status-board.js?v=2"></script>
-<script src="projects.js?v=2"></script>
+<script src="terminal.js?v=4"></script>
+<script src="status-board.js?v=3"></script>
+<script src="projects.js?v=3"></script>
 <script type="text/babel" src="tweaks-app.jsx?v=2"></script>
 
 </body>

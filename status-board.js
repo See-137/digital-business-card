@@ -7,17 +7,20 @@
     const utcEl = document.getElementById('utc-clock');
     if (utcEl) utcEl.textContent = ' ' + utc;
 
-    function fmt(offsetH){
-      const t = new Date(now.getTime() + offsetH*3600*1000);
-      const h = String(t.getUTCHours()).padStart(2,'0');
-      const m = String(t.getUTCMinutes()).padStart(2,'0');
-      const s = String(t.getUTCSeconds()).padStart(2,'0');
-      return `${h}:${m}:${s}`;
+    function fmtTz(tz){
+      return new Intl.DateTimeFormat('en-GB', {
+        timeZone: tz, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+      }).format(now);
     }
-    const map = { 'clock-tlv': 3, 'clock-nyc': -5, 'clock-lon': 0, 'clock-sfo': -8 };
-    Object.entries(map).forEach(([id, off]) => {
+    const tzMap = {
+      'clock-tlv': 'Asia/Jerusalem',
+      'clock-nyc': 'America/New_York',
+      'clock-lon': 'Europe/London',
+      'clock-sfo': 'America/Los_Angeles'
+    };
+    Object.entries(tzMap).forEach(([id, tz]) => {
       const el = document.getElementById(id);
-      if (el) el.textContent = fmt(off);
+      if (el) el.textContent = fmtTz(tz);
     });
     const fc = document.getElementById('footer-clock');
     if (fc) fc.textContent = utc + ' UTC';

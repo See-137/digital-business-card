@@ -32,7 +32,7 @@
       '  <span style="color:var(--accent)">projects</span>   — list deployed systems',
       '  <span style="color:var(--accent)">stack</span>      — what i ship with',
       '  <span style="color:var(--accent)">experience</span> — career trace',
-      '  <span style="color:var(--accent)">hire</span>       — engagement options',
+      '  <span style="color:var(--accent)">hire</span>       — open roles · reach out',
       '  <span style="color:var(--accent)">contact</span>    — reach me',
       '  <span style="color:var(--accent)">whoami</span>     — try it',
       '  <span style="color:var(--accent)">status</span>     — system uptime',

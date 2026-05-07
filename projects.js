@@ -47,13 +47,13 @@
     },
     {
       id: '05',
-      name: 'Psychometry App',
-      tagline: 'adaptive practice for the Israeli psychometric exam',
-      tags: ['Education', 'Mobile'],
-      status: ['dim', 'ARCHIVED'],
-      desc: 'Adaptive practice and statistics platform for the Israeli psychometric exam. Personalized progress, weak-spot drilling, and historical analytics.',
-      stack: ['React Native', 'Node.js', 'Postgres'],
-      img: 'assets/psychometry_home.png',
+      name: 'GAM Trivia',
+      tagline: 'multiplayer trivia learning platform',
+      tags: ['EdTech', 'Next.js', 'Live'],
+      status: ['live', 'LIVE'],
+      desc: 'Multiplayer trivia and learning platform — real-time game sessions, custom quiz creation, and leaderboard-driven engagement for educational environments.',
+      stack: ['Next.js', 'React', 'TypeScript'],
+      img: 'assets/gam_trivia_home.png',
       url: '#'
     }
   ];
