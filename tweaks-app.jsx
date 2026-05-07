@@ -3,7 +3,7 @@ const { useEffect } = React;
 
 function App(){
   const [t, setTweak] = useTweaks(window.TWEAK_DEFAULTS || {
-    theme: 'dark', accent: 'amber', density: 'comfortable',
+    theme: 'dark', accent: 'emerald', density: 'comfortable',
     heroVariant: 'terminal', projectStyle: 'deck', showGrid: true, fontPair: 'geist-instrument'
   });
 
