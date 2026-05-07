@@ -74,20 +74,18 @@
       '<span style="color:var(--accent)">2016 — 19</span>   amdocs                · network &amp; security admin'
     ]),
     hire: () => printBlock([
-      'three engagement shapes:',
-      '  1. <span style="color:var(--accent)">fixed-scope</span>     2–8 wk · milestones · audits, migrations',
-      '  2. <span style="color:var(--accent)">fractional</span>      recurring · 1–3 days/wk · acting head-of-platform',
-      '  3. <span style="color:var(--accent)">full-time</span>       selectively · staff / principal / founding infra',
+      'open to the right role:',
+      '  <span style="color:var(--accent)">staff / principal</span>   platform · mlops · infra lead',
+      '  <span style="color:var(--accent)">founding infra</span>       0→1 platform at a serious company',
+      '  <span style="color:var(--accent)">fractional</span>          1–3 days/wk · acting head-of-platform',
       '',
-      'every engagement starts with a 30-min scoping call. free.',
-      '<span class="dim">→ scroll to [05] or run `contact`.</span>'
+      '<span class="dim">→ run `contact` or scroll to [05] to reach out.</span>'
     ]),
     contact: () => printBlock([
-      'EMAIL    <span style="color:var(--accent)">hello@c137.ops</span>',
-      'LINKEDIN in/oleg-hanukayev',
+      'EMAIL    <span style="color:var(--accent)">oleghanukayev@gmail.com</span>',
+      'LINKEDIN in/oleg-hanukayev-3765b910a',
       'GITHUB   @See-137',
-      'BASED    tel aviv · UTC+3 · remote-friendly',
-      'RESPONSE &lt; 24h weekdays'
+      'BASED    tel aviv · UTC+3 · remote-friendly'
     ]),
     whoami: () => print('guest@c137 · session.live · privileges: read-only', 'out'),
     status: () => printBlock([
