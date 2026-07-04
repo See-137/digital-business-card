@@ -54,6 +54,34 @@
   }
   @media (max-width: 540px) { [data-r="facts"] { grid-template-columns:1fr !important; } }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation:none !important; scroll-behavior:auto !important; } }
+
+  /* ---- Portal Shell (integrated hero) ---- */
+  @keyframes cc-emit { 0%{ opacity:0; transform:translate(14px,-8px) scale(.86); filter:blur(5px); } 60%{ opacity:1; } 100%{ opacity:1; transform:translate(0,0) scale(1); filter:blur(0); } }
+  @keyframes cc-flash { 0%{ opacity:0; } 12%{ opacity:.85; } 100%{ opacity:0; } }
+  .stage { position:relative; border:1px solid rgba(156,255,46,.16); border-radius:16px; overflow:hidden; background:#050c08; min-height:clamp(560px,66vh,680px); box-shadow:0 50px 120px -50px rgba(0,0,0,.9), inset 0 0 100px rgba(0,0,0,.6); }
+  .pwrap { position:absolute; inset:0; }
+  .stage-flash { position:absolute; inset:0; z-index:6; pointer-events:none; opacity:0; background:radial-gradient(circle at 42% 34%, rgba(200,255,160,.9), rgba(156,255,46,.28) 32%, transparent 60%); }
+  .stage-cap { position:absolute; top:0; left:0; right:0; z-index:5; display:flex; align-items:center; gap:10px; padding:11px 15px; font-size:10px; letter-spacing:.14em; color:#8fb27a; background:linear-gradient(rgba(3,9,5,.9), transparent); }
+  .stage-jump { position:absolute; top:44px; left:0; right:0; z-index:5; display:flex; align-items:center; flex-wrap:wrap; gap:8px; padding:8px 15px; pointer-events:none; }
+  .stage-jump .jbtn, .stage-jump #portal-hint { pointer-events:auto; }
+  .retrieval-layer { position:absolute; inset:0; z-index:7; pointer-events:none; }
+  .retrieval-layer .pwin { position:absolute; width:min(300px,58%); pointer-events:auto; }
+  .pwin { border:1px solid rgba(156,255,46,.3); border-radius:9px; overflow:hidden; background:rgba(4,11,7,.94); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); box-shadow:0 30px 70px -28px rgba(0,0,0,.92), 0 0 26px -8px rgba(156,255,46,.45); }
+  .pwin-bar { display:flex; align-items:center; gap:8px; padding:8px 11px; border-bottom:1px solid rgba(156,255,46,.18); background:linear-gradient(rgba(156,255,46,.07), transparent); font-size:10px; letter-spacing:.11em; color:#9cff2e; }
+  .pwin-bar .dots { display:inline-flex; gap:5px; } .pwin-bar .dots i { width:9px; height:9px; border-radius:50%; display:block; }
+  .pwin-x { margin-left:auto; cursor:pointer; background:transparent; border:0; color:#5f7a52; font-size:12px; line-height:1; padding:2px 5px; border-radius:4px; } .pwin-x:hover { color:#9cff2e; }
+  .rwin { animation:cc-emit .55s cubic-bezier(.2,.8,.25,1) both; }
+  .rwin b { color:#e8ffd6; font-weight:600; } .rwin .k { color:#6f9a56; }
+  .shellwin { position:absolute; z-index:8; left:clamp(14px,3%,26px); right:clamp(14px,3%,26px); bottom:clamp(16px,3vh,26px); }
+  .idwin { margin-top:30px; border:1px solid rgba(156,255,46,.2); border-radius:11px; overflow:hidden; background:rgba(6,13,9,.65); max-width:440px; }
+  @media (max-width: 900px) {
+    .stage { min-height:0; }
+    .pwrap { position:relative; inset:auto; height:300px; }
+    .stage-cap, .stage-jump, .shellwin { position:static; }
+    .stage-jump { padding:10px 4px 2px; } .stage-cap { padding:12px 4px; background:none; }
+    .shellwin { left:auto; right:auto; bottom:auto; margin-top:14px; }
+    .retrieval-layer { display:none; }
+  }
 </style>
 </head>
 <body>
@@ -72,32 +100,66 @@
 <main id="top">
 
   <!-- HERO -->
-  <section aria-label="Introduction" style="max-width:1180px; margin:0 auto; padding:clamp(48px,7vw,88px) clamp(20px,5vw,48px) clamp(40px,5vw,64px);">
-    <div data-r="hero" style="display:grid; grid-template-columns:1fr 1fr; gap:clamp(32px,5vw,56px); align-items:center;">
+  <section aria-label="Introduction" style="max-width:1180px; margin:0 auto; padding:clamp(40px,6vw,72px) clamp(20px,5vw,48px) clamp(40px,5vw,64px);">
+    <div data-r="hero" style="display:grid; grid-template-columns:0.9fr 1.1fr; gap:clamp(28px,4vw,52px); align-items:center;">
       <div>
         <div class="mono" style="font-size:11.5px; letter-spacing:.2em; color:#9cff2e; margin-bottom:26px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;"><span style="display:inline-flex; align-items:center; gap:8px;"><span style="width:7px; height:7px; border-radius:50%; background:#9cff2e; animation:cc-pulse 2s ease-in-out infinite;"></span>DIMENSION C‑137 · STABLE</span><span style="color:#3a5680;">—</span><span style="color:#6f86a8;">PLATFORM · DEVOPS · MLOPS</span></div>
-        <h1 class="serif" style="font-size:clamp(40px,6vw,62px); line-height:1.03; letter-spacing:-.015em; margin:0 0 24px;">Infinite dimensions. Prod stays up in <em style="font-style:italic; color:#9cff2e;">all of mine</em>.</h1>
-        <p class="serif" style="font-size:clamp(17px,2vw,20px); line-height:1.55; color:#9fb2ce; max-width:440px; margin:0 0 32px;">DevOps &amp; AI engineer in Tel Aviv. Kubernetes on AWS, GitOps delivery, and agentic AI infrastructure — shipped to real production, built to stay up.</p>
+        <h1 class="serif" style="font-size:clamp(38px,5.4vw,58px); line-height:1.03; letter-spacing:-.015em; margin:0 0 24px;">Infinite dimensions. Prod stays up in <em style="font-style:italic; color:#9cff2e;">all of mine</em>.</h1>
+        <p class="serif" style="font-size:clamp(17px,2vw,20px); line-height:1.55; color:#9fb2ce; max-width:440px; margin:0 0 22px;">DevOps &amp; AI engineer in Tel Aviv. Kubernetes on AWS, GitOps delivery, and agentic AI infrastructure — shipped to real production, built to stay up.</p>
+        <p class="mono" style="font-size:12px; color:#6f86a8; margin:0 0 30px; line-height:1.7;">// the portal is the retrieval engine. run a command in the shell — <span style="color:#9cff2e;">projects</span>, <span style="color:#9cff2e;">stack</span>, <span style="color:#9cff2e;">about</span> — and pull the record back through it.</p>
         <div class="mono" style="display:flex; gap:13px; flex-wrap:wrap;">
           <a class="cta" href="#contact" style="text-decoration:none; font-size:13px; letter-spacing:.03em; padding:14px 22px; border-radius:9px; background:#9cff2e; color:#0a1505; font-weight:600;">GET IN TOUCH →</a>
           <a class="ghost" href="#work" style="text-decoration:none; font-size:13px; letter-spacing:.03em; padding:14px 22px; border-radius:9px; border:1px solid rgba(120,160,220,.28); color:#E8EDF4;">VIEW WORK ↗</a>
         </div>
+        <!-- identity HUD -->
+        <div class="idwin mono">
+          <div class="pwin-bar"><span class="dots"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span>IDENTITY · C137.OPS</span></div>
+          <div style="padding:14px 16px;">
+            <div class="serif" style="font-size:22px; line-height:1.1;">Oleg Hanukayev <span style="color:#5f7a52;">—</span></div>
+            <div style="font-size:12.5px; color:#9cff2e; margin-top:4px;">DevOps &amp; AI Engineer · <span style="color:#6f86a8;">Tel Aviv · UTC+3</span></div>
+            <div style="font-size:11px; color:#6f9a56; margin-top:9px; letter-spacing:.04em;">STATUS — open to senior / staff platform roles</div>
+          </div>
+        </div>
       </div>
 
-      <!-- portal viewport -->
-      <figure style="margin:0; border:1px solid rgba(120,160,220,.22); border-radius:13px; overflow:hidden; background:rgba(5,10,16,.7); box-shadow:0 40px 90px -40px rgba(0,0,0,.85);">
-        <figcaption class="mono" style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-bottom:1px solid rgba(120,160,220,.16); font-size:10px; letter-spacing:.14em; color:#5a6f92;"><span>FIG. 01 — PORTAL · REV C137</span><span style="color:#9cff2e; display:inline-flex; align-items:center; gap:6px;"><span style="width:6px; height:6px; border-radius:50%; background:#9cff2e; animation:cc-pulse 2s ease-in-out infinite;"></span>live</span></figcaption>
-        <div id="portal-wrap" style="position:relative; height:clamp(300px,40vh,420px);">
-          <canvas id="portal-canvas" aria-label="Interactive 3D portal — drag to orbit, click to jump" style="position:absolute; inset:0; width:100%; height:100%; display:block; cursor:grab; touch-action:pan-y;"></canvas>
-        </div>
-        <div class="mono" style="display:flex; align-items:center; flex-wrap:wrap; gap:8px; padding:11px 12px; border-top:1px solid rgba(120,160,220,.16);">
-          <span style="font-size:10px; letter-spacing:.12em; color:#5a6f92; padding:0 4px; white-space:nowrap;">JUMP TO</span>
+      <!-- portal + shell stage -->
+      <div class="stage" id="portal-stage">
+        <div class="stage-cap mono"><span style="color:#9cff2e;">◇</span><span>C-137 PORTAL — RAG ACTIVE</span><span style="margin-left:auto; color:#9cff2e; display:inline-flex; align-items:center; gap:6px;"><span style="width:6px; height:6px; border-radius:50%; background:#9cff2e; animation:cc-pulse 2s ease-in-out infinite;"></span>live</span></div>
+        <div class="stage-jump mono">
+          <span style="font-size:10px; letter-spacing:.12em; color:#7f9a6c; white-space:nowrap;">JUMP TO</span>
           <button class="jbtn" data-dest="work" aria-label="Portal jump to WORK">WORK</button>
           <button class="jbtn" data-dest="stack" aria-label="Portal jump to STACK">STACK</button>
           <button class="jbtn" data-dest="contact" aria-label="Portal jump to CHANNEL">CHANNEL</button>
-          <span id="portal-hint" style="margin-left:auto; font-size:10px; letter-spacing:.1em; color:#5a6f92; padding:0 4px; white-space:nowrap;">CLICK VORTEX → WORK</span>
+          <span id="portal-hint" style="margin-left:auto; font-size:10px; letter-spacing:.1em; color:#7f9a6c; white-space:nowrap;">CLICK VORTEX → WORK</span>
         </div>
-      </figure>
+        <div id="portal-wrap" class="pwrap">
+          <canvas id="portal-canvas" aria-label="Interactive 3D portal — drag to orbit, click to jump to a section" style="position:absolute; inset:0; width:100%; height:100%; display:block; cursor:grab; touch-action:pan-y;"></canvas>
+        </div>
+        <div class="stage-flash" id="stage-flash"></div>
+        <div class="retrieval-layer" id="retrieval-layer" aria-hidden="true"></div>
+
+        <!-- the real shell, docked into the portal -->
+        <div class="shellwin pwin mono">
+          <div class="pwin-bar"><span class="dots"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span>oleg@c137 — shell — session.live</span><span style="margin-left:auto; color:#6f9a56; letter-spacing:.1em;">RAG ACTIVE</span></div>
+          <div id="term-scroll" role="log" aria-label="Interactive shell output" style="height:clamp(210px,26vh,268px); overflow-y:auto; padding:14px 16px; font-size:12.5px; line-height:1.7;">
+            <div id="term-lines"></div>
+            <div style="display:flex; align-items:center; gap:8px; margin-top:2px;">
+              <label for="cc-term" style="color:#9cff2e;">~/c137 ❯</label>
+              <input id="cc-term" autocomplete="off" spellcheck="false" aria-label="Type a shell command" placeholder="type a command — try 'help'" style="flex:1; min-width:0; background:transparent; border:0; outline:0; color:#E8EDF4; font-family:inherit; font-size:12.5px;">
+              <span aria-hidden="true" style="width:8px; height:15px; background:#9cff2e; animation:cc-blink 1.1s step-end infinite;"></span>
+            </div>
+          </div>
+          <div id="term-chips" style="display:flex; flex-wrap:wrap; gap:7px; padding:11px 16px; border-top:1px solid rgba(156,255,46,.14);">
+            <button class="chip-on" data-cmd="help" style="cursor:pointer; font-family:inherit; font-size:11px; padding:5px 11px; border-radius:20px; border:1px solid rgba(156,255,46,.3); background:rgba(156,255,46,.07); color:#9cff2e;">help</button>
+            <button class="chip" data-cmd="about" style="cursor:pointer; font-family:inherit; font-size:11px; padding:5px 11px; border-radius:20px; border:1px solid rgba(120,160,220,.24); background:transparent; color:#cdd8e8;">about</button>
+            <button class="chip" data-cmd="projects" style="cursor:pointer; font-family:inherit; font-size:11px; padding:5px 11px; border-radius:20px; border:1px solid rgba(120,160,220,.24); background:transparent; color:#cdd8e8;">projects</button>
+            <button class="chip" data-cmd="stack" style="cursor:pointer; font-family:inherit; font-size:11px; padding:5px 11px; border-radius:20px; border:1px solid rgba(120,160,220,.24); background:transparent; color:#cdd8e8;">stack</button>
+            <button class="chip" data-cmd="hire" style="cursor:pointer; font-family:inherit; font-size:11px; padding:5px 11px; border-radius:20px; border:1px solid rgba(120,160,220,.24); background:transparent; color:#cdd8e8;">hire</button>
+            <button class="chip" data-cmd="vcard" style="cursor:pointer; font-family:inherit; font-size:11px; padding:5px 11px; border-radius:20px; border:1px solid rgba(120,160,220,.24); background:transparent; color:#cdd8e8;">vcard</button>
+            <button class="chip" data-cmd="clear" style="cursor:pointer; font-family:inherit; font-size:11px; padding:5px 11px; border-radius:20px; border:1px solid rgba(120,160,220,.24); background:transparent; color:#6f86a8;">clear</button>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -204,31 +266,17 @@
           </div>
         </div>
 
-        <!-- terminal -->
-        <div class="mono" style="border:1px solid rgba(120,160,220,.24); background:rgba(5,10,16,.85); border-radius:13px; overflow:hidden; box-shadow:0 40px 90px -40px rgba(0,0,0,.85);">
-          <div style="display:flex; align-items:center; gap:8px; padding:12px 16px; border-bottom:1px solid rgba(120,160,220,.16);">
-            <span style="width:11px; height:11px; border-radius:50%; background:#ff5f57;"></span>
-            <span style="width:11px; height:11px; border-radius:50%; background:#febc2e;"></span>
-            <span style="width:11px; height:11px; border-radius:50%; background:#28c840;"></span>
-            <span style="margin-left:8px; color:#5a6f92; font-size:12px;">oleg@c137 — zsh — session.live</span>
-            <span style="margin-left:auto; color:#9cff2e; font-size:11px; display:inline-flex; align-items:center; gap:6px;"><span style="width:6px; height:6px; border-radius:50%; background:#9cff2e; animation:cc-pulse 2s ease-in-out infinite;"></span>live</span>
-          </div>
-          <div id="term-scroll" role="log" aria-label="Interactive terminal output" style="height:clamp(240px,30vh,300px); overflow-y:auto; padding:16px 18px; font-size:12.5px; line-height:1.75;">
-            <div id="term-lines"></div>
-            <div style="display:flex; align-items:center; gap:8px; margin-top:2px;">
-              <label for="cc-term" style="color:#9cff2e;">~/c137 ❯</label>
-              <input id="cc-term" autocomplete="off" spellcheck="false" aria-label="Type a terminal command" placeholder="type a command — try 'help'" style="flex:1; min-width:0; background:transparent; border:0; outline:0; color:#E8EDF4; font-family:inherit; font-size:12.5px;">
-              <span aria-hidden="true" style="width:8px; height:15px; background:#9cff2e; animation:cc-blink 1.1s step-end infinite;"></span>
-            </div>
-          </div>
-          <div id="term-chips" style="display:flex; flex-wrap:wrap; gap:7px; padding:12px 16px; border-top:1px solid rgba(120,160,220,.16);">
-            <button class="chip-on" data-cmd="help" style="cursor:pointer; font-family:inherit; font-size:11px; padding:5px 11px; border-radius:20px; border:1px solid rgba(156,255,46,.3); background:rgba(156,255,46,.07); color:#9cff2e;">help</button>
-            <button class="chip" data-cmd="about" style="cursor:pointer; font-family:inherit; font-size:11px; padding:5px 11px; border-radius:20px; border:1px solid rgba(120,160,220,.24); background:transparent; color:#cdd8e8;">about</button>
-            <button class="chip" data-cmd="projects" style="cursor:pointer; font-family:inherit; font-size:11px; padding:5px 11px; border-radius:20px; border:1px solid rgba(120,160,220,.24); background:transparent; color:#cdd8e8;">projects</button>
-            <button class="chip" data-cmd="stack" style="cursor:pointer; font-family:inherit; font-size:11px; padding:5px 11px; border-radius:20px; border:1px solid rgba(120,160,220,.24); background:transparent; color:#cdd8e8;">stack</button>
-            <button class="chip" data-cmd="hire" style="cursor:pointer; font-family:inherit; font-size:11px; padding:5px 11px; border-radius:20px; border:1px solid rgba(120,160,220,.24); background:transparent; color:#cdd8e8;">hire</button>
-            <button class="chip" data-cmd="vcard" style="cursor:pointer; font-family:inherit; font-size:11px; padding:5px 11px; border-radius:20px; border:1px solid rgba(120,160,220,.24); background:transparent; color:#cdd8e8;">vcard</button>
-            <button class="chip" data-cmd="clear" style="cursor:pointer; font-family:inherit; font-size:11px; padding:5px 11px; border-radius:20px; border:1px solid rgba(120,160,220,.24); background:transparent; color:#6f86a8;">clear</button>
+        <!-- transmission panel -->
+        <div class="pwin mono" style="align-self:stretch;">
+          <div class="pwin-bar"><span class="dots"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span><span>TRANSMISSION — C137.OPS</span><span style="margin-left:auto; color:#6f9a56; letter-spacing:.1em;">OPEN</span></div>
+          <div style="padding:18px 18px 20px; font-size:12.5px; line-height:1.8; color:#9fb2ce;">
+            <div style="color:#6f9a56;">$ portal --status</div>
+            <div style="color:#bfe3a8;">↳ channel open across all dimensions · avg response &lt; 24h</div>
+            <div style="margin-top:12px; color:#6f9a56;">$ whoami</div>
+            <div style="color:#bfe3a8;">↳ oleg · platform + mlops · TLV · open to senior / staff</div>
+            <div style="margin-top:12px; color:#6f9a56;">$ retrieve --intent</div>
+            <div style="color:#bfe3a8;">↳ platforms that stay up, GitOps delivery, production AI infra</div>
+            <div style="margin-top:16px; padding-top:14px; border-top:1px solid rgba(156,255,46,.14); color:#6f86a8; font-size:11.5px;">// the live shell is up in the hero — scroll up and <span style="color:#9cff2e;">type a command</span> to pull records through the portal.</div>
           </div>
         </div>
       </div>
@@ -289,6 +337,38 @@
     scrollEl.scrollTop = scrollEl.scrollHeight;
   }
 
+  /* ---------- portal retrieval windows (shell drives the 3D) ---------- */
+  var rLayer = document.getElementById('retrieval-layer');
+  var flashEl = document.getElementById('stage-flash');
+  var rSlots = [ {l:'5%',t:'16%'}, {l:'44%',t:'11%'}, {l:'22%',t:'35%'} ];
+  var rIdx = 0, rOpen = [], flareT;
+  function isNarrow(){ return window.matchMedia && window.matchMedia('(max-width: 900px)').matches; }
+
+  function flarePortal(){
+    boostT = 1;
+    clearTimeout(flareT);
+    flareT = setTimeout(function(){ boostT = 0; }, 1500);
+    if (flashEl && !reduced){ flashEl.style.animation = 'none'; void flashEl.offsetWidth; flashEl.style.animation = 'cc-flash .7s ease-out'; }
+  }
+  function closeWin(win){ if (!win) return; win.remove(); rOpen = rOpen.filter(function(w){ return w !== win; }); }
+  function retrieve(title, rows){
+    flarePortal();
+    if (!rLayer || isNarrow()) return;
+    var slot = rSlots[rIdx % rSlots.length]; rIdx++;
+    var win = document.createElement('div');
+    win.className = 'pwin rwin mono';
+    win.style.left = slot.l; win.style.top = slot.t;
+    var body = rows.map(function(r){ return '<div><span class="k">' + r[0] + '</span>  ' + r[1] + '</div>'; }).join('');
+    win.innerHTML =
+      '<div class="pwin-bar"><span class="dots"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></span>' +
+      '<span>RETRIEVED VIA PORTAL — ' + title + '</span>' +
+      '<button class="pwin-x" aria-label="Close retrieved window">✕</button></div>' +
+      '<div style="padding:11px 13px; font-size:11px; line-height:1.75; color:#bfe3a8;">' + body + '</div>';
+    win.querySelector('.pwin-x').addEventListener('click', function(){ closeWin(win); });
+    rLayer.appendChild(win); rOpen.push(win);
+    while (rOpen.length > 3){ closeWin(rOpen[0]); }
+  }
+
   function run(raw){
     var cmd = (raw || '').trim();
     var c = cmd.toLowerCase();
@@ -306,6 +386,7 @@
       p('Oleg Hanukayev \u2014 Platform, DevOps & MLOps engineer.');
       p('I design and ship cloud platforms, CI/CD, and');
       p('production AI infrastructure. Tel Aviv (UTC+3).');
+      retrieve('OPERATOR', [['name','Oleg Hanukayev'],['role','Platform · DevOps · MLOps'],['base','Tel Aviv · UTC+3'],['status','open to senior / staff']]);
     } else if (c === 'whoami'){
       p('oleg \u00B7 platform+mlops \u00B7 TLV \u00B7 open to senior/staff');
     } else if (c === 'stack'){
@@ -313,17 +394,20 @@
       p('deliver Terraform \u00B7 GitHub Actions \u00B7 ArgoCD');
       p('ai/llm  Claude \u00B7 MCP \u00B7 Bedrock \u00B7 RAG \u00B7 agent infra');
       p('obs     Datadog \u00B7 Grafana \u00B7 ELK \u00B7 SLOs');
+      retrieve('TOOLCHAIN', [['cloud','AWS \u00B7 EKS \u00B7 K8s \u00B7 Docker \u00B7 Helm'],['deliver','Terraform \u00B7 Actions \u00B7 ArgoCD'],['ai/llm','Claude \u00B7 MCP \u00B7 Bedrock \u00B7 RAG'],['obs','Datadog \u00B7 Grafana \u00B7 ELK \u00B7 SLOs']]);
     } else if (c === 'projects'){
       p('01  multi-region EKS platform      multi-AZ \u00B7 zero-downtime');
       p('02  gitops delivery pipeline       argocd \u00B7 progressive');
       p('03  rag + agent infrastructure     bedrock + claude');
       p('04  observability & SLO overhaul   datadog \u00B7 error budgets');
       p('scroll to FIG. 02 to inspect \u2191', 'sys');
+      retrieve('SELECTED WORK', [['01','multi-region EKS platform'],['02','gitops delivery pipeline'],['03','rag + agent infrastructure'],['04','observability & SLO overhaul']]);
     } else if (c === 'hire' || c === 'contact'){
       p('oleghanukayev@gmail.com', 'ok');
       p('linkedin.com/in/oleg-hanukayev');
       p('github.com/See-137');
       p("type 'vcard' to download my contact card", 'sys');
+      retrieve('CHANNEL', [['email','oleghanukayev@gmail.com'],['linkedin','in/oleg-hanukayev'],['github','@See-137'],['vcard',"run 'vcard' to download"]]);
     } else if (c === 'clocks'){
       var fmt = function(tz){ try { return new Intl.DateTimeFormat('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false,timeZone:tz}).format(new Date()); } catch(e){ return '--:--:--'; } };
       p('TLV ' + fmt('Asia/Jerusalem') + '   NYC ' + fmt('America/New_York') + '   LON ' + fmt('Europe/London') + '   SFO ' + fmt('America/Los_Angeles'));
@@ -347,8 +431,8 @@
     }
   }
 
-  addLine('c137.ops shell \u2014 zsh 5.9 \u00B7 session.live', 'sys', false);
-  addLine("type 'help' for available commands", 'sys', false);
+  addLine('c137.ops shell \u2014 zsh 5.9 \u00B7 session.live \u00B7 portal linked \u25C9', 'sys', false);
+  addLine("type 'help' \u2014 content commands are retrieved through the portal", 'sys', false);
   inputEl.addEventListener('keydown', function(e){ if (e.key === 'Enter'){ run(inputEl.value); inputEl.value = ''; } });
   Array.prototype.forEach.call(document.querySelectorAll('[data-cmd]'), function(b){
     b.addEventListener('click', function(){ run(b.getAttribute('data-cmd')); });
@@ -413,7 +497,7 @@
     var camera = new THREE.PerspectiveCamera(46, W()/H(), 0.1, 60);
     camera.position.set(0, 0, 5.6);
     scene.add(new THREE.AmbientLight(0x9fb8c8, 0.5));
-    var key = new THREE.PointLight(0x9cff2e, 1.4, 18); key.position.set(0, 0.4, 2.4); scene.add(key);
+    var key = new THREE.PointLight(0x9cff2e, 1.4, 18); key.position.set(0, 1.0, 2.4); scene.add(key);
 
     var group = new THREE.Group();
     var fmat = new THREE.ShaderMaterial({
@@ -468,7 +552,35 @@
     shell.rotation.x = Math.PI/2;
     group.add(shell);
     group.rotation.y = 0.35;
+    group.position.y = 0.7;
     scene.add(group);
+
+    // ---- emitter device + energy beam (decorative; guarded so it can't break the vortex) ----
+    var beam = null, muzzle = null;
+    try {
+      var emitter = new THREE.Group();
+      var metal = new THREE.MeshStandardMaterial({ color:0x0c1310, metalness:0.85, roughness:0.34 });
+      var barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.21, 1.15, 26), metal);
+      barrel.rotation.z = -Math.PI/2; emitter.add(barrel);
+      var collar = new THREE.Mesh(new THREE.TorusGeometry(0.24, 0.06, 14, 30), new THREE.MeshStandardMaterial({ color:0x1a241f, metalness:0.7, roughness:0.4 }));
+      collar.position.x = 0.28; collar.rotation.y = Math.PI/2; emitter.add(collar);
+      muzzle = new THREE.Mesh(new THREE.SphereGeometry(0.16, 24, 24), new THREE.MeshBasicMaterial({ color:0x9cff2e }));
+      muzzle.position.x = 0.62; emitter.add(muzzle);
+      var grip = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.5, 0.2), metal);
+      grip.position.set(-0.34, -0.34, 0); grip.rotation.z = 0.24; emitter.add(grip);
+      emitter.position.set(-2.25, 0.32, 0.7);
+      emitter.rotation.y = 0.2;
+      scene.add(emitter);
+      scene.add((function(){ var l = new THREE.PointLight(0x9cff2e, 0.7, 6); l.position.set(-1.7, 0.34, 0.9); return l; })());
+
+      var A = new THREE.Vector3(-1.62, 0.34, 0.58), B = new THREE.Vector3(-0.1, 0.66, 0.28);
+      var bdir = new THREE.Vector3().subVectors(B, A), blen = bdir.length();
+      var beamMat = new THREE.MeshBasicMaterial({ color:0xbfff7a, transparent:true, opacity:0.55, blending:THREE.AdditiveBlending, depthWrite:false });
+      beam = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.15, blen, 18, 1, true), beamMat);
+      beam.position.copy(A).add(bdir.clone().multiplyScalar(0.5));
+      beam.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), bdir.clone().normalize());
+      scene.add(beam);
+    } catch (e2) { beam = null; muzzle = null; }
 
     var down=false, lx=0, sx=0, sy=0, moved=false, tYaw=0.35;
     canvas.addEventListener('pointerdown', function(e){ down=true; moved=false; lx=e.clientX; sx=e.clientX; sy=e.clientY; canvas.style.cursor='grabbing'; });
@@ -492,6 +604,10 @@
       fmat.uniforms.uTime.value = reduced ? 0 : tAcc;
       fmat.uniforms.uGain.value = reduced ? 1 : (1 + boost * 0.55);
       group.rotation.y += (tYaw - group.rotation.y)*0.08;
+      if (beam && !reduced){
+        beam.material.opacity = Math.min(1, 0.42 + 0.18*Math.sin(tAcc*7.0) + boost*0.4);
+        if (muzzle) muzzle.scale.setScalar(1 + 0.1*Math.sin(tAcc*9.0) + boost*0.5);
+      }
       renderer.render(scene, camera);
     })();
     } catch (err) { portalFallback(); }
