@@ -1,5 +1,5 @@
 /**
- * Card behaviour: stack chips, vCard, the c137 shell, portal retrieval windows,
+ * Card behaviour: toolchain groups, email, vCard, the c137 shell, portal retrieval windows,
  * section jumps, and the lazy boot of the 3D portal (js/portal.js).
  *
  * The 3D never blocks first paint: it loads after `load`, when the stage is
@@ -309,9 +309,9 @@ const COMMANDS = {
     p('10 years of production ops: enterprise SaaS, FinTech,');
     p('cybersecurity and telecom. Now: C137 AI.devops, an AI');
     p('infrastructure consultancy (4 clients, 2 end-to-end builds).');
-    retrieve('OPERATOR', [['name', 'Oleg Hanukayev'], ['role', 'Senior SRE · AI Platform'], ['experience', '10 years in production'], ['open to', 'Senior / Staff']]);
+    retrieve('OPERATOR', [['name', 'Oleg Hanukayev'], ['role', 'Senior SRE · AI Platform'], ['experience', '10 years in production'], ['open to', 'Senior roles']]);
   },
-  whoami: (p) => p('oleg · senior sre + ai platform · open to senior/staff'),
+  whoami: (p) => p('oleg · senior sre + ai platform · open to senior roles'),
   stack: (p) => {
     p('cloud    AWS (EKS) · GKE · Kubernetes · Terraform · Helm');
     p('reliab.  SLOs · incident command · Datadog · Grafana · ELK');
@@ -321,19 +321,19 @@ const COMMANDS = {
   },
   projects: (p) => {
     p('01  50+ EKS clusters, 5+ regions    zero-downtime blue/green · BMC');
-    p('02  deploy-validation agent         checks 2 h → 30 min · BMC');
+    p('02  deploy-validation agent         checks ~2 h → ~30 min · BMC');
     p('03  Datadog alerting redesign       −60% alert noise · BMC');
-    p('04  NOC RAG runbook base            Claude on Bedrock · BMC');
+    p('04  NOC RAG runbook base            synced with Confluence · BMC');
     p('05  multi-provider LLM routing      Anthropic/OpenAI/Groq · C137');
     p('06  RAG content platform            gaming client, agents · C137');
-    retrieve('SELECTED WORK', [['01', '50+ EKS clusters · 5+ regions'], ['02', 'deploy checks 2 h → 30 min'], ['03', '−60% alert noise'], ['05', 'LLM routing · 3 providers']]);
+    retrieve('SELECTED WORK', [['01', '50+ EKS clusters · 5+ regions'], ['02', 'deploy checks ~2 h → ~30 min'], ['03', '−60% alert noise'], ['05', 'LLM routing · 3 providers']]);
   },
   hire: (p) => {
     p(EMAIL, 'ok');
-    p('linkedin.com/in/oleg-hanukayev');
+    p('linkedin.com/in/oleg-hanukayev-3765b910a');
     p('github.com/See-137');
     p("type 'email' to write, 'vcard' to save my contact", 'sys');
-    retrieve('CHANNEL', [['email', EMAIL], ['linkedin', 'in/oleg-hanukayev'], ['github', '@See-137']]);
+    retrieve('CHANNEL', [['email', EMAIL], ['linkedin', 'in/oleg-hanukayev-3765b910a'], ['github', '@See-137']]);
   },
   clocks: (p) => {
     const fmt = (tz) => {
@@ -351,7 +351,11 @@ const COMMANDS = {
   },
   email: (p) => {
     p(`opening mail to ${EMAIL} ✦`, 'ok');
-    location.href = `mailto:${EMAIL}`;
+    const a = document.createElement('a');
+    a.href = `mailto:${EMAIL}`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
   },
   share: (p) => {
     p('opening share sheet ◉', 'ok');

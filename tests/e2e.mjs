@@ -303,9 +303,15 @@ try {
       mailText: document.querySelector('[data-mail-text]').textContent,
     }));
     check('h1 states the role', c.h1 === 'Senior SRE & AI Platform Engineer.', c.h1);
-    check('proof strip shows the three measured outcomes', c.proof.join('|') === '50+|−60%|2 h → 30 min', c.proof.join(' | '));
-    check('email is assembled at runtime and not in the raw HTML', c.mailto === 'mailto:oleghanukayev@gmail.com' && c.mailText === 'oleghanukayev@gmail.com' && !raw.includes('oleghanukayev@gmail.com'), c.mailto);
-    check('vCard carries EMAIL and ORG', /\r\nEMAIL;TYPE=INTERNET,PREF:oleghanukayev@gmail\.com\r\n/.test(vcf) && /\r\nORG:C137 AI\.devops\r\n/.test(vcf));
+    check('proof strip shows the three measured outcomes', c.proof.join('|') === '50+|−60%|~2 h → ~30 min', c.proof.join(' | '));
+    const addr = ['oleghanukayev', 'gmail.com'].join('@');
+    check('email is assembled at runtime and not in the raw HTML', c.mailto === `mailto:${addr}` && c.mailText === addr && !raw.includes(addr), c.mailto);
+    check('vCard carries EMAIL and ORG', vcf.includes(`\r\nEMAIL;TYPE=INTERNET,PREF:${addr}\r\n`) && /\r\nORG:C137 AI\.devops\r\n/.test(vcf));
+    // Claims stay within the CVs (fact-check findings): these phrasings overstated them.
+    const allText = `${raw}\n${await (await fetch(`${base}js/app.js`)).text()}`;
+    const overstated = ['Staff', 'running production on Kubernetes', 'shipped it in production', 'Fortune 500 SaaS, FinTech', 'FORTUNE 500 SAAS · FINTECH', '>2 h → 30 min']
+      .filter((phrase) => allText.includes(phrase));
+    check('no claim beyond the CVs (Staff, 10 yrs of K8s, shipped-everything, Fortune 500 for 10 yrs, exact 2 h)', overstated.length === 0, overstated.join(' | '));
     check('no Argo CD claim anywhere', !/argo/i.test(raw) && !/argo/i.test(await page.evaluate(() => document.body.innerText)));
     await page.close();
   }
