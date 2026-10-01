@@ -13,7 +13,14 @@ const TYPES = {
 /** fontDelayMs: hold web fonts back, like a real network (layout-shift checks). */
 export function serve(rootDir, port = 0, { fontDelayMs = 0 } = {}) {
   const root = path.resolve(rootDir);
+  // server.state.hang = true: accept connections and never answer (a network
+  // that is "connected" but dead, like bad conference Wi-Fi).
+  const state = { hang: false, hung: 0 };
   const server = http.createServer(async (req, res) => {
+    if (state.hang) {
+      state.hung++;
+      return;
+    }
     try {
       let p = decodeURIComponent(new URL(req.url, 'http://x').pathname);
       if (p.endsWith('/')) p += 'index.html';
@@ -35,5 +42,6 @@ export function serve(rootDir, port = 0, { fontDelayMs = 0 } = {}) {
       res.writeHead(404).end('not found');
     }
   });
+  server.state = state;
   return new Promise((resolve) => server.listen(port, '127.0.0.1', () => resolve(server)));
 }

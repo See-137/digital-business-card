@@ -255,6 +255,19 @@ try {
     await page.reload({ waitUntil: 'load' }); // now controlled
     const controlled = await page.evaluate(() => Boolean(navigator.serviceWorker.controller));
     check('service worker controls the page', controlled);
+
+    // A network that hangs (connection accepted, no answer) must fall back to
+    // the cache within the worker's 3 s budget, not the TCP timeout.
+    server.state.hang = true;
+    const t0 = Date.now();
+    const navErr = await page.goto(`${base}?3d=0`, { waitUntil: 'domcontentloaded', timeout: 15000 }).then(() => '', (e) => String(e).slice(0, 120));
+    const hangMs = Date.now() - t0;
+    const hangTitle = await page.title().catch((e) => `title error: ${e}`);
+    const hung = server.state.hung;
+    server.state.hang = false;
+    check('the server really hung the request', hung >= 1, `${hung} hung`);
+    check('hanging network falls back to the cached card within ~3 s', /Oleg Hanukayev/.test(hangTitle) && hangMs < 6000, `${hangMs} ms; title="${hangTitle.slice(0, 40)}"; nav="${navErr}"`);
+
     await page.goto(`${base}manifest.webmanifest`, { waitUntil: 'load' });
     server.closeAllConnections();
     await new Promise((r) => server.close(r));
@@ -268,8 +281,12 @@ try {
     check('card loads offline from the cache, not overwritten by another page', /Oleg Hanukayev/.test(off.title || '') && off.save, JSON.stringify(off));
     await page.close();
   }
+} catch (err) {
+  failed++;
+  console.log(`FAIL  suite aborted: ${String(err).slice(0, 300)}`);
 } finally {
-  await browser.close();
+  server.closeAllConnections?.();
+  await Promise.race([browser.close(), new Promise((r) => setTimeout(r, 10000))]);
   if (server.listening) server.close();
 }
 
