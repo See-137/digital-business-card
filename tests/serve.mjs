@@ -7,7 +7,7 @@ import path from 'node:path';
 const TYPES = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css',
   '.json': 'application/json', '.webmanifest': 'application/manifest+json', '.svg': 'image/svg+xml',
-  '.png': 'image/png', '.woff2': 'font/woff2', '.vcf': 'text/vcard', '.txt': 'text/plain',
+  '.png': 'image/png', '.woff2': 'font/woff2', '.vcf': 'text/vcard', '.txt': 'text/plain', '.mp4': 'video/mp4',
 };
 
 /** fontDelayMs: hold web fonts back, like a real network (layout-shift checks). */

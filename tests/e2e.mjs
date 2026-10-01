@@ -260,6 +260,119 @@ try {
     await ctx.close();
   }
 
+  // 2c-loop. Fallback loop: plays only where the 3D can't animate. A live GPU
+  // portal never requests it; a boot error plays it (currentTime advancing is
+  // the evidence); pause stops it; reduced motion and data saver never fetch it.
+  {
+    const watchLoop = (page) => {
+      const seen = [];
+      page.on('request', (r) => { if (r.url().includes('portal-loop.mp4')) seen.push(r.url()); });
+      return seen;
+    };
+    const bootNow = (page) => page.evaluate(() => document.getElementById('portal-wrap').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })));
+    const loopState = (page) => page.evaluate(() => window.c137.loopState());
+    // a timeout fails the named check below instead of aborting the suite
+    const soon = (page, fn, timeout = 10000) => page.waitForFunction(fn, { timeout }).then(() => true, () => false);
+    const advances = async (page, ms = 1200) => {
+      const a = (await loopState(page)).t;
+      await new Promise((r) => setTimeout(r, ms));
+      const b = (await loopState(page)).t;
+      return { a, b, ok: b - a > 0.4 };
+    };
+    // The 3D modules are aborted below; the service worker would otherwise
+    // fetch (and cache-serve) them outside the page's request interception.
+    const breakBoot = async (page) => {
+      await page.setBypassServiceWorker(true);
+      await page.setRequestInterception(true);
+      page.on('request', (r) => (r.url().includes('/vendor/') ? r.abort() : r.continue()));
+    };
+
+    // live portal: GPU never touches the loop; a software renderer plays it
+    const { page: g } = await open(base);
+    const gSeen = watchLoop(g);
+    await bootNow(g);
+    await g.waitForFunction(() => window.c137.portalState(), { timeout: 15000 });
+    const soft = await g.evaluate(() => window.c137.portalState().software);
+    if (soft) {
+      const started = await soon(g, () => window.c137.loopState().playing);
+      const adv = await advances(g);
+      check('software renderer: the pre-rendered loop plays over the still frame', started && adv.ok && gSeen.length > 0, JSON.stringify({ ...adv, requests: gSeen.length }));
+    } else {
+      await new Promise((r) => setTimeout(r, 1500));
+      const gs = await loopState(g);
+      check('live GPU portal: the loop is never requested', !gs.wanted && !gs.mounted && gSeen.length === 0, JSON.stringify({ ...gs, requests: gSeen.length }));
+    }
+    await g.close();
+
+    // slow-frame watchdog (?heavy=0 makes every frame count as slow): the
+    // animated portal stops and hands over to the loop
+    const { page: h } = await open(`${base}?heavy=0`);
+    await bootNow(h);
+    await h.waitForFunction(() => window.c137.portalState(), { timeout: 15000 });
+    if (await h.evaluate(() => window.c137.portalState().software)) {
+      check('watchdog: skipped on a software renderer (it never animates, so the watchdog never runs; covered above)', true);
+    } else {
+      const tripped = await soon(h, () => window.c137.portalState().throttled);
+      const started = tripped && await soon(h, () => window.c137.loopState().playing);
+      const hAdv = await advances(h);
+      check('slow-frame watchdog: the loop takes over (time advances)', tripped && started && hAdv.ok, JSON.stringify({ tripped, started, ...hAdv }));
+    }
+    await h.close();
+
+    // boot error: loop plays, pause button stops it, resume restarts it
+    const ctx = await browser.createBrowserContext();
+    const e = await ctx.newPage();
+    await e.setViewport({ width: 1440, height: 900 });
+    await breakBoot(e);
+    const eSeen = watchLoop(e);
+    await e.goto(base, { waitUntil: 'load' });
+    await e.evaluate(() => localStorage.setItem('c137-motion', 'on'));
+    await bootNow(e);
+    const eFell = await soon(e, () => document.getElementById('portal-wrap').dataset.fallback === '1', 15000);
+    const eStarted = eFell && await soon(e, () => window.c137.loopState().playing);
+    const eAdv = await advances(e);
+    const shown = await e.evaluate(() => { const v = document.querySelector('.ploop'); return v ? getComputedStyle(v).opacity : '0'; });
+    check('3D boot error: the loop plays (time advances) and is visible', eStarted && eAdv.ok && Number(shown) > 0.9 && eSeen.length > 0, JSON.stringify({ fell: eFell, started: eStarted, ...eAdv, opacity: shown, requests: eSeen.length }));
+    await e.click('#motion-btn');
+    const p1 = await loopState(e);
+    await new Promise((r) => setTimeout(r, 800));
+    const p2 = await loopState(e);
+    check('pause motion stops the loop', !p1.playing && p2.t === p1.t, JSON.stringify({ playing: p1.playing, t: [p1.t, p2.t] }));
+    await e.click('#motion-btn');
+    await e.waitForFunction(() => window.c137.loopState().playing, { timeout: 5000 }).catch(() => {});
+    check('resume motion restarts the loop', (await loopState(e)).playing);
+    await ctx.close();
+
+    // reduced motion + boot error: wanted, but never downloaded or played
+    const ctx2 = await browser.createBrowserContext();
+    const r = await ctx2.newPage();
+    await r.setViewport({ width: 1440, height: 900 });
+    await r.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }]);
+    await breakBoot(r);
+    const rSeen = watchLoop(r);
+    await r.goto(base, { waitUntil: 'load' });
+    await bootNow(r);
+    const rFell = await soon(r, () => document.getElementById('portal-wrap').dataset.fallback === '1', 15000);
+    await new Promise((res) => setTimeout(res, 1200));
+    const rs = await loopState(r);
+    // the stage must be on screen, or 'not downloaded' would only prove it was off-screen
+    const rOn = await r.evaluate(() => { const b = document.getElementById('portal-wrap').getBoundingClientRect(); return b.top < innerHeight && b.bottom > 0; });
+    check('reduced motion: the loop is never downloaded (stage on screen)', rFell && rOn && rs.wanted && !rs.mounted && rSeen.length === 0, JSON.stringify({ fell: rFell, onScreen: rOn, ...rs, requests: rSeen.length }));
+    await ctx2.close();
+
+    // data saver: poster only, loop not even wanted
+    const ctx3 = await browser.createBrowserContext();
+    const s = await ctx3.newPage();
+    await s.evaluateOnNewDocument(() => Object.defineProperty(navigator, 'connection', { configurable: true, value: { saveData: true } }));
+    const sSeen = watchLoop(s);
+    await s.goto(base, { waitUntil: 'load' });
+    await new Promise((res) => setTimeout(res, 2500));
+    const ss = await loopState(s);
+    const sFallback = await s.evaluate(() => document.getElementById('portal-wrap').dataset.fallback);
+    check('data saver: poster shown, the loop is never downloaded', sFallback === '1' && !ss.wanted && sSeen.length === 0, JSON.stringify({ fallback: sFallback, ...ss, requests: sSeen.length }));
+    await ctx3.close();
+  }
+
   // 2d. Contact card: a real .vcf (blob downloads fail in in-app browsers),
   // valid vCard 3.0 with CRLF line endings and profile fields, linked from both
   // save controls and requested by the shell's vcard command.

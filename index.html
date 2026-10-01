@@ -130,6 +130,10 @@
     animation:cc-spin 14s linear infinite; }
   #portal-canvas { position:absolute; inset:0; width:100%; height:100%; display:block; cursor:grab; touch-action:pan-y; opacity:0; transition:opacity .6s ease; }
   #portal-canvas.on { opacity:1; }
+  /* Pre-rendered loop, only where the 3D can't animate. Clicks pass through to the canvas. */
+  .ploop { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; pointer-events:none; opacity:0; transition:opacity .6s ease; }
+  .ploop.on { opacity:1; }
+  .pwrap:has(.ploop.on) #portal-canvas { cursor:pointer; } /* still clickable, no longer draggable-looking */
   .stage-flash { position:absolute; inset:0; z-index:6; pointer-events:none; opacity:0; background:radial-gradient(circle at 42% 34%, rgba(200,255,160,.9), rgba(156,255,46,.28) 32%, transparent 60%); }
   .stage-flash.flash { animation:cc-flash .7s ease-out; }
   .stage-cap { position:absolute; top:0; left:0; right:0; z-index:5; display:flex; align-items:center; gap:10px; padding:11px 15px; font-size:10px; letter-spacing:.14em; color:#8fb27a; background:linear-gradient(rgba(3,9,5,.9), transparent); }

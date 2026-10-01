@@ -111,7 +111,7 @@ async function buildPortal(renderer, opts) {
   }
 }
 
-async function buildScene(renderer, { canvas, wrap, pins, onJump }, watch) {
+async function buildScene(renderer, { canvas, wrap, pins, onJump, onStill }, watch) {
   const software = softwareRenderer(renderer);
   let still = pins.still || software;
   let throttled = false; // set by the heavy-frame watchdog
@@ -331,6 +331,7 @@ async function buildScene(renderer, { canvas, wrap, pins, onJump }, watch) {
   }
 
   const idleMs = Number.isFinite(pins.idleMs) ? pins.idleMs : IDLE_MS;
+  const heavyMs = Number.isFinite(pins.heavyMs) ? pins.heavyMs : HEAVY_FRAME_MS; // test pin ?heavy=
   let lastInput = performance.now(), frames = 0, heavy = 0;
   function tick() {
     const now = performance.now();
@@ -341,10 +342,11 @@ async function buildScene(renderer, { canvas, wrap, pins, onJump }, watch) {
       updateLoop();
       return;
     }
-    if (elapsed > HEAVY_FRAME_MS && ++heavy >= HEAVY_FRAMES_LIMIT) { // watchdog
+    if (elapsed > heavyMs && ++heavy >= HEAVY_FRAMES_LIMIT) { // watchdog
       throttled = true;
       still = true;
       updateLoop();
+      onStill?.(); // the page swaps in its pre-rendered loop
       return;
     }
     const dt = Math.min(elapsed / 1000, 1 / 20);

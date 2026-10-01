@@ -62,6 +62,9 @@ self.addEventListener('fetch', (event) => {
   if (url.origin !== self.location.origin) return;
   const scope = new URL(self.registration.scope).pathname;
   if (!url.pathname.startsWith(scope)) return;
+  // Video is streamed with Range requests; the browser handles those best
+  // untouched (a cached 200 answering a range breaks Safari playback).
+  if (req.headers.has('range') || /\.(mp4|m4v|mov|webm|ogv)$/i.test(url.pathname)) return;
 
   // Only complete 200s are stored (no opaque, redirected or 206 partials),
   // and the put is kept alive with waitUntil.

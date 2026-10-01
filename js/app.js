@@ -15,6 +15,7 @@ const pins = {
   t: Number.isFinite(tPin) ? tPin : undefined,
   no3d: q.get('3d') === '0',
   idleMs: q.has('idle') ? Number(q.get('idle')) : undefined, // test pin
+  heavyMs: q.has('heavy') ? Number(q.get('heavy')) : undefined, // test pin: slow-frame watchdog threshold
 };
 
 /* ---------------------------------------------------------------- toolchain */
@@ -461,6 +462,56 @@ inputEl.addEventListener('keydown', (e) => {
 });
 for (const b of document.querySelectorAll('[data-cmd]')) b.addEventListener('click', () => run(b.dataset.cmd));
 
+/* ---------------------------------------------------------------- fallback loop */
+// Where the live 3D can't animate (software renderer, slow-frame watchdog, boot
+// error) a pre-rendered 10 s loop of the same portal plays instead. It is only
+// ever fetched on that path, never while motion is off, and never under data
+// saver or ?3d=0 (those keep the static poster on purpose).
+const LOOP_SRC = 'assets/portal-loop.mp4';
+let loopWanted = false;
+let loopEl = null;
+let loopOnScreen = false;
+let loopIo = null;
+function stageOnScreen() {
+  const r = wrap.getBoundingClientRect();
+  return r.bottom > 0 && r.top < innerHeight && r.width > 0;
+}
+function syncLoop() {
+  if (!loopWanted) return;
+  if (!loopIo) { // one observer for the lifetime of the page
+    loopOnScreen = stageOnScreen(); // the observer's first callback is async
+    loopIo = new IntersectionObserver((es) => { loopOnScreen = es[es.length - 1].isIntersecting; syncLoop(); });
+    loopIo.observe(wrap);
+  }
+  const active = !motionOff() && loopOnScreen && !document.hidden;
+  if (!loopEl) {
+    if (!active) return; // nothing is downloaded until it would actually play
+    loopEl = document.createElement('video');
+    Object.assign(loopEl, { muted: true, loop: true, playsInline: true, preload: 'auto', className: 'ploop' });
+    loopEl.setAttribute('muted', ''); // iOS reads the attribute for autoplay
+    loopEl.setAttribute('aria-hidden', 'true');
+    loopEl.addEventListener('playing', () => loopEl?.classList.add('on'), { once: true });
+    loopEl.addEventListener('error', () => { // missing file or offline: keep the still/poster
+      loopEl?.remove();
+      loopEl = null;
+      loopWanted = false;
+      loopIo?.disconnect();
+      loopIo = null;
+    }, { once: true });
+    loopEl.src = LOOP_SRC;
+    wrap.appendChild(loopEl);
+  }
+  if (active) {
+    // Autoplay can be refused (iOS Low Power Mode): retry on the next touch.
+    loopEl.play().catch(() => document.addEventListener('pointerdown', syncLoop, { once: true }));
+  } else loopEl.pause();
+}
+function wantLoop() {
+  loopWanted = true;
+  syncLoop();
+}
+document.addEventListener('visibilitychange', syncLoop);
+
 /* ---------------------------------------------------------------- motion control */
 // One switch for all motion: the 3D loop and every CSS animation. The OS
 // reduced-motion setting is honoured live; the user's own choice is remembered
@@ -485,6 +536,7 @@ function applyMotion() {
   motionBtn.title = motionForced() ? 'Motion is off (system reduced-motion setting, ?motion=0, or low battery)' : '';
   motionBtn.querySelector('.motion-ico').textContent = off ? '▶' : '❚❚';
   portal?.setPaused(off);
+  syncLoop();
 }
 motionBtn.addEventListener('click', () => {
   if (motionForced()) return; // never overwrite the stored choice while forced
@@ -526,21 +578,26 @@ function boot() {
       applyMotion();
       return import('./portal.js');
     })
-    .then((m) => m.startPortal({ canvas, wrap, pins, onJump: () => jump(DESTS[nextIdx]) }))
+    .then((m) => m.startPortal({ canvas, wrap, pins, onJump: () => jump(DESTS[nextIdx]), onStill: wantLoop }))
     .then((ctl) => {
       portal = ctl;
       portal.setPaused(motionOff());
       wrap.dataset.backend = ctl.backend;
       canvas.classList.add('on');
+      if (ctl.state().software) wantLoop(); // a still 3D frame, so the loop animates it
     })
     .catch((err) => {
       console.warn('[portal] 3D unavailable, showing the poster', err);
       portalFallback();
+      wantLoop();
     });
 }
 
 // Read-only state for tests and the console.
-window.c137 = Object.freeze({ portalState: () => portal?.state?.() ?? null });
+window.c137 = Object.freeze({
+  portalState: () => portal?.state?.() ?? null,
+  loopState: () => ({ wanted: loopWanted, mounted: Boolean(loopEl), playing: Boolean(loopEl && !loopEl.paused), t: loopEl?.currentTime ?? 0 }),
+});
 
 // Data saver: never download the ~318 KB of 3D at all.
 const saveData = navigator.connection?.saveData === true;
