@@ -15,6 +15,7 @@ const pins = {
   still: prefersReduced || q.get('motion') === '0',
   t: Number.isFinite(tPin) ? tPin : undefined,
   no3d: q.get('3d') === '0',
+  idleMs: q.has('idle') ? Number(q.get('idle')) : undefined, // test pin
 };
 
 /* ---------------------------------------------------------------- stack chips */
@@ -458,11 +459,25 @@ function portalFallback() {
   refreshUi();
 }
 
+/** Chromium only: a phone on battery below 20 % gets the still frame. */
+async function lowPower() {
+  try {
+    const b = await navigator.getBattery?.();
+    return Boolean(b && !b.charging && b.level < 0.2);
+  } catch {
+    return false;
+  }
+}
+
 let booted = false;
 function boot() {
   if (booted) return;
   booted = true;
-  import('./portal.js')
+  lowPower()
+    .then((low) => {
+      if (low) pins.still = true;
+      return import('./portal.js');
+    })
     .then((m) => m.startPortal({ canvas, wrap, pins, onJump: () => jump(DESTS[nextIdx]) }))
     .then((ctl) => {
       portal = ctl;
@@ -476,7 +491,12 @@ function boot() {
     });
 }
 
-if (pins.no3d) portalFallback();
+// Read-only state for tests and the console.
+Object.defineProperty(window, 'c137', { value: Object.freeze({ portalState: () => portal?.state?.() ?? null }) });
+
+// Data saver: never download the ~318 KB of 3D at all.
+const saveData = navigator.connection?.saveData === true;
+if (pins.no3d || saveData) portalFallback();
 else {
   // Never compete with first paint: wait for `load` plus a settle delay, then
   // for the stage to be on screen (phones: genuinely visible, not just near),

@@ -15,11 +15,23 @@
 import * as THREE from 'three/webgpu';
 import {
   Fn, uniform, uv, float, vec2, vec3, sin, cos, atan, mix, smoothstep, pow, fract, max,
-  oneMinus, positionLocal, mx_fractal_noise_float, instanceIndex, hash, pass,
+  oneMinus, positionLocal, mx_fractal_noise_float, instanceIndex, hash, pass, length,
 } from 'three/tsl';
 import { bloom } from '../vendor/three/addons/BloomNode.js';
 
 const STILL_T = 4.2;
+
+/**
+ * Per-device budgets. Phones (narrow or coarse pointer) get 30 fps, a lower
+ * pixel-ratio ceiling, no MSAA and one noise octave less; desktops 60 fps.
+ * Every running frame also counts toward an idle timer: after IDLE_MS with no
+ * input the portal freezes on its current frame until the next input.
+ */
+const PHONE = matchMedia('(max-width: 900px), (pointer: coarse)').matches;
+const BUDGET = PHONE
+  ? { fps: 30, maxPr: 1.25, antialias: false, octaves: 3, motes: 900 }
+  : { fps: 60, maxPr: 1.5, antialias: true, octaves: 4, motes: 2200 };
+const IDLE_MS = 60000;
 const BG = 0x050c08;
 
 /** Funnel profile shared by the mesh and the particles (lathe space, mouth at y = 0). */
@@ -51,7 +63,7 @@ function watchStartupErrors(renderer) {
 }
 
 export async function startPortal(opts) {
-  const renderer = new THREE.WebGPURenderer({ canvas: opts.canvas, antialias: true, forceWebGL: opts.pins.webgl });
+  const renderer = new THREE.WebGPURenderer({ canvas: opts.canvas, antialias: BUDGET.antialias, forceWebGL: opts.pins.webgl });
   try {
     await renderer.init();
     return await buildPortal(renderer, opts);
@@ -76,7 +88,7 @@ async function buildScene(renderer, { canvas, wrap, pins, onJump }, watch) {
   const narrow = matchMedia('(max-width: 900px)').matches;
   canvas.dataset.backend = renderer.backend.isWebGPUBackend ? 'webgpu' : 'webgl';
 
-  const maxPr = Math.min(window.devicePixelRatio || 1, narrow ? 1.5 : 2);
+  const maxPr = Math.min(window.devicePixelRatio || 1, BUDGET.maxPr);
   let pr = maxPr;
   const size = () => ({ w: wrap.clientWidth || 500, h: wrap.clientHeight || 360 });
   renderer.setPixelRatio(pr);
@@ -99,7 +111,7 @@ async function buildScene(renderer, { canvas, wrap, pins, onJump }, watch) {
   // ---------------------------------------------------------------- funnel
   // Same palette and swirl maths as the original GLSL; fbm is MaterialX
   // fractal noise (4 octaves) remapped to 0..1.
-  const nz = (p) => mx_fractal_noise_float(p, 4, 2.0, 0.5).mul(0.5).add(0.5);
+  const nz = (p) => mx_fractal_noise_float(p, BUDGET.octaves, 2.0, 0.5).mul(0.5).add(0.5);
   const funnelColor = Fn(() => {
     const ang = uv().x.mul(6.28318);
     const dep = uv().y;
@@ -151,7 +163,7 @@ async function buildScene(renderer, { canvas, wrap, pins, onJump }, watch) {
   // Each particle: a seed from its instance index; life 0..1 loops on the
   // clock. Outside the rim it spirals inward on the mouth plane, then follows
   // the funnel wall down and fades out in the throat.
-  const COUNT = narrow ? 900 : 2200;
+  const COUNT = BUDGET.motes;
   const seed = hash(instanceIndex);
   const seed2 = hash(instanceIndex.add(1013));
   const seed3 = hash(instanceIndex.add(2027));
@@ -166,9 +178,13 @@ async function buildScene(renderer, { canvas, wrap, pins, onJump }, watch) {
     transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: false,
   });
   motesMat.positionNode = vec3(cos(ang).mul(radius), dive.mul(-2.1).add(seed2.mul(0.06)), sin(ang).mul(radius));
-  motesMat.sizeNode = seed3.mul(2.6).add(1.4).mul(uBoost.mul(0.6).add(1.0));
+  // Soft round sprites: a radial falloff on each point's quad (they rendered
+  // as hard squares, most visibly at phone pixel ratios). Slightly larger to
+  // keep the same visual weight once the corners fade out.
+  const disc = smoothstep(0.5, 0.12, length(uv().sub(0.5)));
+  motesMat.sizeNode = seed3.mul(3.4).add(2.2).mul(uBoost.mul(0.6).add(1.0));
   motesMat.colorNode = mix(vec3(0.42, 1.0, 0.16), vec3(0.8, 1.0, 0.62), seed2).mul(uBoost.mul(1.4).add(1.1));
-  motesMat.opacityNode = fade.mul(0.85);
+  motesMat.opacityNode = fade.mul(disc).mul(0.9);
   const motes = new THREE.Sprite(motesMat);
   motes.count = COUNT;
   motes.frustumCulled = false;
@@ -250,7 +266,7 @@ async function buildScene(renderer, { canvas, wrap, pins, onJump }, watch) {
 
   // ---------------------------------------------------------------- loop
   let tAcc = pins.t ?? (still ? STILL_T : 0);
-  let boost = 0, boostT = 0, last = performance.now(), slow = 0, running = false, onScreen = true, paused = false;
+  let boost = 0, boostT = 0, last = performance.now(), slow = 0, running = false, onScreen = true, paused = false, idle = false;
 
   function render(dt) {
     boost = still ? 0 : boost + (boostT - boost) * 0.07;
@@ -266,11 +282,15 @@ async function buildScene(renderer, { canvas, wrap, pins, onJump }, watch) {
     pipeline.render();
   }
 
-  // Adaptive resolution: if frames run long for ~1.5 s, step the pixel ratio
-  // down (never below 1). Keeps phones and integrated GPUs smooth.
+  // Adaptive resolution, measured against this device's frame budget (a 120 Hz
+  // phone that sinks to 50 fps is "slow" here; a fixed 24 ms threshold never
+  // noticed). Reacts within ~20 frames while starting up, ~45 afterwards.
+  const frameMs = 1000 / BUDGET.fps;
+  const startedAt = performance.now();
   function adapt(dt) {
-    slow = dt > 1 / 42 ? slow + 1 : Math.max(0, slow - 2);
-    if (slow > 90 && pr > 1) {
+    slow = dt * 1000 > frameMs * 1.35 ? slow + 1 : Math.max(0, slow - 2);
+    const patience = performance.now() - startedAt < 2000 ? 20 : 45;
+    if (slow > patience && pr > 1) {
       pr = Math.max(1, pr - 0.25);
       renderer.setPixelRatio(pr);
       renderer.setSize(size().w, size().h, false);
@@ -278,16 +298,35 @@ async function buildScene(renderer, { canvas, wrap, pins, onJump }, watch) {
     }
   }
 
+  const idleMs = Number.isFinite(pins.idleMs) ? pins.idleMs : IDLE_MS;
+  let lastInput = performance.now(), frames = 0;
   function tick() {
     const now = performance.now();
+    if (now - last < frameMs - 2) return; // frame cap: skip display frames above the budget
+    if (now - lastInput > idleMs) { // nobody is interacting: freeze until the next input
+      idle = true;
+      updateLoop();
+      return;
+    }
     const dt = Math.min((now - last) / 1000, 1 / 20);
     last = now;
     adapt(dt);
     render(dt);
+    frames++;
+  }
+  const onInput = () => {
+    lastInput = performance.now();
+    if (idle) {
+      idle = false;
+      updateLoop();
+    }
+  };
+  for (const type of ['pointermove', 'pointerdown', 'keydown', 'scroll', 'touchstart']) {
+    window.addEventListener(type, onInput, { passive: true });
   }
 
   function updateLoop() {
-    const should = !still && !paused && onScreen && !document.hidden;
+    const should = !still && !paused && !idle && onScreen && !document.hidden;
     if (should && !running) {
       last = performance.now();
       renderer.setAnimationLoop(tick);
@@ -322,6 +361,7 @@ async function buildScene(renderer, { canvas, wrap, pins, onJump }, watch) {
     window.removeEventListener('pointermove', onMove);
     window.removeEventListener('pointerup', onUp);
     window.removeEventListener('pointercancel', onCancel);
+    for (const type of ['pointermove', 'pointerdown', 'keydown', 'scroll', 'touchstart']) window.removeEventListener(type, onInput);
     pipeline.dispose();
   }
 
@@ -342,6 +382,8 @@ async function buildScene(renderer, { canvas, wrap, pins, onJump }, watch) {
 
   return {
     backend: canvas.dataset.backend,
+    /** Read-only snapshot for tests and debugging. */
+    state: () => ({ fps: BUDGET.fps, maxPr: BUDGET.maxPr, pr, antialias: BUDGET.antialias, octaves: BUDGET.octaves, motes: COUNT, running, idle, paused, frames }),
     /** Charge the portal (1) or let it settle (0). */
     /** Pause-motion control: freeze on the current frame, or resume. */
     setPaused(v) {

@@ -154,6 +154,62 @@ try {
     await page.close();
   }
 
+  // 2c. Portal budgets: desktop 60 fps / phone 30 fps with lower ceilings,
+  // measured frame rate stays under the cap, the loop freezes when idle and
+  // resumes on input, and data saver never downloads the 3D.
+  {
+    const bootAndWait = async (page) => {
+      await page.evaluate(() => document.getElementById('portal-wrap').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })));
+      await page.waitForFunction(() => window.c137.portalState()?.running, { timeout: 15000 });
+    };
+    const fpsOver = async (page, ms) => {
+      const a = await page.evaluate(() => window.c137.portalState().frames);
+      await new Promise((r) => setTimeout(r, ms));
+      const b = await page.evaluate(() => window.c137.portalState().frames);
+      return ((b - a) * 1000) / ms;
+    };
+
+    const { page: d } = await open(base);
+    await bootAndWait(d);
+    const ds = await d.evaluate(() => window.c137.portalState());
+    const dFps = await fpsOver(d, 2000);
+    check('desktop budget: 60 fps cap, pixel ratio <= 1.5, MSAA, 4 octaves', ds.fps === 60 && ds.maxPr === 1.5 && ds.antialias && ds.octaves === 4, JSON.stringify(ds));
+    check('desktop renders frames, never above the cap', dFps > 5 && dFps <= 63, `${dFps.toFixed(1)} fps`);
+    await d.close();
+
+    const { page: m } = await open(`${base}?idle=1500`, { width: 390, height: 844, isMobile: true, hasTouch: true });
+    await m.evaluate(() => window.scrollTo({ top: document.getElementById('portal-stage').offsetTop, behavior: 'instant' }));
+    await bootAndWait(m);
+    const ms = await m.evaluate(() => window.c137.portalState());
+    const mFps = await fpsOver(m, 1000);
+    check('phone budget: 30 fps cap, pixel ratio <= 1.25, no MSAA, 3 octaves, 900 motes', ms.fps === 30 && ms.maxPr === 1.25 && !ms.antialias && ms.octaves === 3 && ms.motes === 900, JSON.stringify(ms));
+    check('phone renders frames, never above 30 fps', mFps > 3 && mFps <= 32, `${mFps.toFixed(1)} fps`);
+    await new Promise((r) => setTimeout(r, 1200)); // idle pin is 1.5 s
+    const idle = await m.evaluate(() => window.c137.portalState());
+    const frozenAt = idle.frames;
+    await new Promise((r) => setTimeout(r, 600));
+    const stillFrozen = (await m.evaluate(() => window.c137.portalState().frames)) === frozenAt;
+    await m.mouse.move(120, 300);
+    await m.mouse.move(160, 340);
+    await new Promise((r) => setTimeout(r, 600));
+    const woke = await m.evaluate(() => window.c137.portalState());
+    check('idle: the loop freezes with no input', idle.idle && !idle.running && stillFrozen, JSON.stringify({ idle: idle.idle, running: idle.running, stillFrozen }));
+    check('idle: input resumes the loop', !woke.idle && woke.running && woke.frames > frozenAt, JSON.stringify({ idle: woke.idle, running: woke.running, frames: woke.frames - frozenAt }));
+    await m.close();
+
+    const ctx = await browser.createBrowserContext();
+    const sd = await ctx.newPage();
+    await sd.evaluateOnNewDocument(() => Object.defineProperty(navigator, 'connection', { configurable: true, value: { saveData: true } }));
+    await sd.goto(base, { waitUntil: 'load' });
+    await new Promise((r) => setTimeout(r, 2500));
+    const sdr = await sd.evaluate(() => ({
+      fallback: document.getElementById('portal-wrap').dataset.fallback || null,
+      three: performance.getEntriesByType('resource').filter((e) => e.name.includes('vendor/three')).length,
+    }));
+    check('data saver: no 3D download, poster shown', sdr.fallback === '1' && sdr.three === 0, JSON.stringify(sdr));
+    await ctx.close();
+  }
+
   // 3. QR dialog contract: modal, initial focus, scroll lock, focus return.
   {
     const { page } = await open(`${base}?3d=0`);
