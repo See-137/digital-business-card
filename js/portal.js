@@ -287,8 +287,10 @@ async function buildScene(renderer, { canvas, wrap, pins, onJump }, watch) {
   // noticed). Reacts within ~20 frames while starting up, ~45 afterwards.
   const frameMs = 1000 / BUDGET.fps;
   const startedAt = performance.now();
+  let avgMs = frameMs;
   function adapt(dt) {
-    slow = dt * 1000 > frameMs * 1.35 ? slow + 1 : Math.max(0, slow - 2);
+    avgMs += (dt * 1000 - avgMs) * 0.1; // smoothed: vsync quantisation alone never counts as slow
+    slow = avgMs > frameMs * 1.35 ? slow + 1 : Math.max(0, slow - 2);
     const patience = performance.now() - startedAt < 2000 ? 20 : 45;
     if (slow > patience && pr > 1) {
       pr = Math.max(1, pr - 0.25);
@@ -302,14 +304,15 @@ async function buildScene(renderer, { canvas, wrap, pins, onJump }, watch) {
   let lastInput = performance.now(), frames = 0;
   function tick() {
     const now = performance.now();
-    if (now - last < frameMs - 2) return; // frame cap: skip display frames above the budget
+    const elapsed = now - last;
+    if (elapsed < frameMs * 0.9) return; // frame cap: skip display frames above the budget
     if (now - lastInput > idleMs) { // nobody is interacting: freeze until the next input
       idle = true;
       updateLoop();
       return;
     }
-    const dt = Math.min((now - last) / 1000, 1 / 20);
-    last = now;
+    const dt = Math.min(elapsed / 1000, 1 / 20);
+    last = now - Math.min(elapsed % frameMs, frameMs * 0.5); // keep the cadence, not the drift
     adapt(dt);
     render(dt);
     frames++;
@@ -388,6 +391,7 @@ async function buildScene(renderer, { canvas, wrap, pins, onJump }, watch) {
     /** Pause-motion control: freeze on the current frame, or resume. */
     setPaused(v) {
       paused = Boolean(v);
+      if (paused && frames === 0 && pins.t === undefined) tAcc = STILL_T;
       updateLoop();
       if (paused) render(0);
     },

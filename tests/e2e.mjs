@@ -100,11 +100,19 @@ try {
     const paused = await page.evaluate(() => ({
       cls: document.documentElement.classList.contains('paused'),
       pressed: document.getElementById('motion-btn').getAttribute('aria-pressed'),
-      label: document.querySelector('#motion-btn .motion-label').textContent,
       stored: localStorage.getItem('c137-motion'),
       anim: getComputedStyle(document.querySelector('.kicker span span')).animationPlayState,
     }));
     check('pause motion freezes CSS animations and is remembered', paused.cls && paused.pressed === 'true' && paused.anim === 'paused' && paused.stored === 'paused', JSON.stringify(paused));
+    const popup = await page.evaluate(async () => {
+      const inp = document.getElementById('cc-term');
+      inp.value = 'about';
+      inp.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+      await new Promise((r) => setTimeout(r, 200));
+      const w = document.querySelector('.rwin:last-of-type');
+      return w ? Number(getComputedStyle(w).opacity) : -1;
+    });
+    check('while paused, portal pop-ups are still visible (not frozen on their first frame)', popup === 1, `opacity ${popup}`);
     await page.click('#motion-btn');
     const resumed = await page.evaluate(() => document.documentElement.classList.contains('paused'));
     check('pause motion toggles back on', !resumed);
@@ -151,6 +159,30 @@ try {
     await new Promise((res) => setTimeout(res, 3000));
     const still = await page.evaluate(() => document.getElementById('toast').classList.contains('show'));
     check('failure is announced to screen readers and stays on screen', /Copy failed/.test(fail.sr) && fail.sticky && still, JSON.stringify({ ...fail, stillShown: still }));
+    const clickable = await page.evaluate(() => getComputedStyle(document.getElementById('toast')).pointerEvents);
+    const box = await page.evaluate(() => { const r = document.getElementById('toast').getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; });
+    await page.mouse.click(box.x, box.y);
+    await new Promise((res) => setTimeout(res, 300));
+    const dismissed = await page.evaluate(() => !document.getElementById('toast').classList.contains('show'));
+    check('a sticky error toast can be dismissed by clicking it', clickable === 'auto' && dismissed, `pointer-events ${clickable}, dismissed ${dismissed}`);
+    await page.close();
+  }
+
+  // 2b'. System reduced motion forces motion off: the button shows that state,
+  // cannot override it, and never overwrites the stored choice.
+  {
+    const page = await browser.newPage();
+    await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }]);
+    await page.goto(`${base}?3d=0`, { waitUntil: 'load' });
+    await page.evaluate(() => localStorage.setItem('c137-motion', 'on'));
+    await page.click('#motion-btn');
+    const r = await page.evaluate(() => ({
+      pressed: document.getElementById('motion-btn').getAttribute('aria-pressed'),
+      disabled: document.getElementById('motion-btn').getAttribute('aria-disabled'),
+      stored: localStorage.getItem('c137-motion'),
+      paused: document.documentElement.classList.contains('paused'),
+    }));
+    check('reduced motion: button shows motion off, is disabled, stored choice untouched', r.pressed === 'true' && r.disabled === 'true' && r.stored === 'on' && r.paused, JSON.stringify(r));
     await page.close();
   }
 

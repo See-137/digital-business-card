@@ -113,6 +113,8 @@
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation:none !important; transition:none !important; scroll-behavior:auto !important; } }
   /* The pause-motion control (WCAG 2.2.2): freezes every CSS animation; app.js freezes the 3D. */
   html.paused *, html.paused *::before, html.paused *::after { animation-play-state:paused !important; }
+  html.paused { scroll-behavior:auto !important; }
+  html.paused .rwin, html.paused .stage-flash { animation:none !important; }
   @media (max-height: 500px) { body > header { position:static !important; } }
 
   /* ---- Portal Shell (integrated hero) ---- */
@@ -138,6 +140,7 @@
   .cap-btn { cursor:pointer; font:inherit; font-size:10px; letter-spacing:.12em; display:inline-flex; align-items:center; gap:6px; min-height:28px; padding:4px 10px; border-radius:14px; border:1px solid rgba(156,255,46,.3); background:rgba(3,9,5,.6); color:#bfe3a8; }
   .cap-btn:hover { border-color:rgba(156,255,46,.6); color:var(--acid); }
   .cap-btn[aria-pressed="true"] { border-color:var(--acid); color:var(--acid); }
+  .cap-btn[aria-disabled="true"] { cursor:default; opacity:.75; }
   #portal-hint { margin-left:auto; font-size:10px; letter-spacing:.1em; color:var(--mute); white-space:nowrap; }
   #portal-hint.live { color:var(--acid); }
   .retrieval-layer { position:absolute; inset:0; z-index:7; pointer-events:none; }
@@ -175,6 +178,7 @@
   .toast[popover] { inset:auto; margin:0; overflow:visible; }
   .toast { position:fixed; left:50%; bottom:calc(18px + env(safe-area-inset-bottom)); translate:-50% 20px; z-index:120; max-width:calc(100vw - 32px); padding:10px 16px; border-radius:10px; border:1px solid rgba(156,255,46,.4); background:rgba(6,13,9,.95); color:#bfff7a; font-size:12.5px; opacity:0; pointer-events:none; transition:opacity .2s, translate .2s; }
   .toast.show { opacity:1; translate:-50% 0; }
+  .toast.sticky { pointer-events:auto; cursor:pointer; user-select:text; }
   @media (max-width: 900px) {
     /* phone-first: the card (name, role, save / share / QR) comes right after
        the headline, above the long copy */
@@ -239,7 +243,7 @@
 
       <!-- portal + shell stage -->
       <div class="stage" id="portal-stage">
-        <div class="stage-cap mono"><span aria-hidden="true" style="color:var(--acid);">◇</span><span>C-137 PORTAL — LINKED</span><button id="motion-btn" class="cap-btn" type="button" aria-pressed="false" style="margin-left:auto;"><span aria-hidden="true">❚❚</span><span class="motion-label">PAUSE MOTION</span></button></div>
+        <div class="stage-cap mono"><span aria-hidden="true" style="color:var(--acid);">◇</span><span>C-137 PORTAL — LINKED</span><button id="motion-btn" class="cap-btn" type="button" aria-pressed="false" style="margin-left:auto;"><span aria-hidden="true" class="motion-ico">❚❚</span><span>PAUSE MOTION</span></button></div>
         <div class="stage-jump mono" role="group" aria-labelledby="jump-label">
           <span id="jump-label" style="font-size:10px; letter-spacing:.12em; color:var(--leaf); white-space:nowrap;">JUMP TO</span>
           <button class="jbtn" data-dest="stack" aria-label="Portal jump to STACK">STACK</button>

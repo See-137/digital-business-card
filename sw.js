@@ -13,7 +13,7 @@
  * only ever reads, writes and deletes caches named PREFIX*.
  */
 const PREFIX = 'c137-card-';
-const VERSION = `${PREFIX}v3`;
+const VERSION = `${PREFIX}v4`;
 const LEGACY = ['c137-v1']; // this card's own pre-prefix cache name
 const NETWORK_BUDGET_MS = 3000;
 // After one request blows the budget, the network is treated as degraded for a
@@ -37,7 +37,9 @@ const CORE = [
 ];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(VERSION).then((c) => c.addAll(CORE)).then(() => self.skipWaiting()));
+  event.waitUntil(caches.open(VERSION)
+    .then((c) => c.addAll(CORE.map((u) => new Request(u, { cache: 'reload' }))))
+    .then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', (event) => {
@@ -89,11 +91,19 @@ self.addEventListener('fetch', (event) => {
     let settled = false;
     const finish = (res) => { if (!settled && res) { settled = true; resolve(res); } };
     const budget = Date.now() < degradedUntil ? 0 : NETWORK_BUDGET_MS;
+    let timedOut = false;
     const timer = setTimeout(() => {
+      timedOut = true;
       degradedUntil = Date.now() + DEGRADED_MS;
       fromCache(key).then(finish);
     }, budget);
-    network.then((res) => { clearTimeout(timer); degradedUntil = 0; finish(res); }).catch(() => {
+    network.then((res) => {
+      clearTimeout(timer);
+      // Only an answer within budget proves the network healthy; a late one
+      // must not end degraded mode (it would pair cached and fresh files).
+      if (!timedOut) degradedUntil = 0;
+      finish(res);
+    }).catch(() => {
       clearTimeout(timer);
       fromCache(key).then((hit) => {
         if (hit) finish(hit);

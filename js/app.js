@@ -8,11 +8,10 @@
  */
 const $ = (id) => document.getElementById(id);
 const q = new URLSearchParams(location.search);
-const prefersReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const tPin = q.has('t') ? Number(q.get('t')) : undefined;
 const pins = {
   webgl: q.get('webgl') === '1',
-  still: prefersReduced || q.get('motion') === '0',
+  still: q.get('motion') === '0',
   t: Number.isFinite(tPin) ? tPin : undefined,
   no3d: q.get('3d') === '0',
   idleMs: q.has('idle') ? Number(q.get('idle')) : undefined, // test pin
@@ -81,8 +80,11 @@ function toast(msg, { sticky = false } = {}) {
   toastEl.classList.toggle('sticky', sticky);
   announce(msg);
   clearTimeout(toastT);
-  if (!sticky) toastT = setTimeout(hideToast, 2600);
+  toastT = setTimeout(hideToast, sticky ? 12000 : 2600);
 }
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && toastEl.classList.contains('sticky')) hideToast();
+});
 
 async function copyLink() {
   try {
@@ -119,6 +121,7 @@ qrDialog.addEventListener('pointerdown', (e) => { downOnBackdrop = e.target === 
 qrDialog.addEventListener('click', (e) => {
   if (e.target === qrDialog && downOnBackdrop) qrDialog.close();
 });
+qrDialog.addEventListener('close', hideToast);
 $('qr-copy').addEventListener('click', copyLink);
 $('qr-share').addEventListener('click', shareCard);
 $('save-btn').addEventListener('click', () => toast('Opening contact card ✦'));
@@ -128,10 +131,13 @@ $('qr-btn').addEventListener('click', openQr);
 /* ---------------------------------------------------------------- header height */
 const headerEl = document.querySelector('body > header');
 let headerH = 64;
-new ResizeObserver(() => {
-  headerH = headerEl.getBoundingClientRect().height;
+function measureHeader() {
+  const sticky = getComputedStyle(headerEl).position === 'sticky';
+  headerH = sticky ? headerEl.getBoundingClientRect().height : 0;
   document.documentElement.style.setProperty('--header-h', `${Math.round(headerH)}px`);
-}).observe(headerEl);
+}
+new ResizeObserver(measureHeader).observe(headerEl);
+window.addEventListener('resize', measureHeader, { passive: true });
 
 /* ---------------------------------------------------------------- portal controller */
 let portal = null; // set once js/portal.js is running
@@ -147,7 +153,7 @@ const coarse = matchMedia('(pointer: coarse)').matches;
 function refreshUi() {
   for (const b of document.querySelectorAll('.jbtn')) b.classList.toggle('armed', b.dataset.dest === armed);
   if (wrap.dataset.fallback) {
-    hintEl.textContent = '3D OFF — USE JUMP TO';
+    hintEl.textContent = '3D OFF — THE BUTTONS STILL JUMP';
     hintEl.classList.toggle('live', Boolean(armed));
   } else if (armed) {
     hintEl.textContent = `JUMPING → ${LABELS[armed]}`;
@@ -158,7 +164,7 @@ function refreshUi() {
   }
 }
 
-function jump(dest) {
+function jump(dest, { keepFocus = false } = {}) {
   const i = DESTS.indexOf(dest);
   if (i < 0) return;
   armed = dest;
@@ -172,7 +178,7 @@ function jump(dest) {
     if (!el) return;
     window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - headerH - 8, behavior: motionOff() ? 'auto' : 'smooth' });
     // Move focus with the view, so the next Tab continues from the section.
-    el.querySelector('h2')?.focus({ preventScroll: true });
+    if (!keepFocus) el.querySelector('h2')?.focus({ preventScroll: true });
   }, motionOff() ? 0 : 620);
   jt2 = setTimeout(() => {
     if (Date.now() >= flareUntil) portal?.setBoost(0);
@@ -351,7 +357,7 @@ function run(raw) {
     const arg = c.slice(4).trim().replace('channel', 'contact');
     if (DESTS.includes(arg)) {
       p(`portal charging → ${LABELS[arg]} ◉`, 'ok');
-      jump(arg);
+      jump(arg, { keepFocus: true });
     } else p('usage: open <stack|channel>', 'err');
     return;
   }
@@ -389,6 +395,7 @@ function complete(hits) {
 
 // The two intro lines are static HTML (so they are not announced on load).
 let lastTab = null; // input value at the last Tab that listed options
+inputEl.addEventListener('input', () => { lastTab = null; });
 inputEl.addEventListener('keydown', (e) => {
   const hits = e.key === 'Tab' ? completionsFor(inputEl.value.trimStart().toLowerCase()) : [];
   if (e.key === 'Enter') {
@@ -425,19 +432,27 @@ for (const b of document.querySelectorAll('[data-cmd]')) b.addEventListener('cli
 const reduceMq = matchMedia('(prefers-reduced-motion: reduce)');
 const motionBtn = $('motion-btn');
 let userPaused = false;
+let lowBattery = false;
 try { userPaused = localStorage.getItem('c137-motion') === 'paused'; } catch { /* no storage */ }
+/** Motion forced off by the system or the context (the button cannot override). */
+function motionForced() {
+  return reduceMq.matches || pins.still || lowBattery;
+}
 function motionOff() {
-  return userPaused || reduceMq.matches || q.get('motion') === '0';
+  return userPaused || motionForced();
 }
 function applyMotion() {
   const off = motionOff();
   document.documentElement.classList.toggle('paused', off);
   motionBtn.setAttribute('aria-pressed', String(off));
-  motionBtn.querySelector('.motion-label').textContent = off ? 'MOTION OFF' : 'PAUSE MOTION';
+  motionBtn.setAttribute('aria-disabled', String(motionForced()));
+  motionBtn.title = motionForced() ? 'Motion is off (system reduced-motion setting, ?motion=0, or low battery)' : '';
+  motionBtn.querySelector('.motion-ico').textContent = off ? '▶' : '❚❚';
   portal?.setPaused(off);
 }
 motionBtn.addEventListener('click', () => {
-  userPaused = !motionOff();
+  if (motionForced()) return; // never overwrite the stored choice while forced
+  userPaused = !userPaused;
   try { localStorage.setItem('c137-motion', userPaused ? 'paused' : 'on'); } catch { /* no storage */ }
   applyMotion();
 });
@@ -471,7 +486,8 @@ function boot() {
   booted = true;
   lowPower()
     .then((low) => {
-      if (low) pins.still = true;
+      lowBattery = low;
+      applyMotion();
       return import('./portal.js');
     })
     .then((m) => m.startPortal({ canvas, wrap, pins, onJump: () => jump(DESTS[nextIdx]) }))
@@ -488,7 +504,7 @@ function boot() {
 }
 
 // Read-only state for tests and the console.
-Object.defineProperty(window, 'c137', { value: Object.freeze({ portalState: () => portal?.state?.() ?? null }) });
+window.c137 = Object.freeze({ portalState: () => portal?.state?.() ?? null });
 
 // Data saver: never download the ~318 KB of 3D at all.
 const saveData = navigator.connection?.saveData === true;
