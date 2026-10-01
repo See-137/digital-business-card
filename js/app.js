@@ -17,15 +17,39 @@ const pins = {
   idleMs: q.has('idle') ? Number(q.get('idle')) : undefined, // test pin
 };
 
-/* ---------------------------------------------------------------- stack chips */
-const CHIPS = ['AWS', 'EKS', 'Kubernetes', 'Docker', 'Helm', 'Terraform', 'GitHub Actions', 'ArgoCD', 'Claude · MCP', 'Bedrock', 'RAG', 'Agent infra', 'Datadog', 'Grafana', 'ELK', 'Python', 'Postgres', 'Vector dbs'];
-const chipsEl = $('stack-chips');
-for (const name of CHIPS) {
-  const li = document.createElement('li');
-  li.className = name === 'Claude · MCP' ? 'tool tool-hot' : 'tool';
-  li.textContent = name;
-  chipsEl.appendChild(li);
+/* ---------------------------------------------------------------- toolchain */
+// Mirrors the skills section of the CV (the source of truth for claims).
+const STACK = [
+  ['Cloud & infra', ['AWS (EKS, EC2, RDS, S3, Lambda, DynamoDB)', 'GCP (GKE Autopilot)', 'Kubernetes', 'Terraform', 'Docker', 'Helm']],
+  ['Reliability', ['SLOs & error budgets', 'Incident command', 'On-call & DR drills', 'Datadog', 'Grafana', 'ELK']],
+  ['Delivery', ['Jenkins', 'GitHub Actions', 'GitOps', 'Blue/green deploys', 'n8n']],
+  ['AI platform', ['RAG pipelines', 'AI agents & MCP', 'Amazon Bedrock', 'Anthropic · OpenAI · Groq APIs', 'Ollama', 'vLLM', 'Langfuse', 'LangSmith', 'Qdrant', 'pgvector']],
+  ['Code & data', ['Python', 'TypeScript', 'Bash', 'PowerShell', 'PostgreSQL', 'Redis']],
+];
+const stackEl = $('stack-groups');
+for (const [group, items] of STACK) {
+  const row = document.createElement('div');
+  row.className = 'tg';
+  const h = document.createElement('h3');
+  h.className = 'tg-h';
+  h.textContent = group;
+  const ul = document.createElement('ul');
+  ul.className = 'tools';
+  for (const name of items) {
+    const li = document.createElement('li');
+    li.className = 'tool';
+    li.textContent = name;
+    ul.appendChild(li);
+  }
+  row.append(h, ul);
+  stackEl.appendChild(row);
 }
+
+/* ---------------------------------------------------------------- email */
+// Assembled at runtime so the address is not in the HTML for scrapers.
+const EMAIL = ['oleghanukayev', 'gmail.com'].join('@');
+for (const a of document.querySelectorAll('[data-mail]')) a.href = `mailto:${EMAIL}`;
+for (const t of document.querySelectorAll('[data-mail-text]')) t.textContent = EMAIL;
 
 /* ---------------------------------------------------------------- vCard */
 // A real file, not a generated blob: blob downloads fail silently in the
@@ -99,7 +123,7 @@ async function copyLink() {
 
 /** Native share sheet where there is one (phones); otherwise copy the link. */
 async function shareCard() {
-  const data = { title: 'Oleg Hanukayev — DevOps & AI Engineer', text: 'Oleg Hanukayev · C137.OPS', url: CARD_URL };
+  const data = { title: 'Oleg Hanukayev — Senior SRE & AI Platform Engineer', text: 'Oleg Hanukayev · Senior SRE & AI Platform Engineer', url: CARD_URL };
   if (navigator.share && (!navigator.canShare || navigator.canShare(data))) {
     try {
       await navigator.share(data);
@@ -274,38 +298,42 @@ const COMMANDS = {
   help: (p) => {
     p('AVAILABLE COMMANDS', 'ok');
     p('  about      whoami      projects');
-    p('  stack      hire        clocks');
+    p('  stack      hire        email');
     p('  ls         vcard       share');
-    p('  qr         clear');
+    p('  qr         clocks      clear');
     p('  open <stack|channel> — fire the portal', 'sys');
     p('  ↑/↓ history · Tab completes', 'sys');
   },
   about: (p) => {
-    p('Oleg Hanukayev — Platform, DevOps & MLOps engineer.');
-    p('I design and ship cloud platforms, CI/CD, and');
-    p('production AI infrastructure.');
-    retrieve('OPERATOR', [['name', 'Oleg Hanukayev'], ['role', 'Platform · DevOps · MLOps'], ['open to', 'Senior / Staff'], ['tracks', 'Platform · SRE · MLOps · Cloud']]);
+    p('Oleg Hanukayev — Senior SRE & AI Platform Engineer.');
+    p('10 years of production ops: enterprise SaaS, FinTech,');
+    p('cybersecurity and telecom. Now: C137 AI.devops, an AI');
+    p('infrastructure consultancy (4 clients, 2 end-to-end builds).');
+    retrieve('OPERATOR', [['name', 'Oleg Hanukayev'], ['role', 'Senior SRE · AI Platform'], ['experience', '10 years in production'], ['open to', 'Senior / Staff']]);
   },
-  whoami: (p) => p('oleg · platform+mlops · open to senior/staff'),
+  whoami: (p) => p('oleg · senior sre + ai platform · open to senior/staff'),
   stack: (p) => {
-    p('cloud   AWS · EKS · K8s · Docker · Helm');
-    p('deliver Terraform · GitHub Actions · ArgoCD');
-    p('ai/llm  Claude · MCP · Bedrock · RAG · agent infra');
-    p('obs     Datadog · Grafana · ELK · SLOs');
-    retrieve('TOOLCHAIN', [['cloud', 'AWS · EKS · K8s · Docker · Helm'], ['deliver', 'Terraform · Actions · ArgoCD'], ['ai/llm', 'Claude · MCP · Bedrock · RAG'], ['obs', 'Datadog · Grafana · ELK · SLOs']]);
+    p('cloud    AWS (EKS) · GKE · Kubernetes · Terraform · Helm');
+    p('reliab.  SLOs · incident command · Datadog · Grafana · ELK');
+    p('deliver  Jenkins · GitHub Actions · GitOps · blue/green');
+    p('ai       RAG · agents + MCP · Bedrock · vLLM · Ollama · Langfuse');
+    retrieve('TOOLCHAIN', [['cloud', 'AWS EKS · GKE · K8s · Terraform'], ['reliab.', 'SLOs · Datadog · Grafana · ELK'], ['deliver', 'Jenkins · Actions · GitOps'], ['ai', 'RAG · MCP · Bedrock · vLLM']]);
   },
   projects: (p) => {
-    p('01  multi-region EKS platform      multi-AZ · zero-downtime');
-    p('02  gitops delivery pipeline       argocd · progressive');
-    p('03  rag + agent infrastructure     bedrock + claude');
-    p('04  observability & SLO overhaul   datadog · error budgets');
-    retrieve('SELECTED WORK', [['01', 'multi-region EKS platform'], ['02', 'gitops delivery pipeline'], ['03', 'rag + agent infrastructure'], ['04', 'observability & SLO overhaul']]);
+    p('01  50+ EKS clusters, 5+ regions    zero-downtime blue/green · BMC');
+    p('02  deploy-validation agent         checks 2 h → 30 min · BMC');
+    p('03  Datadog alerting redesign       −60% alert noise · BMC');
+    p('04  NOC RAG runbook base            Claude on Bedrock · BMC');
+    p('05  multi-provider LLM routing      Anthropic/OpenAI/Groq · C137');
+    p('06  RAG content platform            gaming client, agents · C137');
+    retrieve('SELECTED WORK', [['01', '50+ EKS clusters · 5+ regions'], ['02', 'deploy checks 2 h → 30 min'], ['03', '−60% alert noise'], ['05', 'LLM routing · 3 providers']]);
   },
   hire: (p) => {
-    p('linkedin.com/in/oleg-hanukayev', 'ok');
+    p(EMAIL, 'ok');
+    p('linkedin.com/in/oleg-hanukayev');
     p('github.com/See-137');
-    p("type 'vcard' to download my contact card", 'sys');
-    retrieve('CHANNEL', [['linkedin', 'in/oleg-hanukayev'], ['github', '@See-137'], ['vcard', "run 'vcard' to download"]]);
+    p("type 'email' to write, 'vcard' to save my contact", 'sys');
+    retrieve('CHANNEL', [['email', EMAIL], ['linkedin', 'in/oleg-hanukayev'], ['github', '@See-137']]);
   },
   clocks: (p) => {
     const fmt = (tz) => {
@@ -320,6 +348,10 @@ const COMMANDS = {
   vcard: (p) => {
     openVcard();
     p('oleg-hanukayev.vcf ✦ see you in this dimension', 'ok');
+  },
+  email: (p) => {
+    p(`opening mail to ${EMAIL} ✦`, 'ok');
+    location.href = `mailto:${EMAIL}`;
   },
   share: (p) => {
     p('opening share sheet ◉', 'ok');

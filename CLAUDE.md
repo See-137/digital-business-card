@@ -20,7 +20,7 @@ Static site, **no build step**, deployed by GitHub Pages (legacy branch mode,
 | `icons/`, `manifest.webmanifest`, `sw.js` | PWA: icons (incl. maskable + apple-touch), manifest, offline service worker. |
 | `assets/qr.svg` | QR for the card URL (error level H, portal mark overlay). Regenerate with `segno` if the URL changes, then verify it decodes. |
 | `assets/oleg-hanukayev.vcf` | The contact card, a static file (blob downloads fail in in-app browsers). vCard 3.0, CRLF, stored byte-exact via `.gitattributes`. Precached by the service worker. |
-| `assets/og-card.png` | 1200x630 social preview. Out of date (old design and claims); to be regenerated under a new filename. |
+| `assets/og-card-v2.png` | 1200x630 social preview (current design, CV claims). Rendered from an HTML template with headless Chrome; when it changes, use a NEW filename (LinkedIn/Slack cache previews by URL) and re-scrape with LinkedIn Post Inspector. `og-card.png` is the old, unused one. |
 | `tests/` | Headless regression checks (puppeteer-core + axe-core). Not loaded by the site. |
 | `.github/workflows/tests.yml` | CI: runs `tests/` on push / PR. |
 
@@ -49,7 +49,7 @@ Actions are pinned to full commit SHAs. Pages deploys independently of CI.
 
 ## Conventions and gotchas
 
-- **Content is the owner's.** Copy, claims, roles and project lines change only on request. Email, location and the Work section were removed deliberately.
+- **Content is the owner's, and the owner's two CVs are the source of truth** (kept outside the repo; this file is public on Pages). Every claim on the card (title, proof numbers, employers, toolchain, shell `projects`) must trace to them; no Argo CD (not on the CVs). The email is assembled at runtime (never plain in HTML); phone and city stay off the public page.
 - **3D must never block first paint.** `app.js` boots `portal.js` only after `load` + 1.2 s, when the stage is on screen (phones: 15% visible), in an idle slot, or on first touch of the stage. Keep it that way; Lighthouse mobile is 100 because of it.
 - **URL pins:** `?webgl=1` (force WebGL2), `?motion=0` (single still frame, also from `prefers-reduced-motion`), `?t=<s>` (pin the clock), `?3d=0` (CSS poster only), `?idle=<ms>` (idle-freeze delay, for tests). `window.c137.portalState()` is a read-only snapshot.
 - **Motion:** the PAUSE MOTION control (portal bar) freezes the 3D and every CSS animation (`html.paused`), remembered per device; `prefers-reduced-motion` is honoured live. Required by WCAG 2.2.2 — keep it.

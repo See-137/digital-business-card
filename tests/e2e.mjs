@@ -49,10 +49,11 @@ try {
       backend: document.getElementById('portal-wrap').dataset.backend || null,
       fallback: document.getElementById('portal-wrap').dataset.fallback || null,
       on: document.getElementById('portal-canvas').classList.contains('on'),
-      chips: document.querySelectorAll('#stack-chips li').length,
+      groups: document.querySelectorAll('#stack-groups .tg').length,
+      chips: document.querySelectorAll('#stack-groups li').length,
     }));
     check('portal boots on webgpu or webgl', ['webgpu', 'webgl'].includes(state.backend) && state.on, JSON.stringify(state));
-    check('stack chips rendered', state.chips === 18, `${state.chips}`);
+    check('toolchain rendered in 5 groups', state.groups === 5 && state.chips >= 30, `${state.groups} groups, ${state.chips} items`);
 
     for (const c of ['about', 'projects', 'stack']) {
       await page.type('#cc-term', c);
@@ -286,6 +287,26 @@ try {
       inp.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
     });
     check('the shell vcard command requests the file', await requested);
+    await page.close();
+  }
+
+  // 2e. Content from the CVs: title in the h1, three measured proof items,
+  // email assembled at runtime (never in the raw HTML), vCard has EMAIL + ORG.
+  {
+    const raw = await (await fetch(base)).text();
+    const vcf = (await (await fetch(`${base}assets/oleg-hanukayev.vcf`)).text()).replace(/\r\n /g, '');
+    const { page } = await open(`${base}?3d=0`);
+    const c = await page.evaluate(() => ({
+      h1: document.querySelector('h1').textContent.trim(),
+      proof: [...document.querySelectorAll('.proof li .num')].map((n) => n.textContent.trim()),
+      mailto: document.querySelector('.cta[data-mail]').getAttribute('href'),
+      mailText: document.querySelector('[data-mail-text]').textContent,
+    }));
+    check('h1 states the role', c.h1 === 'Senior SRE & AI Platform Engineer.', c.h1);
+    check('proof strip shows the three measured outcomes', c.proof.join('|') === '50+|−60%|2 h → 30 min', c.proof.join(' | '));
+    check('email is assembled at runtime and not in the raw HTML', c.mailto === 'mailto:oleghanukayev@gmail.com' && c.mailText === 'oleghanukayev@gmail.com' && !raw.includes('oleghanukayev@gmail.com'), c.mailto);
+    check('vCard carries EMAIL and ORG', /\r\nEMAIL;TYPE=INTERNET,PREF:oleghanukayev@gmail\.com\r\n/.test(vcf) && /\r\nORG:C137 AI\.devops\r\n/.test(vcf));
+    check('no Argo CD claim anywhere', !/argo/i.test(raw) && !/argo/i.test(await page.evaluate(() => document.body.innerText)));
     await page.close();
   }
 

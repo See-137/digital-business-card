@@ -3,24 +3,24 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Oleg Hanukayev — DevOps &amp; AI Engineer · C137.OPS</title>
-<meta name="description" content="Oleg Hanukayev — platform, DevOps & MLOps engineer. Cloud platforms on AWS/EKS, GitOps delivery, and production AI infrastructure.">
+<title>Oleg Hanukayev — Senior SRE &amp; AI Platform Engineer · C137</title>
+<meta name="description" content="Oleg Hanukayev — Senior SRE &amp; AI Platform Engineer. 10 years running production on Kubernetes and AWS (50+ EKS clusters, 5+ regions), now building RAG, agent and LLM platforms.">
 <meta name="theme-color" content="#0A101E">
 <meta name="color-scheme" content="dark">
 <link rel="canonical" href="https://see-137.github.io/digital-business-card/">
 <meta property="og:type" content="profile">
 <meta property="og:site_name" content="C137.OPS">
-<meta property="og:title" content="Oleg Hanukayev — DevOps &amp; AI Engineer · C137.OPS">
-<meta property="og:description" content="Infinite dimensions. Prod stays up in all of mine. Cloud platforms, GitOps delivery, and production AI infrastructure.">
+<meta property="og:title" content="Oleg Hanukayev — Senior SRE &amp; AI Platform Engineer">
+<meta property="og:description" content="10 years of production across Fortune 500 SaaS, FinTech, cybersecurity and telecom. 50+ EKS clusters, zero-downtime upgrades, and the platforms behind production LLM systems.">
 <meta property="og:url" content="https://see-137.github.io/digital-business-card/">
-<meta property="og:image" content="https://see-137.github.io/digital-business-card/assets/og-card.png">
+<meta property="og:image" content="https://see-137.github.io/digital-business-card/assets/og-card-v2.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Oleg Hanukayev — DevOps &amp; AI Engineer, C137.OPS">
+<meta property="og:image:alt" content="Oleg Hanukayev — Senior SRE &amp; AI Platform Engineer">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Oleg Hanukayev — DevOps &amp; AI Engineer · C137.OPS">
-<meta name="twitter:description" content="Cloud platforms, GitOps delivery, and production AI infrastructure — built to stay up.">
-<meta name="twitter:image" content="https://see-137.github.io/digital-business-card/assets/og-card.png">
+<meta name="twitter:title" content="Oleg Hanukayev — Senior SRE &amp; AI Platform Engineer">
+<meta name="twitter:description" content="10 years keeping production up — Kubernetes on AWS, SLO-driven reliability, and production LLM platforms.">
+<meta name="twitter:image" content="https://see-137.github.io/digital-business-card/assets/og-card-v2.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%230A101E'/%3E%3Ccircle cx='50' cy='50' r='28' fill='none' stroke='%239cff2e' stroke-width='11'/%3E%3Ccircle cx='50' cy='50' r='9' fill='%239cff2e'/%3E%3C/svg%3E">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -32,15 +32,16 @@
   "@context": "https://schema.org",
   "@type": "Person",
   "name": "Oleg Hanukayev",
-  "jobTitle": "DevOps & AI Engineer",
-  "description": "Platform, DevOps & MLOps engineer. Cloud platforms on AWS/EKS, GitOps delivery, and production AI infrastructure.",
+  "jobTitle": "Senior SRE & AI Platform Engineer",
+  "description": "Senior SRE and AI platform engineer: 10 years of production operations across enterprise SaaS, FinTech, cybersecurity and telecom; builds RAG, agent and LLM routing platforms.",
+  "worksFor": { "@type": "Organization", "name": "C137 AI.devops", "description": "AI infrastructure consultancy" },
   "url": "https://see-137.github.io/digital-business-card/",
-  "image": "https://see-137.github.io/digital-business-card/assets/og-card.png",
+  "image": "https://see-137.github.io/digital-business-card/assets/og-card-v2.png",
   "sameAs": [
     "https://www.linkedin.com/in/oleg-hanukayev-3765b910a/",
     "https://github.com/See-137"
   ],
-  "knowsAbout": ["AWS", "Kubernetes", "Amazon EKS", "Terraform", "GitOps", "Argo CD", "MLOps", "Retrieval-augmented generation", "Observability"]
+  "knowsAbout": ["Site reliability engineering", "Kubernetes", "Amazon EKS", "AWS", "Terraform", "GitOps", "Datadog", "Retrieval-augmented generation", "AI agents", "Model Context Protocol", "Amazon Bedrock", "vLLM", "LLM observability"]
 }
 </script>
 <style>
@@ -105,11 +106,9 @@
   .tool-hot { color:#0a1505; background:var(--acid); border-color:var(--acid); }
   @media (max-width: 900px) {
     [data-r="hero"] { grid-template-columns:1fr !important; }
-    [data-r="facts"] { grid-template-columns:1fr 1fr !important; }
     [data-r="channel"] { grid-template-columns:1fr !important; }
     [data-r="navlinks"] { display:none !important; }
   }
-  @media (max-width: 540px) { [data-r="facts"] { grid-template-columns:1fr !important; } }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation:none !important; transition:none !important; scroll-behavior:auto !important; } }
   /* The pause-motion control (WCAG 2.2.2): freezes every CSS animation; app.js freezes the 3D. */
   html.paused *, html.paused *::before, html.paused *::after { animation-play-state:paused !important; }
@@ -155,6 +154,20 @@
   .shellwin { position:absolute; z-index:8; left:clamp(14px,3%,26px); right:clamp(14px,3%,26px); bottom:clamp(16px,3vh,26px); }
   .ln { white-space:pre-wrap; } .ln-in, .ln-prompt { color:var(--acid); } .ln-out { color:#9fb2ce; } .ln-sys { color:var(--mute); } .ln-err { color:#ff8a8a; } .ln-ok { color:#bfff7a; }
   .idwin { margin:0 0 26px; border:1px solid rgba(156,255,46,.2); border-radius:11px; overflow:hidden; background:rgba(6,13,9,.65); max-width:440px; }
+  /* ---- proof · career · toolchain groups ---- */
+  .proof { list-style:none; margin:0 0 28px; padding:0; display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .proof li { border:1px solid rgba(120,160,220,.18); border-radius:12px; padding:18px 18px 16px; background:rgba(10,16,30,.5); display:flex; flex-direction:column; gap:8px; }
+  .proof .num { font-family:var(--cc-display), 'Instrument Fallback', Georgia, serif; font-weight:400; font-size:clamp(30px,3.6vw,40px); line-height:1; color:var(--ink); letter-spacing:-.01em; }
+  .proof .what { font-size:13px; line-height:1.55; color:#cdd8e8; }
+  .proof .where { font-size:10.5px; letter-spacing:.12em; color:var(--mute); text-transform:uppercase; margin-top:auto; }
+  .career { margin:0; display:grid; gap:10px; font-size:13px; }
+  .career div { display:grid; grid-template-columns:120px 1fr; gap:12px; align-items:baseline; }
+  .career dt { font-size:10.5px; letter-spacing:.16em; color:var(--mute); }
+  .career dd { margin:0; color:#cdd8e8; line-height:1.55; }
+  .tg { display:grid; grid-template-columns:170px 1fr; gap:14px; align-items:start; padding:14px 0; border-top:1px solid rgba(120,160,220,.1); }
+  .tg:first-child { border-top:0; }
+  .tg-h { margin:0; padding-top:7px; font-size:10.5px; font-weight:400; letter-spacing:.16em; color:var(--mute); text-transform:uppercase; }
+  @media (max-width: 900px) { .proof { grid-template-columns:1fr; } .tg, .career div { grid-template-columns:1fr; gap:8px; } .tg-h { padding-top:0; } }
   /* ---- card actions · QR dialog · toast ---- */
   .card-actions { display:flex; flex-wrap:wrap; gap:8px; padding:0 16px 14px; }
   .act { cursor:pointer; font:inherit; font-size:11.5px; letter-spacing:.06em; display:inline-flex; align-items:center; gap:7px; min-height:40px; padding:8px 13px; border-radius:8px; border:1px solid rgba(120,160,220,.26); background:rgba(10,16,30,.4); color:var(--ink); transition:border-color .18s, background .18s; }
@@ -205,6 +218,7 @@
   <nav aria-label="Primary" class="mono" style="max-width:1180px; margin:0 auto; padding:15px clamp(20px,5vw,48px); display:flex; align-items:center; gap:20px; font-size:12px; letter-spacing:.08em;">
     <a href="#top" style="text-decoration:none; color:var(--ink); display:flex; align-items:baseline; gap:8px;"><strong style="font-weight:600; letter-spacing:.04em;">OLEG HANUKAYEV</strong><span style="color:var(--mute);">/ C137.OPS</span></a>
     <span data-r="navlinks" style="margin-left:32px; display:flex; gap:26px;">
+      <a class="nl" href="#proof"><span style="color:var(--mute);">01</span> PROOF</a>
       <a class="nl" href="#stack"><span style="color:var(--mute);">02</span> STACK</a>
     </span>
     <a class="pill" href="#contact" style="text-decoration:none; color:var(--acid); border:1px solid rgba(156,255,46,.4); padding:8px 15px; border-radius:20px; margin-left:auto;">CONTACT <span aria-hidden="true">→</span></a>
@@ -217,15 +231,16 @@
   <section aria-label="Introduction" style="max-width:1180px; margin:0 auto; padding:clamp(40px,6vw,72px) clamp(20px,5vw,48px) clamp(40px,5vw,64px);">
     <div data-r="hero" style="display:grid; grid-template-columns:0.9fr 1.1fr; gap:clamp(28px,4vw,52px); align-items:center;">
       <div class="hero-copy">
-        <div class="mono kicker" style="font-size:11.5px; letter-spacing:.2em; color:var(--acid); margin-bottom:26px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;"><span style="display:inline-flex; align-items:center; gap:8px;"><span aria-hidden="true" style="width:7px; height:7px; border-radius:50%; background:var(--acid); animation:cc-pulse 2s ease-in-out infinite;"></span>DIMENSION C‑137 · STABLE</span><span aria-hidden="true" style="color:#3a5680;">—</span><span style="color:var(--mute-2);">PLATFORM · DEVOPS · MLOPS</span></div>
-        <h1 class="serif" style="font-size:clamp(38px,5.4vw,58px); line-height:1.03; letter-spacing:-.015em; margin:0 0 24px;">Infinite dimensions. Prod stays up in <em style="font-style:italic; color:var(--acid);">all of mine</em>.</h1>
+        <div class="mono kicker" style="font-size:11.5px; letter-spacing:.2em; color:var(--acid); margin-bottom:26px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;"><span style="display:inline-flex; align-items:center; gap:8px;"><span aria-hidden="true" style="width:7px; height:7px; border-radius:50%; background:var(--acid); animation:cc-pulse 2s ease-in-out infinite;"></span>DIMENSION C‑137 · STABLE</span><span aria-hidden="true" style="color:#3a5680;">—</span><span style="color:var(--mute-2);">PROD STAYS UP IN ALL OF MINE</span></div>
+        <h1 class="serif" style="font-size:clamp(38px,5.4vw,58px); line-height:1.03; letter-spacing:-.015em; margin:0 0 24px;">Senior SRE &amp; <em style="font-style:italic; color:var(--acid);">AI Platform</em> Engineer.</h1>
         <!-- identity HUD -->
         <div class="idwin mono">
           <div class="pwin-bar"><span class="dots" aria-hidden="true"><i class="d-r"></i><i class="d-y"></i><i class="d-g"></i></span><span>IDENTITY · C137.OPS</span></div>
           <div style="padding:14px 16px;">
             <div class="serif" style="font-size:22px; line-height:1.1;">Oleg Hanukayev <span aria-hidden="true" style="color:var(--leaf);">—</span></div>
-            <div style="font-size:12.5px; color:var(--acid); margin-top:4px;">DevOps &amp; AI Engineer</div>
-            <div style="font-size:11px; color:var(--leaf-2); margin-top:9px; letter-spacing:.04em;">OPEN TO — Senior / Staff · Platform · DevOps · SRE · MLOps · Cloud Infra</div>
+            <div style="font-size:12.5px; color:var(--acid); margin-top:4px;">Senior SRE &amp; AI Platform Engineer</div>
+            <div style="font-size:11px; color:#cdd8e8; margin-top:9px; letter-spacing:.04em;">10 YRS PRODUCTION · FORTUNE 500 SAAS · FINTECH · AI INFRA</div>
+            <div style="font-size:11px; color:var(--leaf-2); margin-top:6px; letter-spacing:.04em;">OPEN TO — Senior / Staff · SRE · Platform · AI Platform · Cloud Infra</div>
           </div>
           <div class="card-actions">
             <a id="save-btn" class="act primary" href="assets/oleg-hanukayev.vcf" type="text/vcard" style="text-decoration:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 4v11m0 0-4-4m4 4 4-4M5 19h14"/></svg>Save contact</a>
@@ -233,11 +248,11 @@
             <button id="qr-btn" class="act" type="button" aria-haspopup="dialog" aria-controls="qr-dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/></svg>QR</button>
           </div>
         </div>
-        <p class="serif lead" style="font-size:clamp(17px,2vw,20px); line-height:1.55; color:#9fb2ce; max-width:440px; margin:0 0 22px;">DevOps &amp; AI engineer. Kubernetes on AWS, GitOps delivery, and agentic AI infrastructure — shipped to real production, built to stay up.</p>
+        <p class="serif lead" style="font-size:clamp(17px,2vw,20px); line-height:1.55; color:#9fb2ce; max-width:440px; margin:0 0 22px;">10 years keeping production up across enterprise SaaS, FinTech, cybersecurity and telecom — now building the platforms behind production LLM systems: RAG, agents with MCP tooling, model routing and self-hosted inference.</p>
         <p class="mono hint" style="font-size:12px; color:var(--mute-2); margin:0 0 30px; line-height:1.7;">// run a command in the shell — <span style="color:var(--acid);">projects</span>, <span style="color:var(--acid);">stack</span>, <span style="color:var(--acid);">about</span> — and the portal answers.</p>
         <div class="mono ctas" style="display:flex; gap:13px; flex-wrap:wrap;">
-          <a class="cta" href="#contact" style="text-decoration:none; font-size:13px; letter-spacing:.03em; padding:14px 22px; border-radius:9px; background:var(--acid); color:#0a1505; font-weight:600;">GET IN TOUCH <span aria-hidden="true">→</span></a>
-          <a class="ghost" href="#stack" style="text-decoration:none; font-size:13px; letter-spacing:.03em; padding:14px 22px; border-radius:9px; border:1px solid rgba(120,160,220,.28); color:var(--ink);">VIEW STACK <span aria-hidden="true">→</span></a>
+          <a class="cta" data-mail href="#contact" style="text-decoration:none; font-size:13px; letter-spacing:.03em; padding:14px 22px; border-radius:9px; background:var(--acid); color:#0a1505; font-weight:600;">EMAIL ME <span aria-hidden="true">→</span></a>
+          <a class="ghost" href="https://www.linkedin.com/in/oleg-hanukayev-3765b910a/" target="_blank" rel="noopener" style="text-decoration:none; font-size:13px; letter-spacing:.03em; padding:14px 22px; border-radius:9px; border:1px solid rgba(120,160,220,.28); color:var(--ink);">LINKEDIN <span aria-hidden="true">↗</span><span class="vh"> (opens in new tab)</span></a>
         </div>
       </div>
 
@@ -281,13 +296,21 @@
     </div>
   </section>
 
-  <!-- FACTS -->
-  <section aria-label="Facts" style="border-top:1px solid rgba(120,160,220,.14); border-bottom:1px solid rgba(120,160,220,.14);">
-    <dl data-r="facts" class="mono" style="max-width:1180px; margin:0 auto; display:grid; grid-template-columns:repeat(3,1fr);">
-      <div style="padding:24px clamp(20px,4vw,40px); border-right:1px solid rgba(120,160,220,.12);"><dt style="font-size:10px; letter-spacing:.16em; color:var(--mute); margin-bottom:10px;">ROLE</dt><dd style="margin:0;"><div style="font-size:14.5px;">DevOps &amp; AI engineer</div><div style="font-size:12px; color:var(--mute-2); margin-top:4px;">platform · MLOps · cloud</div></dd></div>
-      <div style="padding:24px clamp(20px,4vw,40px); border-right:1px solid rgba(120,160,220,.12);"><dt style="font-size:10px; letter-spacing:.16em; color:var(--mute); margin-bottom:10px;">FOCUS</dt><dd style="margin:0;"><div style="font-size:14.5px;">Cloud platforms &amp; AI infra</div><div style="font-size:12px; color:var(--mute-2); margin-top:4px;">kubernetes · gitops · llm</div></dd></div>
-      <div style="padding:24px clamp(20px,4vw,40px);"><dt style="font-size:10px; letter-spacing:.16em; color:var(--mute); margin-bottom:10px;">OPEN TO</dt><dd style="margin:0;"><div style="font-size:14.5px; color:var(--acid);">Senior / Staff roles</div><div style="font-size:12px; color:var(--mute-2); margin-top:4px;">Platform · DevOps · SRE · MLOps · Cloud Infra</div></dd></div>
-    </dl>
+  <!-- PROOF -->
+  <section id="proof" aria-labelledby="proof-h" style="border-top:1px solid rgba(120,160,220,.14);">
+    <div style="max-width:1180px; margin:0 auto; padding:clamp(40px,5vw,64px) clamp(20px,5vw,48px);">
+      <div class="mono" style="font-size:11px; letter-spacing:.18em; color:var(--acid); margin-bottom:12px;">FIG. 01 — PROOF</div>
+      <h2 id="proof-h" class="serif" tabindex="-1" style="font-size:clamp(28px,4vw,40px); letter-spacing:-.01em; margin:0 0 26px;">Production, measured.</h2>
+      <ul class="proof mono">
+        <li><b class="num">50+</b><span class="what">multi-tenant EKS clusters across 5+ AWS regions, upgraded blue/green with zero downtime</span><span class="where">BMC Software · Fortune 500 SaaS</span></li>
+        <li><b class="num">−60%</b><span class="what">alert noise after redesigning Datadog alerting, with faster MTTR</span><span class="where">BMC Software</span></li>
+        <li><b class="num">2 h → 30 min</b><span class="what">post-deploy checks, cut by an approval-gated AI deploy-validation agent</span><span class="where">BMC Software</span></li>
+      </ul>
+      <dl class="career mono">
+        <div><dt>NOW</dt><dd>C137 AI.devops — AI infrastructure consultancy · 4 clients, 2 end-to-end builds</dd></div>
+        <div><dt>PREVIOUSLY</dt><dd>BMC Software (Fortune 500 SaaS) · Fireblocks · IntSights (acquired by Rapid7) · Amdocs</dd></div>
+      </dl>
+    </div>
   </section>
 
   <!-- STACK -->
@@ -295,7 +318,7 @@
     <div class="mono" style="font-size:11px; letter-spacing:.18em; color:var(--acid); margin-bottom:12px;">FIG. 02 — TOOLCHAIN</div>
     <h2 id="stack-h" class="serif" tabindex="-1" style="font-size:clamp(28px,4vw,40px); letter-spacing:-.01em; margin:0 0 6px;">The toolchain, unfiltered.</h2>
     <p class="mono" style="font-size:13px; color:var(--mute-2); margin:0 0 30px;">// if it's listed, I've shipped it in production.</p>
-    <ul id="stack-chips" class="mono tools" aria-label="Toolchain"></ul>
+    <div id="stack-groups" class="mono"></div>
   </section>
 
   <!-- CONTACT + CONSOLE -->
@@ -305,9 +328,9 @@
       <h2 id="contact-h" class="serif" tabindex="-1" style="font-size:clamp(32px,5vw,48px); letter-spacing:-.015em; margin:0 0 30px;">Let's build something that <em style="font-style:italic; color:var(--acid);">stays up</em>.</h2>
       <div data-r="channel" style="display:grid; grid-template-columns:1fr 1.1fr; gap:clamp(24px,4vw,40px); align-items:start;">
         <div class="mono">
-          <p style="font-size:13px; color:var(--mute-2); margin:0 0 24px; line-height:1.7;">// open to senior / staff platform, DevOps &amp; MLOps roles — or just to compare notes on Kubernetes scars.</p>
+          <p style="font-size:13px; color:var(--mute-2); margin:0 0 24px; line-height:1.7;">// open to senior / staff SRE, platform &amp; AI-platform roles — or just to compare notes on Kubernetes scars.</p>
           <p style="font-size:11px; color:var(--mute); letter-spacing:.1em; margin:0 0 8px;">REACH ME ON</p>
-          <a class="mail" href="https://www.linkedin.com/in/oleg-hanukayev-3765b910a/" target="_blank" rel="noopener" style="display:inline-block; text-decoration:none; font-size:clamp(17px,2.4vw,21px); color:var(--acid); margin-bottom:26px; word-break:break-all;">linkedin.com/in/oleg-hanukayev <span aria-hidden="true">→</span><span class="vh"> (opens in new tab)</span></a>
+          <a class="mail" data-mail href="#contact" style="display:inline-block; text-decoration:none; font-size:clamp(17px,2.4vw,21px); color:var(--acid); margin-bottom:26px; word-break:break-all;"><span data-mail-text>oleghanukayev [at] gmail [dot] com</span> <span aria-hidden="true">→</span></a>
           <div style="display:flex; flex-direction:column; gap:12px;">
             <a class="ccard" href="https://www.linkedin.com/in/oleg-hanukayev-3765b910a/" target="_blank" rel="noopener" style="text-decoration:none; padding:15px 18px; border:1px solid rgba(156,255,46,.3); border-radius:11px; display:flex; justify-content:space-between; align-items:baseline; background:rgba(156,255,46,.05);"><span style="font-size:10px; color:var(--leaf-2); letter-spacing:.1em;">LINKEDIN</span><span style="font-size:13px; color:var(--ink);">in/oleg-hanukayev <span aria-hidden="true">↗</span><span class="vh"> (opens in new tab)</span></span></a>
             <a class="ccard" href="https://github.com/See-137/" target="_blank" rel="noopener" style="text-decoration:none; padding:15px 18px; border:1px solid rgba(120,160,220,.2); border-radius:11px; display:flex; justify-content:space-between; align-items:baseline;"><span style="font-size:10px; color:var(--mute); letter-spacing:.1em;">GITHUB</span><span style="font-size:13px; color:var(--ink);">@See-137 <span aria-hidden="true">↗</span><span class="vh"> (opens in new tab)</span></span></a>
@@ -315,16 +338,18 @@
           </div>
         </div>
 
-        <!-- transmission panel -->
+        <!-- now: the consultancy -->
         <div class="pwin mono" style="align-self:stretch;">
-          <div class="pwin-bar"><span class="dots" aria-hidden="true"><i class="d-r"></i><i class="d-y"></i><i class="d-g"></i></span><span>TRANSMISSION — C137.OPS</span><span style="margin-left:auto; color:var(--leaf-2); letter-spacing:.1em;">OPEN</span></div>
+          <div class="pwin-bar"><span class="dots" aria-hidden="true"><i class="d-r"></i><i class="d-y"></i><i class="d-g"></i></span><span>NOW — C137 AI.DEVOPS</span><span style="margin-left:auto; color:var(--leaf-2); letter-spacing:.1em;">2025 — PRESENT</span></div>
           <div style="padding:18px 18px 20px; font-size:12.5px; line-height:1.8; color:#9fb2ce;">
-            <div style="color:var(--leaf-2);">$ portal --status</div>
-            <div style="color:#bfe3a8;">↳ channel open across all dimensions · avg response &lt; 24h</div>
-            <div style="margin-top:12px; color:var(--leaf-2);">$ whoami</div>
-            <div style="color:#bfe3a8;">↳ oleg · platform · devops · mlops · open to senior / staff</div>
-            <div style="margin-top:12px; color:var(--leaf-2);">$ cat intent.txt</div>
-            <div style="color:#bfe3a8;">↳ platforms that stay up, GitOps delivery, production AI infra</div>
+            <div style="color:var(--leaf-2);">$ c137 --status</div>
+            <div style="color:#bfe3a8;">↳ AI infrastructure consultancy · 4 clients · 2 end-to-end builds</div>
+            <div style="margin-top:12px; color:var(--leaf-2);">$ cat builds.log</div>
+            <div style="color:#bfe3a8;">↳ gaming: RAG content platform over large article volumes, with an agent interface</div>
+            <div style="color:#bfe3a8;">↳ customer comms: RAG over docs, billing and customer data</div>
+            <div style="color:#bfe3a8;">↳ fintech: AWS storage and backup with automated model rotation</div>
+            <div style="margin-top:12px; color:var(--leaf-2);">$ route --providers</div>
+            <div style="color:#bfe3a8;">↳ anthropic · openai · groq — complexity scoring, caching, fallback</div>
             <div style="margin-top:16px; padding-top:14px; border-top:1px solid rgba(156,255,46,.14); color:var(--mute-2); font-size:11.5px;">// the shell in the hero takes commands too — try <span style="color:var(--acid);">projects</span> or <span style="color:var(--acid);">stack</span>.</div>
           </div>
         </div>
