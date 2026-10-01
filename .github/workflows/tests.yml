@@ -1,0 +1,58 @@
+# Headless regression checks for the card (tests/e2e.mjs): portal boot,
+# axe-core, shell, QR dialog contract, phone-first layout, overflow at five
+# widths, font-swap CLS, fallbacks, and offline with the server shut down.
+#
+# The runner has no GPU, so the portal runs on the WebGL2 fallback through
+# SwiftShader; WebGPU is exercised locally. Pages deploys independently
+# (legacy branch mode), so a red run here does not block a deploy: read it.
+name: tests
+
+on:
+  push:
+    branches: [main, 'improve/**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: tests
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: tests/package-lock.json
+
+      - name: Install test dependencies
+        run: npm ci --no-audit --no-fund
+
+      # Ubuntu 24.04 restricts unprivileged user namespaces (AppArmor), which
+      # Chrome's sandbox needs. Relax it on this throwaway VM instead of
+      # running Chrome with --no-sandbox.
+      - name: Allow Chrome's sandbox
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+
+      - name: Browser and fonts on the runner
+        run: |
+          google-chrome --version
+          fc-list | grep -ci "liberation" || true
+
+      - name: Run regression checks
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
+        run: npm test

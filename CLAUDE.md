@@ -21,6 +21,7 @@ Static site, **no build step**, deployed by GitHub Pages (legacy branch mode,
 | `assets/qr.svg` | QR for the card URL (error level H, portal mark overlay). Regenerate with `segno` if the URL changes, then verify it decodes. |
 | `assets/og-card.png` | 1200x630 social preview. Other images in `assets/` are unused (Work section removed on purpose). |
 | `tests/` | Headless regression checks (puppeteer-core + axe-core). Not loaded by the site. |
+| `.github/workflows/tests.yml` | CI: runs `tests/` on push / PR. |
 
 ## Commands
 
@@ -32,10 +33,18 @@ python -m http.server 3137
 npm ci
 npm test
 
-# Deploy: push main, then force a Pages build (legacy mode does not always trigger)
+# Deploy: push main, then WAIT for the push-triggered Pages build. Only if
+# none appears within ~2 min, force one (a POST right after a push cancels the
+# push's build, which then reports "Page build failed").
 git push origin main
-gh api -X POST repos/See-137/digital-business-card/pages/builds
+gh api repos/See-137/digital-business-card/pages/builds/latest --jq '.commit[0:7] + " " + .status'
+gh api -X POST repos/See-137/digital-business-card/pages/builds   # only if needed
 ```
+
+**CI:** `.github/workflows/tests.yml` runs `tests/` on pushes to `main` and
+`improve/**`, on PRs, and on demand. The runner has no GPU, so the portal is
+checked on the WebGL2 fallback (SwiftShader); WebGPU is checked locally.
+Actions are pinned to full commit SHAs. Pages deploys independently of CI.
 
 ## Conventions and gotchas
 
