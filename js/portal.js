@@ -32,6 +32,34 @@ const BUDGET = PHONE
   ? { fps: 30, maxPr: 1.25, antialias: false, octaves: 3, motes: 900 }
   : { fps: 60, maxPr: 1.5, antialias: true, octaves: 4, motes: 2200 };
 const IDLE_MS = 60000;
+// Frames slower than this, repeatedly, mean the 3D is hurting the page
+// (software rendering or a very weak GPU): stop the loop, keep the frame.
+const HEAVY_FRAME_MS = 250;
+const HEAVY_FRAMES_LIMIT = 6;
+
+/**
+ * True when the browser is drawing on the CPU (no usable GPU: VMs, remote
+ * desktops, blocklisted drivers, CI). There the portal shader runs at about
+ * one frame per second and blocks the main thread for each one, so the card
+ * shows a single still frame instead of an animation.
+ */
+function softwareRenderer(renderer) {
+  const SOFT = /swiftshader|llvmpipe|softpipe|software|basic render/i;
+  try {
+    const b = renderer.backend;
+    if (b.isWebGPUBackend) {
+      const info = b.device?.adapterInfo ?? b.adapter?.info;
+      if (info?.isFallbackAdapter) return true;
+      return SOFT.test(`${info?.vendor} ${info?.architecture} ${info?.device} ${info?.description}`);
+    }
+    const gl = b.gl;
+    if (!gl) return false;
+    const ext = gl.getExtension('WEBGL_debug_renderer_info');
+    return SOFT.test(String(gl.getParameter(ext ? ext.UNMASKED_RENDERER_WEBGL : gl.RENDERER)));
+  } catch {
+    return false;
+  }
+}
 const BG = 0x050c08;
 
 /** Funnel profile shared by the mesh and the particles (lathe space, mouth at y = 0). */
@@ -84,7 +112,9 @@ async function buildPortal(renderer, opts) {
 }
 
 async function buildScene(renderer, { canvas, wrap, pins, onJump }, watch) {
-  const still = pins.still;
+  const software = softwareRenderer(renderer);
+  let still = pins.still || software;
+  let throttled = false; // set by the heavy-frame watchdog
   const narrow = matchMedia('(max-width: 900px)').matches;
   canvas.dataset.backend = renderer.backend.isWebGPUBackend ? 'webgpu' : 'webgl';
 
@@ -301,13 +331,19 @@ async function buildScene(renderer, { canvas, wrap, pins, onJump }, watch) {
   }
 
   const idleMs = Number.isFinite(pins.idleMs) ? pins.idleMs : IDLE_MS;
-  let lastInput = performance.now(), frames = 0;
+  let lastInput = performance.now(), frames = 0, heavy = 0;
   function tick() {
     const now = performance.now();
     const elapsed = now - last;
     if (elapsed < frameMs * 0.9) return; // frame cap: skip display frames above the budget
     if (now - lastInput > idleMs) { // nobody is interacting: freeze until the next input
       idle = true;
+      updateLoop();
+      return;
+    }
+    if (elapsed > HEAVY_FRAME_MS && ++heavy >= HEAVY_FRAMES_LIMIT) { // watchdog
+      throttled = true;
+      still = true;
       updateLoop();
       return;
     }
@@ -386,7 +422,7 @@ async function buildScene(renderer, { canvas, wrap, pins, onJump }, watch) {
   return {
     backend: canvas.dataset.backend,
     /** Read-only snapshot for tests and debugging. */
-    state: () => ({ fps: BUDGET.fps, maxPr: BUDGET.maxPr, pr, antialias: BUDGET.antialias, octaves: BUDGET.octaves, motes: COUNT, running, idle, paused, frames }),
+    state: () => ({ fps: BUDGET.fps, maxPr: BUDGET.maxPr, pr, antialias: BUDGET.antialias, octaves: BUDGET.octaves, motes: COUNT, running, idle, paused, frames, software, throttled }),
     /** Charge the portal (1) or let it settle (0). */
     /** Pause-motion control: freeze on the current frame, or resume. */
     setPaused(v) {

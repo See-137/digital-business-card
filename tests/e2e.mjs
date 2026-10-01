@@ -25,7 +25,10 @@ const check = (name, ok, detail = '') => {
 
 const server = await serve(root);
 const base = `http://127.0.0.1:${server.address().port}/`;
-const browser = await puppeteer.launch({ executablePath: CHROME, headless: true, args: ['--enable-unsafe-swiftshader'] });
+// CHROME_EXTRA_ARGS, e.g. "--disable-gpu --use-angle=swiftshader", reproduces a
+// machine without a GPU (like the CI runner) on a workstation.
+const EXTRA = (process.env.CHROME_EXTRA_ARGS || '').split(' ').filter(Boolean);
+const browser = await puppeteer.launch({ executablePath: CHROME, headless: true, args: ['--enable-unsafe-swiftshader', ...EXTRA] });
 
 async function open(url, viewport = { width: 1440, height: 900 }) {
   const page = await browser.newPage();
@@ -151,7 +154,7 @@ try {
       Object.defineProperty(navigator, 'share', { configurable: true, value: undefined });
     });
     await page.click('#share-btn');
-    await new Promise((res) => setTimeout(res, 300));
+    await page.waitForFunction(() => document.getElementById('sr-status').textContent, { timeout: 5000 }).catch(() => {});
     const fail = await page.evaluate(() => ({
       sr: document.getElementById('sr-status').textContent,
       sticky: document.getElementById('toast').classList.contains('sticky'),
@@ -192,7 +195,8 @@ try {
   {
     const bootAndWait = async (page) => {
       await page.evaluate(() => document.getElementById('portal-wrap').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })));
-      await page.waitForFunction(() => window.c137.portalState()?.running, { timeout: 15000 });
+      await page.waitForFunction(() => window.c137.portalState(), { timeout: 15000 });
+      return page.evaluate(() => window.c137.portalState().software);
     };
     const fpsOver = async (page, ms) => {
       const a = await page.evaluate(() => window.c137.portalState().frames);
@@ -202,19 +206,31 @@ try {
     };
 
     const { page: d } = await open(base);
-    await bootAndWait(d);
+    const software = await bootAndWait(d);
     const ds = await d.evaluate(() => window.c137.portalState());
-    const dFps = await fpsOver(d, 2000);
     check('desktop budget: 60 fps cap, pixel ratio <= 1.5, MSAA, 4 octaves', ds.fps === 60 && ds.maxPr === 1.5 && ds.antialias && ds.octaves === 4, JSON.stringify(ds));
-    check('desktop renders frames, never above the cap', dFps > 5 && dFps <= 63, `${dFps.toFixed(1)} fps`);
+    if (software) {
+      const a = ds.frames;
+      await new Promise((r) => setTimeout(r, 1500));
+      const b = await d.evaluate(() => window.c137.portalState());
+      check('software renderer: one still frame, no animation loop (page stays responsive)', !b.running && b.frames === a, JSON.stringify({ running: b.running, frames: [a, b.frames], software: b.software }));
+    } else {
+      await d.waitForFunction(() => window.c137.portalState().running, { timeout: 10000 });
+      const dFps = await fpsOver(d, 2000);
+      check('desktop renders frames, never above the cap', dFps > 5 && dFps <= 63, `${dFps.toFixed(1)} fps`);
+    }
     await d.close();
 
     const { page: m } = await open(`${base}?idle=1500`, { width: 390, height: 844, isMobile: true, hasTouch: true });
     await m.evaluate(() => window.scrollTo({ top: document.getElementById('portal-stage').offsetTop, behavior: 'instant' }));
     await bootAndWait(m);
     const ms = await m.evaluate(() => window.c137.portalState());
-    const mFps = await fpsOver(m, 1000);
     check('phone budget: 30 fps cap, pixel ratio <= 1.25, no MSAA, 3 octaves, 900 motes', ms.fps === 30 && ms.maxPr === 1.25 && !ms.antialias && ms.octaves === 3 && ms.motes === 900, JSON.stringify(ms));
+    if (software) {
+      await m.close();
+    } else {
+    await m.waitForFunction(() => window.c137.portalState().running, { timeout: 10000 });
+    const mFps = await fpsOver(m, 1000);
     check('phone renders frames, never above 30 fps', mFps > 3 && mFps <= 32, `${mFps.toFixed(1)} fps`);
     await new Promise((r) => setTimeout(r, 1200)); // idle pin is 1.5 s
     const idle = await m.evaluate(() => window.c137.portalState());
@@ -228,6 +244,7 @@ try {
     check('idle: the loop freezes with no input', idle.idle && !idle.running && stillFrozen, JSON.stringify({ idle: idle.idle, running: idle.running, stillFrozen }));
     check('idle: input resumes the loop', !woke.idle && woke.running && woke.frames > frozenAt, JSON.stringify({ idle: woke.idle, running: woke.running, frames: woke.frames - frozenAt }));
     await m.close();
+    }
 
     const ctx = await browser.createBrowserContext();
     const sd = await ctx.newPage();
