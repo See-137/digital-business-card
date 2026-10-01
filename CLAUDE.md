@@ -20,7 +20,7 @@ Static site, **no build step**, deployed by GitHub Pages (legacy branch mode,
 | `icons/`, `manifest.webmanifest`, `sw.js` | PWA: icons (incl. maskable + apple-touch), manifest, offline service worker. |
 | `assets/qr.svg` | QR for the card URL (error level H, portal mark overlay). Regenerate with `segno` if the URL changes, then verify it decodes. |
 | `assets/oleg-hanukayev.vcf` | The contact card, a static file (blob downloads fail in in-app browsers). vCard 3.0, CRLF, stored byte-exact via `.gitattributes`. Precached by the service worker. |
-| `assets/og-card-v2.png` | 1200x630 social preview (current design, CV claims). Rendered from an HTML template with headless Chrome; when it changes, use a NEW filename (LinkedIn/Slack cache previews by URL) and re-scrape with LinkedIn Post Inspector. `og-card.png` is the old, unused one. |
+| `assets/og-card-v2.png` | 1200x630 social preview (current design, CV claims). Rendered from an HTML template with headless Chrome; when it changes, use a NEW filename (LinkedIn/Slack cache previews by URL) and re-scrape with LinkedIn Post Inspector. |
 | `tests/` | Headless regression checks (puppeteer-core + axe-core). Not loaded by the site. |
 | `.github/workflows/tests.yml` | CI: runs `tests/` on push / PR. |
 
