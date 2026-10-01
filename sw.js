@@ -13,7 +13,7 @@
  * only ever reads, writes and deletes caches named PREFIX*.
  */
 const PREFIX = 'c137-card-';
-const VERSION = `${PREFIX}v2`;
+const VERSION = `${PREFIX}v3`;
 const LEGACY = ['c137-v1']; // this card's own pre-prefix cache name
 const NETWORK_BUDGET_MS = 3000;
 // After one request blows the budget, the network is treated as degraded for a
@@ -33,6 +33,7 @@ const CORE = [
   'fonts/ibm-plex-mono-600.woff2',
   'icons/icon-192.png',
   'assets/qr.svg',
+  'assets/oleg-hanukayev.vcf',
 ];
 
 self.addEventListener('install', (event) => {

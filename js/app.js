@@ -29,20 +29,19 @@ for (const name of CHIPS) {
 }
 
 /* ---------------------------------------------------------------- vCard */
-export function downloadVcard() {
-  const v = ['BEGIN:VCARD', 'VERSION:3.0', 'N:Hanukayev;Oleg;;;', 'FN:Oleg Hanukayev', 'TITLE:DevOps & AI Engineer',
-    'URL:https://see-137.github.io/digital-business-card/',
-    'URL:https://www.linkedin.com/in/oleg-hanukayev-3765b910a/', 'END:VCARD'].join('\r\n');
-  const url = URL.createObjectURL(new Blob([v], { type: 'text/vcard' }));
+// A real file, not a generated blob: blob downloads fail silently in the
+// LinkedIn / Instagram in-app browsers, where recruiters land. iOS opens a
+// .vcf link as a contact preview; desktops and Android download it. The
+// service worker precaches it, so it also works offline.
+const VCF_URL = 'assets/oleg-hanukayev.vcf';
+export function openVcard() {
   const a = document.createElement('a');
-  a.href = url;
-  a.download = 'oleg-hanukayev.vcf';
+  a.href = VCF_URL;
+  a.type = 'text/vcard';
   document.body.appendChild(a);
   a.click();
   a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 4000);
 }
-$('vcard-btn').addEventListener('click', downloadVcard);
 
 /* ---------------------------------------------------------------- share · QR · toast */
 const CARD_URL = 'https://see-137.github.io/digital-business-card/';
@@ -122,10 +121,7 @@ qrDialog.addEventListener('click', (e) => {
 });
 $('qr-copy').addEventListener('click', copyLink);
 $('qr-share').addEventListener('click', shareCard);
-$('save-btn').addEventListener('click', () => {
-  downloadVcard();
-  toast('Contact card downloading ✦');
-});
+$('save-btn').addEventListener('click', () => toast('Opening contact card ✦'));
 $('share-btn').addEventListener('click', shareCard);
 $('qr-btn').addEventListener('click', openQr);
 
@@ -312,12 +308,12 @@ const COMMANDS = {
     p(`UTC ${fmt('UTC')}   NYC ${fmt('America/New_York')}   LON ${fmt('Europe/London')}   SFO ${fmt('America/Los_Angeles')}`);
   },
   ls: (p) => {
-    p('about.md   projects/   stack.yaml   contact.vcf');
-    p('try: vcard — downloads contact.vcf', 'sys');
+    p('about.md   projects/   stack.yaml   oleg-hanukayev.vcf');
+    p('try: vcard — saves oleg-hanukayev.vcf', 'sys');
   },
   vcard: (p) => {
-    downloadVcard();
-    p('contact.vcf downloaded ✦ see you in this dimension', 'ok');
+    openVcard();
+    p('oleg-hanukayev.vcf ✦ see you in this dimension', 'ok');
   },
   share: (p) => {
     p('opening share sheet ◉', 'ok');
@@ -333,7 +329,7 @@ const COMMANDS = {
   open: () => {},
   clear: () => {},
 };
-const ALIASES = { contact: 'hire', 'contact.vcf': 'vcard' };
+const ALIASES = { contact: 'hire', 'contact.vcf': 'vcard', 'oleg-hanukayev.vcf': 'vcard' };
 const COMPLETIONS = [...Object.keys(COMMANDS).filter((c) => c !== 'open'), 'open stack', 'open channel'];
 
 const history = [];

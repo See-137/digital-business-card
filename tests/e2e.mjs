@@ -210,6 +210,36 @@ try {
     await ctx.close();
   }
 
+  // 2d. Contact card: a real .vcf (blob downloads fail in in-app browsers),
+  // valid vCard 3.0 with CRLF line endings and profile fields, linked from both
+  // save controls and requested by the shell's vcard command.
+  {
+    const res = await fetch(`${base}assets/oleg-hanukayev.vcf`);
+    const text = await res.text();
+    const lines = text.split('\r\n');
+    check('vcf is served as text/vcard', res.status === 200 && /text\/vcard/.test(res.headers.get('content-type') || ''), `${res.status} ${res.headers.get('content-type')}`);
+    check('vcf is vCard 3.0 with CRLF endings', lines[0] === 'BEGIN:VCARD' && lines.includes('VERSION:3.0') && lines.includes('END:VCARD') && !/[^\r]\n/.test(text), `${lines.length} lines`);
+    check('vcf carries name, title and LinkedIn/GitHub profiles', lines.includes('FN:Oleg Hanukayev') && lines.some((l) => l.startsWith('TITLE:')) && lines.some((l) => l.startsWith('X-SOCIALPROFILE;TYPE=linkedin:')) && lines.some((l) => l.startsWith('X-SOCIALPROFILE;TYPE=github:')));
+
+    const { page } = await open(`${base}?3d=0`);
+    const links = await page.evaluate(() => ['save-btn', 'vcard-btn'].map((id) => {
+      const el = document.getElementById(id);
+      return `${el.tagName}:${el.getAttribute('href')}`;
+    }));
+    check('both save controls link to the static file', links.every((l) => l === 'A:assets/oleg-hanukayev.vcf'), links.join(' '));
+    const requested = new Promise((resolve) => {
+      page.on('request', (r) => { if (r.url().endsWith('/assets/oleg-hanukayev.vcf')) resolve(true); });
+      setTimeout(() => resolve(false), 4000);
+    });
+    await page.evaluate(() => {
+      const inp = document.getElementById('cc-term');
+      inp.value = 'vcard';
+      inp.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    });
+    check('the shell vcard command requests the file', await requested);
+    await page.close();
+  }
+
   // 3. QR dialog contract: modal, initial focus, scroll lock, focus return.
   {
     const { page } = await open(`${base}?3d=0`);
@@ -335,6 +365,15 @@ try {
     })).catch((e) => ({ error: String(e) }));
     check('server is really down for the offline check', direct === 'down', direct);
     check('card loads offline from the cache, not overwritten by another page', /Oleg Hanukayev/.test(off.title || '') && off.save, JSON.stringify(off));
+    const vcfOffline = await page.evaluate(async () => {
+      try {
+        const r = await fetch('assets/oleg-hanukayev.vcf');
+        return { status: r.status, card: (await r.text()).startsWith('BEGIN:VCARD') };
+      } catch (e) {
+        return { error: String(e) };
+      }
+    });
+    check('contact card is available offline', vcfOffline.status === 200 && vcfOffline.card, JSON.stringify(vcfOffline));
     await page.close();
   }
 } catch (err) {

@@ -1,0 +1,3 @@
+# vCard requires CRLF line endings. Store .vcf byte-exact (no normalisation),
+# because GitHub Pages serves the stored blob, not a checkout.
+*.vcf -text
