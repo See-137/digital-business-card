@@ -1,0 +1,192 @@
+/**
+ * Headless regression checks for the card. Run from tests/: `npm test`.
+ * Uses the locally installed Chrome (set CHROME_PATH to override).
+ *
+ * Every check asserts on positive evidence (an element, a count, a backend
+ * name), never on "nothing happened".
+ */
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+import puppeteer from 'puppeteer-core';
+import { serve } from './serve.mjs';
+
+const here = path.dirname(fileURLToPath(import.meta.url));
+const root = path.resolve(here, '..');
+const CHROME = process.env.CHROME_PATH
+  || (process.platform === 'win32' ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe' : '/usr/bin/google-chrome');
+const AXE = readFileSync(path.join(here, 'node_modules/axe-core/axe.min.js'), 'utf8');
+
+let failed = 0;
+const check = (name, ok, detail = '') => {
+  console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}${detail ? `  (${detail})` : ''}`);
+  if (!ok) failed++;
+};
+
+const server = await serve(root);
+const base = `http://127.0.0.1:${server.address().port}/`;
+const browser = await puppeteer.launch({ executablePath: CHROME, headless: true, args: ['--enable-unsafe-swiftshader'] });
+
+async function open(url, viewport = { width: 1440, height: 900 }) {
+  const page = await browser.newPage();
+  const errors = [];
+  page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
+  page.on('pageerror', (e) => errors.push(String(e)));
+  await page.setViewport(viewport);
+  await page.goto(url, { waitUntil: 'load' });
+  return { page, errors };
+}
+
+try {
+  // 1. Desktop: portal boots on a GPU backend, no console errors, axe clean.
+  {
+    const { page, errors } = await open(base);
+    await page.waitForFunction(() => document.getElementById('portal-wrap').dataset.backend || document.getElementById('portal-wrap').dataset.fallback, { timeout: 15000 });
+    const state = await page.evaluate(() => ({
+      backend: document.getElementById('portal-wrap').dataset.backend || null,
+      fallback: document.getElementById('portal-wrap').dataset.fallback || null,
+      on: document.getElementById('portal-canvas').classList.contains('on'),
+      chips: document.querySelectorAll('#stack-chips li').length,
+    }));
+    check('portal boots on webgpu or webgl', ['webgpu', 'webgl'].includes(state.backend) && state.on, JSON.stringify(state));
+    check('stack chips rendered', state.chips === 18, `${state.chips}`);
+
+    for (const c of ['about', 'projects', 'stack']) {
+      await page.type('#cc-term', c);
+      await page.keyboard.press('Enter');
+    }
+    await page.addScriptTag({ content: AXE });
+    const axe = await page.evaluate(async () => {
+      const r = await window.axe.run(document);
+      return { passes: r.passes.length, violations: r.violations.map((v) => `${v.id}:${v.nodes.length}`) };
+    });
+    check('axe: 0 violations', axe.violations.length === 0 && axe.passes > 30, `passes=${axe.passes} ${axe.violations.join(' ')}`);
+    check('no console errors (desktop)', errors.length === 0, errors.slice(0, 2).join(' | '));
+    await page.close();
+  }
+
+  // 2. Shell: completion, history, Tab never traps.
+  {
+    const { page } = await open(`${base}?3d=0`);
+    const r = await page.evaluate(() => {
+      const inp = document.getElementById('cc-term');
+      const key = (k, extra = {}) => {
+        const e = new KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true, ...extra });
+        inp.dispatchEvent(e);
+        return e.defaultPrevented;
+      };
+      const out = {};
+      inp.value = 'who'; out.tabTaken = key('Tab'); out.who = inp.value; key('Enter');
+      inp.value = 'op'; key('Tab'); out.op = inp.value;
+      inp.value = 'xyz'; out.noMatchTaken = key('Tab');
+      inp.value = 'st'; out.shiftTaken = key('Tab', { shiftKey: true });
+      inp.value = ''; key('Enter'); key('ArrowUp'); out.up = inp.value;
+      return out;
+    });
+    check('Tab completes a unique command', r.tabTaken && r.who === 'whoami', r.who);
+    check('Tab completes the common prefix', r.op === 'open ', JSON.stringify(r.op));
+    check('Tab is not captured without a match or with Shift', !r.noMatchTaken && !r.shiftTaken);
+    check('ArrowUp recalls the latest command after an empty Enter', r.up === 'whoami', r.up);
+    await page.close();
+  }
+
+  // 3. QR dialog contract: modal, initial focus, scroll lock, focus return.
+  {
+    const { page } = await open(`${base}?3d=0`);
+    await page.focus('#qr-btn');
+    await page.click('#qr-btn');
+    const opened = await page.evaluate(() => ({
+      open: document.getElementById('qr-dialog').open,
+      focus: document.activeElement?.textContent.trim(),
+      lock: getComputedStyle(document.documentElement).overflow,
+      img: document.querySelector('#qr-dialog img').naturalWidth,
+    }));
+    check('QR dialog opens modal with focus on Close', opened.open && opened.focus === 'Close', JSON.stringify(opened));
+    check('QR image loaded', opened.img > 0, `${opened.img}px`);
+    check('page scroll locked while open', opened.lock === 'hidden', opened.lock);
+    await page.keyboard.press('Escape');
+    const closed = await page.evaluate(() => ({
+      open: document.getElementById('qr-dialog').open,
+      returned: document.activeElement?.id,
+      lock: getComputedStyle(document.documentElement).overflow,
+    }));
+    check('Escape closes, focus returns, scroll unlocks', !closed.open && closed.returned === 'qr-btn' && closed.lock !== 'hidden', JSON.stringify(closed));
+
+    // Feedback inside the dialog must be visible: the toast goes to the top layer.
+    await page.evaluate(() => {
+      Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async () => {} } });
+    });
+    await page.click('#qr-btn');
+    await page.click('#qr-copy');
+    const t = await page.evaluate(() => ({
+      text: document.getElementById('toast').textContent,
+      topLayer: document.getElementById('toast').matches(':popover-open'),
+      dialogOpen: document.getElementById('qr-dialog').open,
+    }));
+    check('copy feedback shows above the open dialog', t.topLayer && t.dialogOpen && /copied/i.test(t.text), JSON.stringify(t));
+    await page.close();
+  }
+
+  // 4. Phone-first: save / share / QR above the fold, no overflow at any width.
+  {
+    const { page } = await open(`${base}?3d=0`, { width: 375, height: 667, isMobile: true, hasTouch: true });
+    const r = await page.evaluate(() => ['save-btn', 'share-btn', 'qr-btn'].map((id) => document.getElementById(id).getBoundingClientRect().bottom <= innerHeight));
+    check('save / share / QR above the fold at 375x667', r.every(Boolean), JSON.stringify(r));
+    await page.close();
+    for (const width of [320, 375, 768, 1024, 1440]) {
+      const { page: p } = await open(`${base}?3d=0`, { width, height: 900 });
+      const ox = await p.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      check(`no horizontal overflow at ${width}px`, ox === 0, `${ox}px`);
+      await p.close();
+    }
+  }
+
+  // 5. Fallbacks: ?3d=0 never fetches three.js and shows the poster; ?webgl=1 renders on WebGL2.
+  {
+    const { page } = await open(`${base}?3d=0`);
+    await new Promise((r) => setTimeout(r, 2500));
+    const r = await page.evaluate(() => ({
+      fallback: document.getElementById('portal-wrap').dataset.fallback,
+      hidden: document.getElementById('portal-canvas').hidden,
+      three: performance.getEntriesByType('resource').filter((e) => e.name.includes('vendor/three')).length,
+    }));
+    check('?3d=0 shows the poster and loads no three.js', r.fallback === '1' && r.hidden && r.three === 0, JSON.stringify(r));
+    await page.close();
+
+    const { page: g, errors } = await open(`${base}?webgl=1`);
+    await g.waitForFunction(() => document.getElementById('portal-wrap').dataset.backend || document.getElementById('portal-wrap').dataset.fallback, { timeout: 15000 });
+    const b = await g.evaluate(() => document.getElementById('portal-wrap').dataset.backend);
+    check('?webgl=1 renders on the WebGL2 backend', b === 'webgl', b);
+    check('no console errors (webgl)', errors.length === 0, errors.slice(0, 2).join(' | '));
+    await g.close();
+  }
+  // 6. Offline (last: it shuts the server down). The service worker must
+  // serve the card with the server GONE, so a pass cannot come from the
+  // network (DevTools offline emulation does not reach the worker's fetches).
+  // Opening another file as a page first must not overwrite the cached card.
+  {
+    const { page } = await open(`${base}?3d=0`);
+    await page.evaluate(() => navigator.serviceWorker.ready);
+    await page.reload({ waitUntil: 'load' }); // now controlled
+    const controlled = await page.evaluate(() => Boolean(navigator.serviceWorker.controller));
+    check('service worker controls the page', controlled);
+    await page.goto(`${base}manifest.webmanifest`, { waitUntil: 'load' });
+    server.closeAllConnections();
+    await new Promise((r) => server.close(r));
+    const direct = await fetch(base).then(() => 'reachable', () => 'down');
+    await page.goto(`${base}?3d=0`, { waitUntil: 'load' }).catch(() => {});
+    const off = await page.evaluate(() => ({
+      title: document.title,
+      save: Boolean(document.getElementById('save-btn')),
+    })).catch((e) => ({ error: String(e) }));
+    check('server is really down for the offline check', direct === 'down', direct);
+    check('card loads offline from the cache, not overwritten by another page', /Oleg Hanukayev/.test(off.title || '') && off.save, JSON.stringify(off));
+    await page.close();
+  }
+} finally {
+  await browser.close();
+  if (server.listening) server.close();
+}
+
+console.log(failed ? `\n${failed} check(s) failed` : '\nall checks passed');
+process.exitCode = failed ? 1 : 0;

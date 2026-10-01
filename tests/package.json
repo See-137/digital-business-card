@@ -1,0 +1,13 @@
+{
+  "name": "c137-card-tests",
+  "private": true,
+  "type": "module",
+  "description": "Headless regression checks for the card (not deployed code; nothing here runs on the site).",
+  "scripts": {
+    "test": "node e2e.mjs"
+  },
+  "devDependencies": {
+    "axe-core": "4.11.0",
+    "puppeteer-core": "24.25.0"
+  }
+}
