@@ -44,6 +44,7 @@ gh api -X POST repos/See-137/digital-business-card/pages/builds
 - **URL pins:** `?webgl=1` (force WebGL2), `?motion=0` (single still frame, also from `prefers-reduced-motion`), `?t=<s>` (pin the clock), `?3d=0` (CSS poster only).
 - **Portal failures fall back to the CSS poster.** `portal.js` turns three's logged shader/pipeline errors and WebGPU `uncapturederror` during startup into a thrown error.
 - **Service worker:** fonts/vendor/icons are cache-first (immutable); everything else network-first. Bump `VERSION` in `sw.js` when changing a cache-first file or the precache list.
+- **Font fallbacks are metric-matched** (`Instrument Fallback`, `Plex Mono Fallback` in `index.html`) so the web-font swap does not move the layout. If a font or the headline copy changes, re-measure `size-adjust` (fontTools, widths of the real copy) — the unmatched serif cost CLS 0.08 live and 0.2 on slow fonts; `tests/` checks it.
 - **Contrast tokens** in `:root` (`--mute`, `--mute-2`, `--leaf`, `--leaf-2`) are measured at >= 4.5:1 on every dark surface. Don't use `#5a6f92` (3.7:1) for text.
 - **Retrieval windows** duplicate the shell output, so their layer is `aria-hidden` and the close buttons are pointer-only. The shell log (`role="log"`) is the accessible record.
 - **Dialogs** use native `<dialog>` + `showModal()` (focus containment, Escape, focus return) with `html:has(dialog[open])` for scroll lock; initial focus via `autofocus`.
@@ -51,5 +52,5 @@ gh api -X POST repos/See-137/digital-business-card/pages/builds
 
 ## Measured baseline (2026-10-01, local gzip server, Lighthouse 13.5)
 
-Mobile 100 / 100 / 100 / 100, desktop 100 / 100 / 100 / 100; axe-core 0 violations; `tests/` 25/25 (incl. offline with the server down).
+Mobile 100 / 100 / 100 / 100, desktop 100 / 100 / 100 / 100; axe-core 0 violations; `tests/` 27/27 (incl. offline with the server down and a slow-font CLS check).
 The live site before this work measured mobile 79 / 96 / 100 / 100, desktop 96 / 100 / 100 / 100.

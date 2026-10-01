@@ -10,7 +10,8 @@ const TYPES = {
   '.png': 'image/png', '.woff2': 'font/woff2', '.vcf': 'text/vcard', '.txt': 'text/plain',
 };
 
-export function serve(rootDir, port = 0) {
+/** fontDelayMs: hold web fonts back, like a real network (layout-shift checks). */
+export function serve(rootDir, port = 0, { fontDelayMs = 0 } = {}) {
   const root = path.resolve(rootDir);
   const server = http.createServer(async (req, res) => {
     try {
@@ -21,6 +22,7 @@ export function serve(rootDir, port = 0) {
         res.writeHead(403).end();
         return;
       }
+      if (fontDelayMs && f.endsWith('.woff2')) await new Promise((r) => setTimeout(r, fontDelayMs));
       let body = await readFile(f);
       const type = TYPES[path.extname(f)] || 'application/octet-stream';
       const headers = { 'content-type': type, 'cache-control': 'no-store' };

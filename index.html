@@ -49,6 +49,20 @@
   @font-face { font-family:'IBM Plex Mono'; font-style:normal; font-weight:400; font-display:swap; src:url(fonts/ibm-plex-mono-400.woff2) format('woff2'); }
   @font-face { font-family:'IBM Plex Mono'; font-style:normal; font-weight:500; font-display:swap; src:url(fonts/ibm-plex-mono-500.woff2) format('woff2'); }
   @font-face { font-family:'IBM Plex Mono'; font-style:normal; font-weight:600; font-display:swap; src:url(fonts/ibm-plex-mono-600.woff2) format('woff2'); }
+  /* Metric-matched stand-in while Plex Mono loads, so the swap changes glyphs,
+     not layout (it moved the identity card by CLS 0.08 live). Plex Mono:
+     upm 1000, ascent 1025, descent 275, gap 0, advance 0.6em; these local
+     monospaces all advance ~0.6em, so only the line metrics need overriding. */
+  /* Same for the display serif, the real CLS culprit: the fallback serif is far
+     wider, so on phones the headline wrapped to extra lines and pushed the
+     identity card down until Instrument Serif arrived. Measured on the headline
+     copy: Instrument Serif 36.30 em vs Times New Roman 43.67 em -> size-adjust
+     83.1%; metrics upm 1000, ascent 990, descent 310, gap 0, divided by
+     size-adjust for the overrides. */
+  @font-face { font-family:'Instrument Fallback'; src:local('Times New Roman'), local('TimesNewRomanPSMT'), local('Times');
+    size-adjust:83.1%; ascent-override:119.1%; descent-override:37.3%; line-gap-override:0%; }
+  @font-face { font-family:'Plex Mono Fallback'; src:local('Courier New'), local('CourierNewPSMT'), local('Menlo'), local('Menlo-Regular'), local('Roboto Mono'), local('Droid Sans Mono'), local('DejaVu Sans Mono'), local('Liberation Mono');
+    size-adjust:100%; ascent-override:102.5%; descent-override:27.5%; line-gap-override:0%; }
 
   :root {
     --cc-display:'Instrument Serif'; --bg:#0A101E; --ink:#E8EDF4; --acid:#9cff2e;
@@ -62,7 +76,7 @@
     background-image:linear-gradient(rgba(120,160,220,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(120,160,220,.05) 1px, transparent 1px);
     background-size:36px 36px;
     -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
-    font-family:'IBM Plex Mono',ui-monospace,monospace;
+    font-family:'IBM Plex Mono','Plex Mono Fallback',ui-monospace,monospace;
   }
   a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid var(--acid); outline-offset:3px; border-radius:3px; }
   ::selection { background:rgba(156,255,46,.3); }
@@ -71,8 +85,8 @@
   main:focus { outline:none; }
   @keyframes cc-blink { 0%,49%{opacity:1} 50%,100%{opacity:0} }
   @keyframes cc-pulse { 0%,100%{opacity:1; transform:scale(1)} 50%{opacity:.35; transform:scale(.8)} }
-  .serif { font-family:var(--cc-display), Georgia, serif; font-weight:400; }
-  .mono { font-family:'IBM Plex Mono',ui-monospace,monospace; }
+  .serif { font-family:var(--cc-display), 'Instrument Fallback', Georgia, serif; font-weight:400; }
+  .mono { font-family:'IBM Plex Mono','Plex Mono Fallback',ui-monospace,monospace; }
   .nl { text-decoration:none; color:#8DA0BC; } .nl:hover { color:var(--ink); }
   .pill:hover { background:rgba(156,255,46,.1); }
   .cta { transition:transform .18s, box-shadow .18s; } .cta:hover { transform:translateY(-2px); box-shadow:0 12px 30px -10px rgba(156,255,46,.6); }

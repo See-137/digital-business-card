@@ -141,6 +141,27 @@ try {
     }
   }
 
+  // 4b. Font swap must not move the layout (it cost CLS 0.08 live): with web
+  // fonts held back 1.5 s on a phone, the summed layout shift stays tiny.
+  // Proof the fonts really arrived late is part of the check.
+  {
+    const slow = await serve(root, 0, { fontDelayMs: 1500 });
+    const { page } = await open(`http://127.0.0.1:${slow.address().port}/?3d=0`, { width: 375, height: 667, isMobile: true, hasTouch: true });
+    const r = await page.evaluate(async () => {
+      let cls = 0;
+      new PerformanceObserver((l) => { for (const e of l.getEntries()) if (!e.hadRecentInput) cls += e.value; })
+        .observe({ type: 'layout-shift', buffered: true });
+      await document.fonts.ready;
+      await new Promise((res) => setTimeout(res, 400));
+      const font = performance.getEntriesByType('resource').find((e) => e.name.endsWith('instrument-serif-400.woff2'));
+      return { cls, fontMs: Math.round(font ? font.responseEnd - font.startTime : -1) };
+    });
+    check('fonts were really delayed', r.fontMs >= 1400, `${r.fontMs} ms`);
+    check('font swap causes no layout shift on a phone (CLS < 0.02)', r.cls < 0.02, r.cls.toFixed(4));
+    await page.close();
+    slow.close();
+  }
+
   // 5. Fallbacks: ?3d=0 never fetches three.js and shows the poster; ?webgl=1 renders on WebGL2.
   {
     const { page } = await open(`${base}?3d=0`);
