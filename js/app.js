@@ -45,22 +45,43 @@ $('vcard-btn').addEventListener('click', downloadVcard);
 
 /* ---------------------------------------------------------------- share · QR · toast */
 const CARD_URL = 'https://see-137.github.io/digital-business-card/';
+const qrDialog = $('qr-dialog');
 const toastEl = $('toast');
-let toastT;
-// The toast is a manual popover: shown after a modal dialog it is still in the
-// top layer above it, so feedback inside the QR dialog is visible.
-function toast(msg) {
+let toastT, announceT;
+
+/**
+ * Screen-reader announcement through an always-rendered live region. Inside
+ * the modal QR dialog the page behind is inert, so the dialog has its own.
+ */
+function announce(msg) {
+  const region = qrDialog.open ? $('qr-status') : $('sr-status');
+  region.textContent = '';
+  clearTimeout(announceT);
+  announceT = setTimeout(() => { region.textContent = msg; }, 60);
+}
+
+function hideToast() {
+  toastEl.classList.remove('show', 'sticky');
+  if (toastEl.matches?.(':popover-open')) toastEl.hidePopover();
+}
+toastEl.addEventListener('click', hideToast);
+
+/**
+ * Visual toast (a manual popover, so it shows above an open modal dialog).
+ * Errors are sticky: they stay until clicked or replaced (WCAG 2.2.1), so a
+ * link printed in one can be read and selected.
+ */
+function toast(msg, { sticky = false } = {}) {
   toastEl.textContent = msg;
   if (toastEl.showPopover) {
     if (toastEl.matches(':popover-open')) toastEl.hidePopover();
     toastEl.showPopover();
   }
   toastEl.classList.add('show');
+  toastEl.classList.toggle('sticky', sticky);
+  announce(msg);
   clearTimeout(toastT);
-  toastT = setTimeout(() => {
-    toastEl.classList.remove('show');
-    if (toastEl.matches?.(':popover-open')) toastEl.hidePopover();
-  }, 2600);
+  if (!sticky) toastT = setTimeout(hideToast, 2600);
 }
 
 async function copyLink() {
@@ -69,7 +90,7 @@ async function copyLink() {
     toast('Link copied ✦');
     return true;
   } catch {
-    toast('Copy failed — the link is see-137.github.io/digital-business-card');
+    toast('Copy failed — the link is see-137.github.io/digital-business-card', { sticky: true });
     return false;
   }
 }
@@ -88,7 +109,6 @@ async function shareCard() {
   return (await copyLink()) ? 'copied' : 'failed';
 }
 
-const qrDialog = $('qr-dialog');
 function openQr() {
   if (!qrDialog.open) qrDialog.showModal();
 }
@@ -103,10 +123,18 @@ $('qr-copy').addEventListener('click', copyLink);
 $('qr-share').addEventListener('click', shareCard);
 $('save-btn').addEventListener('click', () => {
   downloadVcard();
-  toast('contact.vcf saved ✦');
+  toast('Contact card downloading ✦');
 });
 $('share-btn').addEventListener('click', shareCard);
 $('qr-btn').addEventListener('click', openQr);
+
+/* ---------------------------------------------------------------- header height */
+const headerEl = document.querySelector('body > header');
+let headerH = 64;
+new ResizeObserver(() => {
+  headerH = headerEl.getBoundingClientRect().height;
+  document.documentElement.style.setProperty('--header-h', `${Math.round(headerH)}px`);
+}).observe(headerEl);
 
 /* ---------------------------------------------------------------- portal controller */
 let portal = null; // set once js/portal.js is running
@@ -117,17 +145,18 @@ const hintEl = $('portal-hint');
 const wrap = $('portal-wrap');
 const canvas = $('portal-canvas');
 const flashEl = $('stage-flash');
+const coarse = matchMedia('(pointer: coarse)').matches;
 
 function refreshUi() {
   for (const b of document.querySelectorAll('.jbtn')) b.classList.toggle('armed', b.dataset.dest === armed);
   if (wrap.dataset.fallback) {
-    hintEl.textContent = 'PORTAL OFFLINE — USE JUMP TO ↑';
+    hintEl.textContent = '3D OFF — USE JUMP TO';
     hintEl.classList.toggle('live', Boolean(armed));
   } else if (armed) {
     hintEl.textContent = `JUMPING → ${LABELS[armed]}`;
     hintEl.classList.add('live');
   } else {
-    hintEl.textContent = `CLICK VORTEX → ${LABELS[DESTS[nextIdx]]}`;
+    hintEl.textContent = `${coarse ? 'TAP' : 'CLICK'} VORTEX → ${LABELS[DESTS[nextIdx]]}`;
     hintEl.classList.remove('live');
   }
 }
@@ -143,8 +172,11 @@ function jump(dest) {
   clearTimeout(jt2);
   jt1 = setTimeout(() => {
     const el = $(dest);
-    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 64, behavior: pins.still ? 'auto' : 'smooth' });
-  }, pins.still ? 0 : 620);
+    if (!el) return;
+    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - headerH - 8, behavior: motionOff() ? 'auto' : 'smooth' });
+    // Move focus with the view, so the next Tab continues from the section.
+    el.querySelector('h2')?.focus({ preventScroll: true });
+  }, motionOff() ? 0 : 620);
   jt2 = setTimeout(() => {
     if (Date.now() >= flareUntil) portal?.setBoost(0);
     armed = null;
@@ -161,7 +193,7 @@ function flarePortal() {
   flareT = setTimeout(() => {
     if (!armed) portal?.setBoost(0);
   }, 1500);
-  if (flashEl && !pins.still) {
+  if (flashEl && !motionOff()) {
     flashEl.classList.remove('flash');
     void flashEl.offsetWidth;
     flashEl.classList.add('flash');
@@ -169,7 +201,7 @@ function flarePortal() {
 }
 
 /* ---------------------------------------------------------------- retrieval windows */
-// Decorative duplicates of what the shell prints (the shell log is the
+// Decorative pop-ups that echo what the shell prints (the shell log is the
 // accessible record), so the layer is aria-hidden and its close buttons are
 // pointer-only.
 const rLayer = $('retrieval-layer');
@@ -193,7 +225,7 @@ function retrieve(title, rows) {
   bar.className = 'pwin-bar';
   bar.innerHTML = '<span class="dots"><i class="d-r"></i><i class="d-y"></i><i class="d-g"></i></span>';
   const label = document.createElement('span');
-  label.textContent = `RETRIEVED VIA PORTAL — ${title}`;
+  label.textContent = `PORTAL — ${title}`;
   const x = document.createElement('button');
   x.className = 'pwin-x';
   x.tabIndex = -1;
@@ -227,6 +259,7 @@ function addLine(text, type = 'out', isPrompt = false) {
   if (isPrompt) {
     const pr = document.createElement('span');
     pr.className = 'ln-prompt';
+    pr.setAttribute('aria-hidden', 'true');
     pr.textContent = '~/c137 ❯ ';
     d.append(pr, text);
   } else d.textContent = text;
@@ -263,7 +296,6 @@ const COMMANDS = {
     p('02  gitops delivery pipeline       argocd · progressive');
     p('03  rag + agent infrastructure     bedrock + claude');
     p('04  observability & SLO overhaul   datadog · error budgets');
-    p('retrieved through the portal →', 'sys');
     retrieve('SELECTED WORK', [['01', 'multi-region EKS platform'], ['02', 'gitops delivery pipeline'], ['03', 'rag + agent infrastructure'], ['04', 'observability & SLO overhaul']]);
   },
   hire: (p) => {
@@ -358,17 +390,25 @@ function complete(hits) {
   }
 }
 
-addLine('c137.ops shell — zsh 5.9 · session.live · portal linked ◉', 'sys');
-addLine("type 'help' — content commands are retrieved through the portal", 'sys');
+// The two intro lines are static HTML (so they are not announced on load).
+let lastTab = null; // input value at the last Tab that listed options
 inputEl.addEventListener('keydown', (e) => {
+  const hits = e.key === 'Tab' ? completionsFor(inputEl.value.trimStart().toLowerCase()) : [];
   if (e.key === 'Enter') {
     run(inputEl.value);
     inputEl.value = '';
-  } else if (e.key === 'Tab' && !e.shiftKey && completionsFor(inputEl.value.trimStart().toLowerCase()).length) {
-    // Tab is only captured when there is something to complete; otherwise
-    // (and always with Shift) it moves focus as usual.
+    lastTab = null;
+  } else if (e.key === 'Escape' && inputEl.value) {
     e.preventDefault();
-    complete(completionsFor(inputEl.value.trimStart().toLowerCase()));
+    inputEl.value = '';
+  } else if (e.key === 'Tab' && !e.shiftKey && hits.length && lastTab !== inputEl.value) {
+    // Tab is captured only when it can make progress: something to complete,
+    // and not a repeat of a Tab that already listed the options (the second
+    // Tab moves focus on, so the input never traps the keyboard).
+    e.preventDefault();
+    const before = inputEl.value;
+    complete(hits);
+    lastTab = inputEl.value === before ? before : null;
   } else if (e.key === 'ArrowUp' && history.length) {
     e.preventDefault();
     hIdx = Math.max(0, hIdx - 1);
@@ -380,6 +420,32 @@ inputEl.addEventListener('keydown', (e) => {
   }
 });
 for (const b of document.querySelectorAll('[data-cmd]')) b.addEventListener('click', () => run(b.dataset.cmd));
+
+/* ---------------------------------------------------------------- motion control */
+// One switch for all motion: the 3D loop and every CSS animation. The OS
+// reduced-motion setting is honoured live; the user's own choice is remembered
+// on this device (a convenience only, so storage failures are ignored).
+const reduceMq = matchMedia('(prefers-reduced-motion: reduce)');
+const motionBtn = $('motion-btn');
+let userPaused = false;
+try { userPaused = localStorage.getItem('c137-motion') === 'paused'; } catch { /* no storage */ }
+function motionOff() {
+  return userPaused || reduceMq.matches || q.get('motion') === '0';
+}
+function applyMotion() {
+  const off = motionOff();
+  document.documentElement.classList.toggle('paused', off);
+  motionBtn.setAttribute('aria-pressed', String(off));
+  motionBtn.querySelector('.motion-label').textContent = off ? 'MOTION OFF' : 'PAUSE MOTION';
+  portal?.setPaused(off);
+}
+motionBtn.addEventListener('click', () => {
+  userPaused = !motionOff();
+  try { localStorage.setItem('c137-motion', userPaused ? 'paused' : 'on'); } catch { /* no storage */ }
+  applyMotion();
+});
+reduceMq.addEventListener('change', applyMotion);
+applyMotion();
 
 /* ---------------------------------------------------------------- portal boot */
 
@@ -400,6 +466,7 @@ function boot() {
     .then((m) => m.startPortal({ canvas, wrap, pins, onJump: () => jump(DESTS[nextIdx]) }))
     .then((ctl) => {
       portal = ctl;
+      portal.setPaused(motionOff());
       wrap.dataset.backend = ctl.backend;
       canvas.classList.add('on');
     })

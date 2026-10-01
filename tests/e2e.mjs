@@ -90,6 +90,70 @@ try {
     await page.close();
   }
 
+  // 2b. Accessibility contract beyond axe: motion can be paused, focus follows
+  // a jump, the shell log is keyboard-scrollable, Tab never traps, Esc clears,
+  // announcements reach a live region, landmarks and honest labels.
+  {
+    const { page } = await open(base);
+    await page.waitForFunction(() => document.getElementById('portal-wrap').dataset.backend || document.getElementById('portal-wrap').dataset.fallback, { timeout: 15000 });
+    await page.click('#motion-btn');
+    const paused = await page.evaluate(() => ({
+      cls: document.documentElement.classList.contains('paused'),
+      pressed: document.getElementById('motion-btn').getAttribute('aria-pressed'),
+      label: document.querySelector('#motion-btn .motion-label').textContent,
+      stored: localStorage.getItem('c137-motion'),
+      anim: getComputedStyle(document.querySelector('.kicker span span')).animationPlayState,
+    }));
+    check('pause motion freezes CSS animations and is remembered', paused.cls && paused.pressed === 'true' && paused.anim === 'paused' && paused.stored === 'paused', JSON.stringify(paused));
+    await page.click('#motion-btn');
+    const resumed = await page.evaluate(() => document.documentElement.classList.contains('paused'));
+    check('pause motion toggles back on', !resumed);
+
+    await page.click('.jbtn[data-dest="stack"]');
+    await page.waitForFunction(() => document.activeElement?.id === 'stack-h', { timeout: 4000 }).catch(() => {});
+    const focused = await page.evaluate(() => document.activeElement?.id || document.activeElement?.tagName);
+    check('a portal jump moves focus to the section heading', focused === 'stack-h', focused);
+
+    const r = await page.evaluate(() => {
+      const log = document.getElementById('term-scroll');
+      const inp = document.getElementById('cc-term');
+      const key = (k) => { const e = new KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true }); inp.dispatchEvent(e); return e.defaultPrevented; };
+      const out = {
+        logFocusable: log.tabIndex === 0,
+        promptOutsideLog: !log.contains(inp),
+        introStatic: document.querySelectorAll('#term-lines .ln').length >= 2,
+      };
+      inp.value = 'h'; out.firstTab = key('Tab'); out.secondTab = key('Tab');
+      inp.value = 'stack'; out.esc = key('Escape'); out.cleared = inp.value === '';
+      out.footerOutsideMain = !document.querySelector('main footer') && Boolean(document.querySelector('body > footer'));
+      const visible = document.body.innerText;
+      out.ragClaims = (visible.match(/RAG ACTIVE|retrieval engine|retrieved (via|through)/gi) || []).length;
+      out.domOrderPhoneFirst = document.getElementById('save-btn').compareDocumentPosition(document.querySelector('.cta')) & Node.DOCUMENT_POSITION_FOLLOWING ? true : false;
+      return out;
+    });
+    check('shell log is keyboard-focusable and the prompt sits outside it', r.logFocusable && r.promptOutsideLog && r.introStatic, JSON.stringify(r));
+    check('Tab lists options once, then releases focus', r.firstTab === true && r.secondTab === false, `${r.firstTab}/${r.secondTab}`);
+    check('Escape clears the prompt', r.esc && r.cleared);
+    check('footer is its own landmark (outside main)', r.footerOutsideMain);
+    check('no RAG / retrieval claims in visible text', r.ragClaims === 0, `${r.ragClaims}`);
+    check('tab order: Save contact comes before the CTAs (matches the layout)', r.domOrderPhoneFirst);
+
+    await page.evaluate(() => {
+      Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText: async () => { throw new Error('denied'); } } });
+      Object.defineProperty(navigator, 'share', { configurable: true, value: undefined });
+    });
+    await page.click('#share-btn');
+    await new Promise((res) => setTimeout(res, 300));
+    const fail = await page.evaluate(() => ({
+      sr: document.getElementById('sr-status').textContent,
+      sticky: document.getElementById('toast').classList.contains('sticky'),
+    }));
+    await new Promise((res) => setTimeout(res, 3000));
+    const still = await page.evaluate(() => document.getElementById('toast').classList.contains('show'));
+    check('failure is announced to screen readers and stays on screen', /Copy failed/.test(fail.sr) && fail.sticky && still, JSON.stringify({ ...fail, stillShown: still }));
+    await page.close();
+  }
+
   // 3. QR dialog contract: modal, initial focus, scroll lock, focus return.
   {
     const { page } = await open(`${base}?3d=0`);

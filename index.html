@@ -71,7 +71,7 @@
     --mute:#7d93b5; --mute-2:#6f86a8; --leaf:#7f9a6c; --leaf-2:#6f9a56;
   }
   * { box-sizing:border-box; }
-  html { scroll-behavior:smooth; scroll-padding-top:72px; }
+  html { scroll-behavior:smooth; scroll-padding-top:calc(var(--header-h, 64px) + 8px); }
   body {
     margin:0; color:var(--ink); background:var(--bg);
     background-image:linear-gradient(rgba(120,160,220,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(120,160,220,.05) 1px, transparent 1px);
@@ -81,6 +81,7 @@
   }
   a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid var(--acid); outline-offset:3px; border-radius:3px; }
   ::selection { background:rgba(156,255,46,.3); }
+  .vh { position:absolute !important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
   .skip { position:absolute; left:12px; top:-60px; z-index:100; padding:10px 14px; border-radius:8px; background:var(--acid); color:#0a1505; font-weight:600; text-decoration:none; }
   .skip:focus { top:12px; }
   main:focus { outline:none; }
@@ -111,6 +112,9 @@
   }
   @media (max-width: 540px) { [data-r="facts"] { grid-template-columns:1fr !important; } }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation:none !important; transition:none !important; scroll-behavior:auto !important; } }
+  /* The pause-motion control (WCAG 2.2.2): freezes every CSS animation; app.js freezes the 3D. */
+  html.paused *, html.paused *::before, html.paused *::after { animation-play-state:paused !important; }
+  @media (max-height: 500px) { body > header { position:static !important; } }
 
   /* ---- Portal Shell (integrated hero) ---- */
   @keyframes cc-emit { 0%{ opacity:0; transform:translate(14px,-8px) scale(.86); filter:blur(5px); } 60%{ opacity:1; } 100%{ opacity:1; transform:translate(0,0) scale(1); filter:blur(0); } }
@@ -132,6 +136,9 @@
   .stage-cap { position:absolute; top:0; left:0; right:0; z-index:5; display:flex; align-items:center; gap:10px; padding:11px 15px; font-size:10px; letter-spacing:.14em; color:#8fb27a; background:linear-gradient(rgba(3,9,5,.9), transparent); }
   .stage-jump { position:absolute; top:44px; left:0; right:0; z-index:5; display:flex; align-items:center; flex-wrap:wrap; gap:8px; padding:8px 15px; pointer-events:none; }
   .stage-jump .jbtn, .stage-jump #portal-hint { pointer-events:auto; }
+  .cap-btn { cursor:pointer; font:inherit; font-size:10px; letter-spacing:.12em; display:inline-flex; align-items:center; gap:6px; min-height:28px; padding:4px 10px; border-radius:14px; border:1px solid rgba(156,255,46,.3); background:rgba(3,9,5,.6); color:#bfe3a8; }
+  .cap-btn:hover { border-color:rgba(156,255,46,.6); color:var(--acid); }
+  .cap-btn[aria-pressed="true"] { border-color:var(--acid); color:var(--acid); }
   #portal-hint { margin-left:auto; font-size:10px; letter-spacing:.1em; color:var(--mute); white-space:nowrap; }
   #portal-hint.live { color:var(--acid); }
   .retrieval-layer { position:absolute; inset:0; z-index:7; pointer-events:none; }
@@ -145,7 +152,7 @@
   .rwin .k { color:var(--leaf-2); }
   .shellwin { position:absolute; z-index:8; left:clamp(14px,3%,26px); right:clamp(14px,3%,26px); bottom:clamp(16px,3vh,26px); }
   .ln { white-space:pre-wrap; } .ln-in, .ln-prompt { color:var(--acid); } .ln-out { color:#9fb2ce; } .ln-sys { color:var(--mute); } .ln-err { color:#ff8a8a; } .ln-ok { color:#bfff7a; }
-  .idwin { margin-top:30px; border:1px solid rgba(156,255,46,.2); border-radius:11px; overflow:hidden; background:rgba(6,13,9,.65); max-width:440px; }
+  .idwin { margin:0 0 26px; border:1px solid rgba(156,255,46,.2); border-radius:11px; overflow:hidden; background:rgba(6,13,9,.65); max-width:440px; }
   /* ---- card actions · QR dialog · toast ---- */
   .card-actions { display:flex; flex-wrap:wrap; gap:8px; padding:0 16px 14px; }
   .act { cursor:pointer; font:inherit; font-size:11.5px; letter-spacing:.06em; display:inline-flex; align-items:center; gap:7px; min-height:40px; padding:8px 13px; border-radius:8px; border:1px solid rgba(120,160,220,.26); background:rgba(10,16,30,.4); color:var(--ink); transition:border-color .18s, background .18s; }
@@ -153,8 +160,9 @@
   .act.primary { border-color:rgba(156,255,46,.55); color:var(--acid); background:rgba(156,255,46,.08); }
   .act svg { width:15px; height:15px; flex:none; }
   @media (max-width: 420px) { .act { padding:8px 10px; font-size:11px; letter-spacing:.02em; gap:6px; } .card-actions { gap:6px; } }
-  .prompt-row { display:flex; align-items:center; gap:8px; margin-top:2px; border-radius:6px; padding:2px 4px; margin-left:-4px; }
-  .prompt-row:focus-within { outline:1px solid rgba(156,255,46,.55); outline-offset:2px; }
+  #term-scroll:focus-visible { outline:2px solid var(--acid); outline-offset:-2px; }
+  .prompt-row { display:flex; align-items:center; gap:8px; margin:0 12px 4px; border-radius:6px; padding:6px 4px; font-size:12.5px; }
+  .prompt-row:focus-within { outline:2px solid rgba(156,255,46,.7); outline-offset:0; }
   #cc-term { outline:none; }
   #portal-canvas[hidden] { display:none; }
   html:has(dialog[open]) { overflow:hidden; }
@@ -171,9 +179,7 @@
   @media (max-width: 900px) {
     /* phone-first: the card (name, role, save / share / QR) comes right after
        the headline, above the long copy */
-    .hero-copy { display:flex; flex-direction:column; }
-    .hero-copy .kicker { order:0; } .hero-copy h1 { order:1; } .hero-copy .idwin { order:2; margin:0 0 26px; max-width:none; }
-    .hero-copy .lead { order:3; } .hero-copy .hint { order:4; } .hero-copy .ctas { order:5; }
+    .hero-copy .idwin { max-width:none; }
     .stage { min-height:0; }
     .pwrap { position:relative; inset:auto; height:300px; }
     .stage-cap, .stage-jump, .shellwin { position:static; }
@@ -198,7 +204,7 @@
     <span data-r="navlinks" style="margin-left:32px; display:flex; gap:26px;">
       <a class="nl" href="#stack"><span style="color:var(--mute);">02</span> STACK</a>
     </span>
-    <a class="pill" href="#contact" style="text-decoration:none; color:var(--acid); border:1px solid rgba(156,255,46,.4); padding:8px 15px; border-radius:20px; margin-left:auto;">CONTACT →</a>
+    <a class="pill" href="#contact" style="text-decoration:none; color:var(--acid); border:1px solid rgba(156,255,46,.4); padding:8px 15px; border-radius:20px; margin-left:auto;">CONTACT <span aria-hidden="true">→</span></a>
   </nav>
 </header>
 
@@ -210,12 +216,6 @@
       <div class="hero-copy">
         <div class="mono kicker" style="font-size:11.5px; letter-spacing:.2em; color:var(--acid); margin-bottom:26px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;"><span style="display:inline-flex; align-items:center; gap:8px;"><span aria-hidden="true" style="width:7px; height:7px; border-radius:50%; background:var(--acid); animation:cc-pulse 2s ease-in-out infinite;"></span>DIMENSION C‑137 · STABLE</span><span aria-hidden="true" style="color:#3a5680;">—</span><span style="color:var(--mute-2);">PLATFORM · DEVOPS · MLOPS</span></div>
         <h1 class="serif" style="font-size:clamp(38px,5.4vw,58px); line-height:1.03; letter-spacing:-.015em; margin:0 0 24px;">Infinite dimensions. Prod stays up in <em style="font-style:italic; color:var(--acid);">all of mine</em>.</h1>
-        <p class="serif lead" style="font-size:clamp(17px,2vw,20px); line-height:1.55; color:#9fb2ce; max-width:440px; margin:0 0 22px;">DevOps &amp; AI engineer. Kubernetes on AWS, GitOps delivery, and agentic AI infrastructure — shipped to real production, built to stay up.</p>
-        <p class="mono hint" style="font-size:12px; color:var(--mute-2); margin:0 0 30px; line-height:1.7;">// the portal is the retrieval engine. run a command in the shell — <span style="color:var(--acid);">projects</span>, <span style="color:var(--acid);">stack</span>, <span style="color:var(--acid);">about</span> — and pull the record back through it.</p>
-        <div class="mono ctas" style="display:flex; gap:13px; flex-wrap:wrap;">
-          <a class="cta" href="#contact" style="text-decoration:none; font-size:13px; letter-spacing:.03em; padding:14px 22px; border-radius:9px; background:var(--acid); color:#0a1505; font-weight:600;">GET IN TOUCH →</a>
-          <a class="ghost" href="#stack" style="text-decoration:none; font-size:13px; letter-spacing:.03em; padding:14px 22px; border-radius:9px; border:1px solid rgba(120,160,220,.28); color:var(--ink);">VIEW STACK ↗</a>
-        </div>
         <!-- identity HUD -->
         <div class="idwin mono">
           <div class="pwin-bar"><span class="dots" aria-hidden="true"><i class="d-r"></i><i class="d-y"></i><i class="d-g"></i></span><span>IDENTITY · C137.OPS</span></div>
@@ -230,34 +230,40 @@
             <button id="qr-btn" class="act" type="button" aria-haspopup="dialog" aria-controls="qr-dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/></svg>QR</button>
           </div>
         </div>
+        <p class="serif lead" style="font-size:clamp(17px,2vw,20px); line-height:1.55; color:#9fb2ce; max-width:440px; margin:0 0 22px;">DevOps &amp; AI engineer. Kubernetes on AWS, GitOps delivery, and agentic AI infrastructure — shipped to real production, built to stay up.</p>
+        <p class="mono hint" style="font-size:12px; color:var(--mute-2); margin:0 0 30px; line-height:1.7;">// run a command in the shell — <span style="color:var(--acid);">projects</span>, <span style="color:var(--acid);">stack</span>, <span style="color:var(--acid);">about</span> — and the portal answers.</p>
+        <div class="mono ctas" style="display:flex; gap:13px; flex-wrap:wrap;">
+          <a class="cta" href="#contact" style="text-decoration:none; font-size:13px; letter-spacing:.03em; padding:14px 22px; border-radius:9px; background:var(--acid); color:#0a1505; font-weight:600;">GET IN TOUCH <span aria-hidden="true">→</span></a>
+          <a class="ghost" href="#stack" style="text-decoration:none; font-size:13px; letter-spacing:.03em; padding:14px 22px; border-radius:9px; border:1px solid rgba(120,160,220,.28); color:var(--ink);">VIEW STACK <span aria-hidden="true">→</span></a>
+        </div>
       </div>
 
       <!-- portal + shell stage -->
       <div class="stage" id="portal-stage">
-        <div class="stage-cap mono"><span aria-hidden="true" style="color:var(--acid);">◇</span><span>C-137 PORTAL — RAG ACTIVE</span><span style="margin-left:auto; color:var(--acid); display:inline-flex; align-items:center; gap:6px;"><span aria-hidden="true" style="width:6px; height:6px; border-radius:50%; background:var(--acid); animation:cc-pulse 2s ease-in-out infinite;"></span>live</span></div>
-        <div class="stage-jump mono">
-          <span style="font-size:10px; letter-spacing:.12em; color:var(--leaf); white-space:nowrap;">JUMP TO</span>
+        <div class="stage-cap mono"><span aria-hidden="true" style="color:var(--acid);">◇</span><span>C-137 PORTAL — LINKED</span><button id="motion-btn" class="cap-btn" type="button" aria-pressed="false" style="margin-left:auto;"><span aria-hidden="true">❚❚</span><span class="motion-label">PAUSE MOTION</span></button></div>
+        <div class="stage-jump mono" role="group" aria-labelledby="jump-label">
+          <span id="jump-label" style="font-size:10px; letter-spacing:.12em; color:var(--leaf); white-space:nowrap;">JUMP TO</span>
           <button class="jbtn" data-dest="stack" aria-label="Portal jump to STACK">STACK</button>
           <button class="jbtn" data-dest="contact" aria-label="Portal jump to CHANNEL">CHANNEL</button>
-          <span id="portal-hint" aria-live="polite">CLICK VORTEX → STACK</span>
+          <span id="portal-hint" aria-hidden="true">CLICK VORTEX → STACK</span>
         </div>
         <div id="portal-wrap" class="pwrap">
-          <canvas id="portal-canvas" role="img" aria-label="Interactive 3D portal — drag to orbit, click to jump to a section"></canvas>
+          <canvas id="portal-canvas" aria-hidden="true"></canvas>
         </div>
         <div class="stage-flash" id="stage-flash"></div>
         <div class="retrieval-layer" id="retrieval-layer" aria-hidden="true"></div>
 
         <!-- the real shell, docked into the portal -->
         <div class="shellwin pwin mono">
-          <div class="pwin-bar"><span class="dots" aria-hidden="true"><i class="d-r"></i><i class="d-y"></i><i class="d-g"></i></span><span>oleg@c137 — shell — session.live</span><span style="margin-left:auto; color:var(--leaf-2); letter-spacing:.1em;">RAG ACTIVE</span></div>
-          <div id="term-scroll" role="log" aria-label="Interactive shell output" style="height:clamp(210px,26vh,268px); overflow-y:auto; padding:14px 16px; font-size:12.5px; line-height:1.7;">
-            <div id="term-lines"></div>
+          <div class="pwin-bar"><span class="dots" aria-hidden="true"><i class="d-r"></i><i class="d-y"></i><i class="d-g"></i></span><h2 class="vh">Interactive shell</h2><span>oleg@c137 — shell</span><span style="margin-left:auto; color:var(--leaf-2); letter-spacing:.1em;">LOCAL</span></div>
+          <div id="term-scroll" role="log" tabindex="0" aria-label="Shell output" style="height:clamp(170px,22vh,236px); overflow-y:auto; padding:14px 16px 6px; font-size:12.5px; line-height:1.7;">
+            <div id="term-lines"><div class="ln ln-sys">c137.ops shell — zsh 5.9 · portal linked</div><div class="ln ln-sys">type 'help' to list commands</div></div>
+          </div>
             <div class="prompt-row">
-              <label for="cc-term" style="color:var(--acid);">~/c137 ❯</label>
-              <input id="cc-term" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="send" aria-label="Type a shell command" placeholder="type a command — try 'help'" style="flex:1; min-width:0; background:transparent; border:0; color:var(--ink); font-family:inherit; font-size:12.5px;">
+              <label for="cc-term" style="color:var(--acid);"><span aria-hidden="true">~/c137 ❯</span><span class="vh">Shell command</span></label>
+              <input id="cc-term" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="send" placeholder="type a command — try 'help'" style="flex:1; min-width:0; background:transparent; border:0; color:var(--ink); font-family:inherit; font-size:12.5px;">
               <span aria-hidden="true" style="width:8px; height:15px; background:var(--acid); animation:cc-blink 1.1s step-end infinite;"></span>
             </div>
-          </div>
           <div id="term-chips" style="display:flex; flex-wrap:wrap; gap:7px; padding:11px 16px; border-top:1px solid rgba(156,255,46,.14);">
             <button class="chip-on" data-cmd="help" style="cursor:pointer; font-family:inherit; font-size:11px; padding:5px 11px; border-radius:20px; border:1px solid rgba(156,255,46,.3); background:rgba(156,255,46,.07); color:var(--acid);">help</button>
             <button class="chip" data-cmd="about" style="cursor:pointer; font-family:inherit; font-size:11px; padding:5px 11px; border-radius:20px; border:1px solid rgba(120,160,220,.24); background:transparent; color:#cdd8e8;">about</button>
@@ -274,17 +280,17 @@
 
   <!-- FACTS -->
   <section aria-label="Facts" style="border-top:1px solid rgba(120,160,220,.14); border-bottom:1px solid rgba(120,160,220,.14);">
-    <div data-r="facts" class="mono" style="max-width:1180px; margin:0 auto; display:grid; grid-template-columns:repeat(3,1fr);">
-      <div style="padding:24px clamp(20px,4vw,40px); border-right:1px solid rgba(120,160,220,.12);"><div style="font-size:10px; letter-spacing:.16em; color:var(--mute); margin-bottom:10px;">ROLE</div><div style="font-size:14.5px;">DevOps &amp; AI engineer</div><div style="font-size:12px; color:var(--mute-2); margin-top:4px;">platform · MLOps · cloud</div></div>
-      <div style="padding:24px clamp(20px,4vw,40px); border-right:1px solid rgba(120,160,220,.12);"><div style="font-size:10px; letter-spacing:.16em; color:var(--mute); margin-bottom:10px;">FOCUS</div><div style="font-size:14.5px;">Cloud platforms &amp; AI infra</div><div style="font-size:12px; color:var(--mute-2); margin-top:4px;">kubernetes · gitops · llm</div></div>
-      <div style="padding:24px clamp(20px,4vw,40px);"><div style="font-size:10px; letter-spacing:.16em; color:var(--mute); margin-bottom:10px;">OPEN TO</div><div style="font-size:14.5px; color:var(--acid);">Senior / Staff roles</div><div style="font-size:12px; color:var(--mute-2); margin-top:4px;">Platform · DevOps · SRE · MLOps · Cloud Infra</div></div>
-    </div>
+    <dl data-r="facts" class="mono" style="max-width:1180px; margin:0 auto; display:grid; grid-template-columns:repeat(3,1fr);">
+      <div style="padding:24px clamp(20px,4vw,40px); border-right:1px solid rgba(120,160,220,.12);"><dt style="font-size:10px; letter-spacing:.16em; color:var(--mute); margin-bottom:10px;">ROLE</dt><dd style="margin:0;"><div style="font-size:14.5px;">DevOps &amp; AI engineer</div><div style="font-size:12px; color:var(--mute-2); margin-top:4px;">platform · MLOps · cloud</div></dd></div>
+      <div style="padding:24px clamp(20px,4vw,40px); border-right:1px solid rgba(120,160,220,.12);"><dt style="font-size:10px; letter-spacing:.16em; color:var(--mute); margin-bottom:10px;">FOCUS</dt><dd style="margin:0;"><div style="font-size:14.5px;">Cloud platforms &amp; AI infra</div><div style="font-size:12px; color:var(--mute-2); margin-top:4px;">kubernetes · gitops · llm</div></dd></div>
+      <div style="padding:24px clamp(20px,4vw,40px);"><dt style="font-size:10px; letter-spacing:.16em; color:var(--mute); margin-bottom:10px;">OPEN TO</dt><dd style="margin:0;"><div style="font-size:14.5px; color:var(--acid);">Senior / Staff roles</div><div style="font-size:12px; color:var(--mute-2); margin-top:4px;">Platform · DevOps · SRE · MLOps · Cloud Infra</div></dd></div>
+    </dl>
   </section>
 
   <!-- STACK -->
   <section id="stack" aria-labelledby="stack-h" style="max-width:1180px; margin:0 auto; padding:clamp(40px,5vw,64px) clamp(20px,5vw,48px); border-top:1px solid rgba(120,160,220,.14);">
     <div class="mono" style="font-size:11px; letter-spacing:.18em; color:var(--acid); margin-bottom:12px;">FIG. 02 — TOOLCHAIN</div>
-    <h2 id="stack-h" class="serif" style="font-size:clamp(28px,4vw,40px); letter-spacing:-.01em; margin:0 0 6px;">The toolchain, unfiltered.</h2>
+    <h2 id="stack-h" class="serif" tabindex="-1" style="font-size:clamp(28px,4vw,40px); letter-spacing:-.01em; margin:0 0 6px;">The toolchain, unfiltered.</h2>
     <p class="mono" style="font-size:13px; color:var(--mute-2); margin:0 0 30px;">// if it's listed, I've shipped it in production.</p>
     <ul id="stack-chips" class="mono tools" aria-label="Toolchain"></ul>
   </section>
@@ -293,15 +299,15 @@
   <section id="contact" aria-labelledby="contact-h" style="border-top:1px solid rgba(120,160,220,.14); background:radial-gradient(120% 130% at 82% 0%, rgba(156,255,46,.05), transparent 62%);">
     <div style="max-width:1180px; margin:0 auto; padding:clamp(56px,7vw,88px) clamp(20px,5vw,48px);">
       <div class="mono" style="font-size:11px; letter-spacing:.18em; color:var(--acid); margin-bottom:12px;">FIG. 03 — OPEN CHANNEL</div>
-      <h2 id="contact-h" class="serif" style="font-size:clamp(32px,5vw,48px); letter-spacing:-.015em; margin:0 0 30px;">Let's build something that <em style="font-style:italic; color:var(--acid);">stays up</em>.</h2>
+      <h2 id="contact-h" class="serif" tabindex="-1" style="font-size:clamp(32px,5vw,48px); letter-spacing:-.015em; margin:0 0 30px;">Let's build something that <em style="font-style:italic; color:var(--acid);">stays up</em>.</h2>
       <div data-r="channel" style="display:grid; grid-template-columns:1fr 1.1fr; gap:clamp(24px,4vw,40px); align-items:start;">
         <div class="mono">
           <p style="font-size:13px; color:var(--mute-2); margin:0 0 24px; line-height:1.7;">// open to senior / staff platform, DevOps &amp; MLOps roles — or just to compare notes on Kubernetes scars.</p>
           <p style="font-size:11px; color:var(--mute); letter-spacing:.1em; margin:0 0 8px;">REACH ME ON</p>
-          <a class="mail" href="https://www.linkedin.com/in/oleg-hanukayev-3765b910a/" target="_blank" rel="noopener" style="display:inline-block; text-decoration:none; font-size:clamp(17px,2.4vw,21px); color:var(--acid); margin-bottom:26px; word-break:break-all;">linkedin.com/in/oleg-hanukayev →</a>
+          <a class="mail" href="https://www.linkedin.com/in/oleg-hanukayev-3765b910a/" target="_blank" rel="noopener" style="display:inline-block; text-decoration:none; font-size:clamp(17px,2.4vw,21px); color:var(--acid); margin-bottom:26px; word-break:break-all;">linkedin.com/in/oleg-hanukayev <span aria-hidden="true">→</span><span class="vh"> (opens in new tab)</span></a>
           <div style="display:flex; flex-direction:column; gap:12px;">
-            <a class="ccard" href="https://www.linkedin.com/in/oleg-hanukayev-3765b910a/" target="_blank" rel="noopener" style="text-decoration:none; padding:15px 18px; border:1px solid rgba(156,255,46,.3); border-radius:11px; display:flex; justify-content:space-between; align-items:baseline; background:rgba(156,255,46,.05);"><span style="font-size:10px; color:var(--leaf-2); letter-spacing:.1em;">LINKEDIN</span><span style="font-size:13px; color:var(--ink);">in/oleg-hanukayev ↗</span></a>
-            <a class="ccard" href="https://github.com/See-137/" target="_blank" rel="noopener" style="text-decoration:none; padding:15px 18px; border:1px solid rgba(120,160,220,.2); border-radius:11px; display:flex; justify-content:space-between; align-items:baseline;"><span style="font-size:10px; color:var(--mute); letter-spacing:.1em;">GITHUB</span><span style="font-size:13px; color:var(--ink);">@See-137 ↗</span></a>
+            <a class="ccard" href="https://www.linkedin.com/in/oleg-hanukayev-3765b910a/" target="_blank" rel="noopener" style="text-decoration:none; padding:15px 18px; border:1px solid rgba(156,255,46,.3); border-radius:11px; display:flex; justify-content:space-between; align-items:baseline; background:rgba(156,255,46,.05);"><span style="font-size:10px; color:var(--leaf-2); letter-spacing:.1em;">LINKEDIN</span><span style="font-size:13px; color:var(--ink);">in/oleg-hanukayev <span aria-hidden="true">↗</span><span class="vh"> (opens in new tab)</span></span></a>
+            <a class="ccard" href="https://github.com/See-137/" target="_blank" rel="noopener" style="text-decoration:none; padding:15px 18px; border:1px solid rgba(120,160,220,.2); border-radius:11px; display:flex; justify-content:space-between; align-items:baseline;"><span style="font-size:10px; color:var(--mute); letter-spacing:.1em;">GITHUB</span><span style="font-size:13px; color:var(--ink);">@See-137 <span aria-hidden="true">↗</span><span class="vh"> (opens in new tab)</span></span></a>
             <button id="vcard-btn" class="ccard mono" style="cursor:pointer; background:transparent; text-align:left; padding:15px 18px; border:1px solid rgba(120,160,220,.2); border-radius:11px; display:flex; justify-content:space-between; align-items:baseline; color:inherit;"><span style="font-size:10px; color:var(--mute); letter-spacing:.1em;">VCARD</span><span style="font-size:13px; color:var(--ink);">download contact.vcf ↓</span></button>
           </div>
         </div>
@@ -314,34 +320,36 @@
             <div style="color:#bfe3a8;">↳ channel open across all dimensions · avg response &lt; 24h</div>
             <div style="margin-top:12px; color:var(--leaf-2);">$ whoami</div>
             <div style="color:#bfe3a8;">↳ oleg · platform · devops · mlops · open to senior / staff</div>
-            <div style="margin-top:12px; color:var(--leaf-2);">$ retrieve --intent</div>
+            <div style="margin-top:12px; color:var(--leaf-2);">$ cat intent.txt</div>
             <div style="color:#bfe3a8;">↳ platforms that stay up, GitOps delivery, production AI infra</div>
-            <div style="margin-top:16px; padding-top:14px; border-top:1px solid rgba(156,255,46,.14); color:var(--mute-2); font-size:11.5px;">// the live shell is up in the hero — scroll up and <span style="color:var(--acid);">type a command</span> to pull records through the portal.</div>
+            <div style="margin-top:16px; padding-top:14px; border-top:1px solid rgba(156,255,46,.14); color:var(--mute-2); font-size:11.5px;">// the shell in the hero takes commands too — try <span style="color:var(--acid);">projects</span> or <span style="color:var(--acid);">stack</span>.</div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
+</main>
+
   <footer style="border-top:1px solid rgba(120,160,220,.14);">
     <div class="mono" style="max-width:1180px; margin:0 auto; padding:22px clamp(20px,5vw,48px); display:flex; flex-wrap:wrap; gap:10px; font-size:10.5px; color:var(--mute); letter-spacing:.08em;"><span>© 2026 OLEG HANUKAYEV · C137.OPS</span><span style="margin-left:auto;">DIMENSION C‑137 · DRAWN TO SPEC</span></div>
   </footer>
-
-</main>
 
 <dialog id="qr-dialog" class="qr mono" aria-labelledby="qr-title">
   <div class="pwin-bar"><span class="dots" aria-hidden="true"><i class="d-r"></i><i class="d-y"></i><i class="d-g"></i></span><span>PORTAL QR — C137.OPS</span></div>
   <div class="qr-body">
     <h2 id="qr-title" class="serif">Scan to open this card</h2>
-    <img src="assets/qr.svg" width="300" height="300" alt="QR code linking to see-137.github.io/digital-business-card">
+    <img src="assets/qr.svg" width="300" height="300" alt="QR code for this card">
     <div class="qr-url">see-137.github.io/digital-business-card</div>
     <div class="qr-row">
       <button id="qr-copy" class="act" type="button">Copy link</button>
       <button id="qr-share" class="act" type="button">Share</button>
       <form method="dialog"><button class="act primary" type="submit" autofocus>Close</button></form>
     </div>
+    <div id="qr-status" class="vh" role="status"></div>
   </div>
 </dialog>
-<div id="toast" class="toast mono" role="status" aria-live="polite" popover="manual"></div>
+<div id="toast" class="toast mono" aria-hidden="true" popover="manual"></div>
+<div id="sr-status" class="vh" role="status"></div>
 </body>
 </html>

@@ -250,7 +250,7 @@ async function buildScene(renderer, { canvas, wrap, pins, onJump }, watch) {
 
   // ---------------------------------------------------------------- loop
   let tAcc = pins.t ?? (still ? STILL_T : 0);
-  let boost = 0, boostT = 0, last = performance.now(), slow = 0, running = false, onScreen = true;
+  let boost = 0, boostT = 0, last = performance.now(), slow = 0, running = false, onScreen = true, paused = false;
 
   function render(dt) {
     boost = still ? 0 : boost + (boostT - boost) * 0.07;
@@ -287,7 +287,7 @@ async function buildScene(renderer, { canvas, wrap, pins, onJump }, watch) {
   }
 
   function updateLoop() {
-    const should = !still && onScreen && !document.hidden;
+    const should = !still && !paused && onScreen && !document.hidden;
     if (should && !running) {
       last = performance.now();
       renderer.setAnimationLoop(tick);
@@ -343,6 +343,12 @@ async function buildScene(renderer, { canvas, wrap, pins, onJump }, watch) {
   return {
     backend: canvas.dataset.backend,
     /** Charge the portal (1) or let it settle (0). */
+    /** Pause-motion control: freeze on the current frame, or resume. */
+    setPaused(v) {
+      paused = Boolean(v);
+      updateLoop();
+      if (paused) render(0);
+    },
     setBoost(v) {
       boostT = v;
       if (still) render(0);
