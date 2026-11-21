@@ -239,7 +239,7 @@
       renderReadout(cards[active]);
     }
     function renderReadout(c) {
-      // the active card already shows the title and media: the readout adds "What it does" and the links
+      // the active card shows the title, media and its links: the readout adds "What it does"
       const more = $('.pc-more', c);
       readout.replaceChildren(...[...more.children].map((n) => n.cloneNode(true)));
     }
@@ -280,7 +280,9 @@
     btns.forEach((b) => b.addEventListener('click', () => { if (b.dataset.groupBtn !== group) setGroup(b.dataset.groupBtn, true); }));
     prev.addEventListener('click', () => go(active - 1));
     next.addEventListener('click', () => go(active + 1));
-    all.forEach((c) => c.addEventListener('click', () => {
+    all.forEach((c) => c.addEventListener('click', (e) => {
+      // a link on a card behind the active one brings that card forward instead of navigating
+      if (cards.indexOf(c) !== active && e.target.closest('a[href]')) e.preventDefault();
       const i = cards.indexOf(c);
       if (!moved && i >= 0 && i !== active) go(i);
     }));
