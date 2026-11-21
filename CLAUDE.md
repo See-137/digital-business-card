@@ -18,6 +18,7 @@ https://see-137.github.io/digital-business-card/.
 | `js/site.js` | Progressive enhancement only: card flip/drag/keys, the project deck (buttons, swipe, arrow keys, group tabs, aria-live position), Share, the QR dialog, email assembly into `[data-mail]`, service-worker registration. |
 | `fonts/` | Self-hosted latin woff2 (OFL): `archivo-expanded-latin` (variable Archivo fixed at width 116, weights 650-800), `hanken-grotesk-latin-400/600`, `geist-mono-latin-400`. From `@fontsource` 5.3.0. |
 | `icons/card-*.png`, `manifest.webmanifest`, `sw.js` | PWA: icons (incl. maskable + apple-touch), manifest, offline service worker. |
+| `assets/work/*.webp` | Project stills for the cards (review dashboard crop, CMA dashboard, Free Kick, bakery). No personal data or third-party headlines; precached. The Clay Town card loads YouTube only after a click (thumbnail facade, `youtube-nocookie`). |
 | `assets/qr-card.svg` | QR for the site URL in the site palette (black modules, white ground, orange centre mark). Same geometry as the older `assets/qr.svg`; only colours differ. If the URL changes, regenerate and verify it decodes. |
 | `assets/oleg-hanukayev.vcf` | The contact card, a static file (blob downloads fail in in-app browsers). vCard 3.0, CRLF, stored byte-exact via `.gitattributes`. Precached by the service worker. |
 | `assets/og-card-v3.png` | 1200x630 social preview. Rendered from an HTML template with headless Chrome and the site's fonts; when it changes, use a NEW filename (LinkedIn/Slack cache previews by URL) and re-scrape with LinkedIn Post Inspector. |
@@ -54,8 +55,8 @@ Pages deploys independently of CI, so a red run does not block a deploy: read it
 
 ## Conventions and gotchas
 
-- **Content is the owner's.** Identity, title, the three proof figures, employers and the toolchain trace to the owner's two CVs (kept outside the repo; this file is public on Pages). Project figures come from a verification pass on 2026-11-21; figures that are only stated in a project's own README carry a dagger and the footnote "Stated in the project's own README; not re-measured." Do not add a claim, number or link without a source.
-- **Fixed content rules:** the editorial platform is shown unbranded (no client, brand, domain or org name); the trading projects never show P&L; private projects get no repo link (the list shows "Private"). The email is assembled at runtime in `js/site.js` (never plain in HTML); phone and city stay off the public page.
+- **Content is the owner's.** Identity, title, the three proof figures, employers and the toolchain trace to the owner's two CVs (kept outside the repo; this file is public on Pages). Project cards describe what each system does, not activity: no counts of commits, tests, lines or rules anywhere on the page. Statuses are only Live, Open source, In production or In daily use. Do not add a claim, number or link without a source.
+- **Fixed content rules:** the editorial platform is shown unbranded (no client, brand, domain or org name); the trading projects never show P&L; private projects get no repo link. The email is assembled at runtime in `js/site.js` (never plain in HTML); phone and city stay off the public page.
 - **One title everywhere:** "Senior SRE & AI Platform Engineer" in the H1, `<title>`, meta, OG, JSON-LD, the card face, the manifest and the vCard.
 - **One accent:** `#ff5f2e` for marks and the primary button; `#ff7a4d` is its text-safe variant (>= 4.5:1 on every surface). The hero tagline is deliberately neutral. No glow.
 - **The card is CSS 3D, not WebGL.** It is ordinary page content, so the QR on its back is the real SVG and stays scannable. It rests at a 4 degree tilt; pointer tilt peaks near 8 degrees. `will-change` applies only while it moves so text is sharp at rest.
@@ -72,4 +73,4 @@ Pages deploys independently of CI, so a red run does not block a deploy: read it
 
 Mobile 99 / 100 / 100 / 100 (LCP 1.6 s, CLS 0, TBT 100 ms), desktop 100 / 100 / 100 / 100;
 total transfer 90 KiB; axe-core 0 violations at 390 and 1440 px; the QR decodes at
-540, 189 and 108 px and as rendered on the card back and in the dialog; `tests/` 23 checks.
+540, 189 and 108 px and as rendered on the card back and in the dialog; `tests/` 37 checks. After the content revision the same day: mobile and desktop 100 / 100 / 100 / 100, CLS 0.024 mobile.

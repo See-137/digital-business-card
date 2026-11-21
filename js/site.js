@@ -1,6 +1,7 @@
 /*
  * Progressive enhancement for the card page. Every fact is already in the HTML;
- * this file only adds: the turning card, the dealt deck, Share, the QR dialog,
+ * this file only adds: the turning card, the dealt deck, the click-to-load
+ * YouTube player (a plain link without JS), Share, the QR dialog,
  * the email address (assembled here, never written in the HTML) and the
  * service worker. No third-party code.
  */
@@ -228,6 +229,8 @@
         c.style.setProperty('--dim', String(p.dim));
         c.style.pointerEvents = p.o ? '' : 'none';
         c.setAttribute('aria-hidden', i === active ? 'false' : 'true');
+        // controls on cards behind the active one leave the tab order (they sit under aria-hidden)
+        $$('a[href],button,iframe', c).forEach((el) => { el.tabIndex = i === active ? 0 : -1; });
       });
       prev.disabled = active === 0;
       next.disabled = active === cards.length - 1;
@@ -236,9 +239,9 @@
       renderReadout(cards[active]);
     }
     function renderReadout(c) {
-      // the active card already shows the title: the readout adds only the long description and the link
+      // the active card already shows the title and media: the readout adds "What it does" and the links
       const more = $('.pc-more', c);
-      readout.replaceChildren(more.firstElementChild.cloneNode(true), more.lastElementChild.cloneNode(true));
+      readout.replaceChildren(...[...more.children].map((n) => n.cloneNode(true)));
     }
     function go(i, quiet) {
       const n = clamp(i, 0, cards.length - 1);
@@ -304,6 +307,8 @@
       if (dx < -40) go(active + 1); else if (dx > 40) go(active - 1);
       setTimeout(() => { moved = false; }, 0);
     };
+    // a swipe that ends on a link or the player must not also activate it
+    view.addEventListener('click', (e) => { if (moved) { e.preventDefault(); e.stopPropagation(); } }, true);
     view.addEventListener('pointerup', up);
     view.addEventListener('pointercancel', up);
     view.addEventListener('pointerleave', (e) => { if (sx != null && e.pointerType === 'mouse') up(e); });
@@ -322,6 +327,39 @@
       io.observe(view);
     } else dealt = true;
     window.theDeck = { state: () => ({ group, active, total: cards.length, dealt }) };
+  }
+
+  /* ---------- YouTube facade: a plain link in the HTML, a click-to-load player here ----------
+   * Nothing is requested from YouTube before the click except the lazy thumbnail; the
+   * player loads from youtube-nocookie.com only when the visitor presses play. */
+  function initYouTube() {
+    $$('a.yt-facade[data-yt]').forEach((a) => {
+      const id = a.dataset.yt;
+      const title = a.dataset.ytTitle || 'YouTube video';
+      if (!/^[\w-]{11}$/.test(id)) return;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'yt-facade';
+      btn.setAttribute('aria-label', `Play the ${title.replace(/^Clay Town: /, 'Clay Town episode: ')}`);
+      const img = $('img', a);
+      const icon = $('.yt-play', a);
+      btn.append(img, icon);
+      if (a.tabIndex === -1) btn.tabIndex = -1;
+      a.replaceWith(btn);
+      btn.addEventListener('click', () => {
+        // on a card still waiting behind the active one, the click only brings the card forward
+        if (btn.closest('[aria-hidden="true"]')) return;
+        const frame = document.createElement('iframe');
+        frame.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1`;
+        frame.title = title;
+        frame.allow = 'autoplay; encrypted-media; picture-in-picture';
+        frame.allowFullscreen = true;
+        frame.loading = 'lazy';
+        btn.replaceWith(frame);
+        frame.closest('.media')?.classList.add('playing');
+        frame.focus();
+      });
+    });
   }
 
   /* ---------- email: assembled here so the address never sits in the HTML ---------- */
@@ -378,7 +416,8 @@
     });
   }
 
-  const steps = [initMail, initShare, initQr, initCard, initDeck, initSw];
+  // initYouTube runs before initDeck so the deck manages the upgraded button's tab order
+  const steps = [initMail, initShare, initQr, initCard, initYouTube, initDeck, initSw];
   for (const step of steps) {
     try { step(); } catch (err) { console.error(`${step.name} failed:`, err); }
   }
