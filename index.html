@@ -1,386 +1,714 @@
-<!DOCTYPE html>
+<!doctype html>
+<!--
+  Oleg Hanukayev, digital business card and portfolio. Design: "The Card".
+  Static page: every fact below is plain HTML (the page reads fully with JS off);
+  js/site.js only adds the card turning, the deck, Share, the QR dialog and the email.
+  Content source: concepts/shared/content.json (figures marked † are README-stated).
+  Contrast tokens (measured with web-craft contrast.mjs, 2026-11-21):
+    --ink    #eeebe6  >= 13.36:1 on every surface
+    --ink-2  #b5b1a9  >=  7.43:1
+    --mute   #8f8b85  >=  4.69:1 (lowest: on #222224)
+    --accent-text #ff7a4d >= 6.16:1 (lowest: on #222224)
+    --accent #ff5f2e marks and fills; button text #140803 on it 6.50:1
+-->
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Oleg Hanukayev — Senior SRE &amp; AI Platform Engineer · C137</title>
-<meta name="description" content="Oleg Hanukayev — Senior SRE &amp; AI Platform Engineer. 10 years of production operations; Kubernetes on AWS at scale (50+ EKS clusters, 5+ regions); now building RAG, agent and LLM platforms.">
-<meta name="theme-color" content="#0A101E">
+<title>Oleg Hanukayev — Senior SRE &amp; AI Platform Engineer</title>
+<meta name="description" content="Oleg Hanukayev, Senior SRE &amp; AI Platform Engineer. 10 years keeping production up across enterprise SaaS, FinTech, cybersecurity and telecom; now building the platforms behind production LLM systems.">
+<meta name="theme-color" content="#0c0c0d">
 <meta name="color-scheme" content="dark">
 <link rel="canonical" href="https://see-137.github.io/digital-business-card/">
 <meta property="og:type" content="profile">
-<meta property="og:site_name" content="C137.OPS">
+<meta property="og:site_name" content="Oleg Hanukayev">
 <meta property="og:title" content="Oleg Hanukayev — Senior SRE &amp; AI Platform Engineer">
-<meta property="og:description" content="10 years of production operations across enterprise SaaS, FinTech, cybersecurity and telecom (ex-BMC, Fortune 500). 50+ EKS clusters, zero-downtime upgrades, and the platforms behind production LLM systems.">
+<meta property="og:description" content="10 years keeping production up across enterprise SaaS, FinTech, cybersecurity and telecom. Now building the platforms behind production LLM systems.">
 <meta property="og:url" content="https://see-137.github.io/digital-business-card/">
-<meta property="og:image" content="https://see-137.github.io/digital-business-card/assets/og-card-v2.png">
+<meta property="og:image" content="https://see-137.github.io/digital-business-card/assets/og-card-v3.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Oleg Hanukayev — Senior SRE &amp; AI Platform Engineer">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Oleg Hanukayev — Senior SRE &amp; AI Platform Engineer">
-<meta name="twitter:description" content="10 years keeping production up — Kubernetes on AWS, SLO-driven reliability, and production LLM platforms.">
-<meta name="twitter:image" content="https://see-137.github.io/digital-business-card/assets/og-card-v2.png">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%230A101E'/%3E%3Ccircle cx='50' cy='50' r='28' fill='none' stroke='%239cff2e' stroke-width='11'/%3E%3Ccircle cx='50' cy='50' r='9' fill='%239cff2e'/%3E%3C/svg%3E">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="twitter:description" content="10 years keeping production up. Now building the platforms behind production LLM systems.">
+<meta name="twitter:image" content="https://see-137.github.io/digital-business-card/assets/og-card-v3.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='7' width='28' height='18' rx='3' fill='%231c1c1e'/%3E%3Crect x='6' y='17' width='5' height='5' rx='1' fill='%23ff5f2e'/%3E%3C/svg%3E">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/card-favicon-32.png">
+<link rel="apple-touch-icon" href="icons/card-apple-touch-180.png">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="preload" href="fonts/instrument-serif-400.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="fonts/ibm-plex-mono-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/archivo-expanded-latin.woff2" as="font" type="font/woff2" crossorigin>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "Person",
   "name": "Oleg Hanukayev",
   "jobTitle": "Senior SRE & AI Platform Engineer",
-  "description": "Senior SRE and AI platform engineer: 10 years of production operations across enterprise SaaS, FinTech, cybersecurity and telecom; builds RAG, agent and LLM routing platforms.",
-  "worksFor": { "@type": "Organization", "name": "C137 AI.devops", "description": "AI infrastructure consultancy" },
+  "description": "10 years keeping production up across enterprise SaaS, FinTech, cybersecurity and telecom. Now building the platforms behind production LLM systems.",
   "url": "https://see-137.github.io/digital-business-card/",
-  "image": "https://see-137.github.io/digital-business-card/assets/og-card-v2.png",
   "sameAs": [
     "https://www.linkedin.com/in/oleg-hanukayev-3765b910a/",
     "https://github.com/See-137"
-  ],
-  "knowsAbout": ["Site reliability engineering", "Kubernetes", "Amazon EKS", "AWS", "Terraform", "GitOps", "Datadog", "Retrieval-augmented generation", "AI agents", "Model Context Protocol", "Amazon Bedrock", "vLLM", "LLM observability"]
+  ]
 }
 </script>
+<script>document.documentElement.classList.add('js')</script>
 <style>
-  @font-face { font-family:'Instrument Serif'; font-style:normal; font-weight:400; font-display:swap; src:url(fonts/instrument-serif-400.woff2) format('woff2'); }
-  @font-face { font-family:'Instrument Serif'; font-style:italic; font-weight:400; font-display:swap; src:url(fonts/instrument-serif-400-italic.woff2) format('woff2'); }
-  @font-face { font-family:'IBM Plex Mono'; font-style:normal; font-weight:400; font-display:swap; src:url(fonts/ibm-plex-mono-400.woff2) format('woff2'); }
-  @font-face { font-family:'IBM Plex Mono'; font-style:normal; font-weight:600; font-display:swap; src:url(fonts/ibm-plex-mono-600.woff2) format('woff2'); }
-  /* Metric-matched stand-in while Plex Mono loads, so the swap changes glyphs,
-     not layout (it moved the identity card by CLS 0.08 live). Plex Mono:
-     upm 1000, ascent 1025, descent 275, gap 0, advance 0.6em; these local
-     monospaces all advance ~0.6em, so only the line metrics need overriding. */
-  /* Same for the display serif, the real CLS culprit: the fallback serif is far
-     wider, so on phones the headline wrapped to extra lines and pushed the
-     identity card down until Instrument Serif arrived. Measured on the headline
-     copy: Instrument Serif 36.30 em vs Times New Roman 43.67 em -> size-adjust
-     83.1%; metrics upm 1000, ascent 990, descent 310, gap 0, divided by
-     size-adjust for the overrides. Liberation Serif (Linux) is metric-
-     compatible with Times New Roman, so the same numbers hold. */
-  @font-face { font-family:'Instrument Fallback'; src:local('Times New Roman'), local('TimesNewRomanPSMT'), local('Times'), local('Liberation Serif'), local('LiberationSerif');
-    size-adjust:83.1%; ascent-override:119.1%; descent-override:37.3%; line-gap-override:0%; }
-  @font-face { font-family:'Plex Mono Fallback'; src:local('Courier New'), local('CourierNewPSMT'), local('Menlo'), local('Menlo-Regular'), local('Roboto Mono'), local('Droid Sans Mono'), local('DejaVu Sans Mono'), local('Liberation Mono');
-    size-adjust:100%; ascent-override:102.5%; descent-override:27.5%; line-gap-override:0%; }
+/* ---------- fonts: self-hosted latin subsets (OFL), fallbacks metric-matched with fontTools on this page's copy ---------- */
+@font-face{font-family:"Archivo";src:url(fonts/archivo-expanded-latin.woff2) format("woff2");font-weight:650 800;font-style:normal;font-display:swap}
+@font-face{font-family:"Hanken Grotesk";src:url(fonts/hanken-grotesk-latin-400.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Hanken Grotesk";src:url(fonts/hanken-grotesk-latin-600.woff2) format("woff2");font-weight:600;font-style:normal;font-display:swap}
+@font-face{font-family:"Geist Mono";src:url(fonts/geist-mono-latin-400.woff2) format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Archivo Fallback";src:local("Arial Bold"),local("Arial-BoldMT"),local("Liberation Sans Bold");font-weight:650 800;size-adjust:117.5%;ascent-override:74.7%;descent-override:17.9%;line-gap-override:0%}
+@font-face{font-family:"Hanken Fallback";src:local("Arial"),local("ArialMT"),local("Liberation Sans");font-weight:400;size-adjust:100.5%;ascent-override:99.5%;descent-override:30.2%;line-gap-override:0%}
+@font-face{font-family:"Hanken Fallback";src:local("Arial Bold"),local("Arial-BoldMT"),local("Liberation Sans Bold");font-weight:600;size-adjust:100.5%;ascent-override:99.5%;descent-override:30.2%;line-gap-override:0%}
+@font-face{font-family:"Geist Mono Fallback";src:local("Courier New"),local("CourierNewPSMT"),local("Liberation Mono");font-weight:400;size-adjust:100%;ascent-override:100.5%;descent-override:29.5%;line-gap-override:0%}
 
-  :root {
-    --cc-display:'Instrument Serif'; --bg:#0A101E; --ink:#E8EDF4; --acid:#9cff2e;
-    /* text tiers, all >= 4.5:1 on every dark surface here (measured) */
-    --mute:#7d93b5; --mute-2:#6f86a8; --leaf:#7f9a6c; --leaf-2:#6f9a56;
-  }
-  * { box-sizing:border-box; }
-  html { scroll-behavior:smooth; scroll-padding-top:calc(var(--header-h, 64px) + 8px); }
-  body {
-    margin:0; color:var(--ink); background:var(--bg);
-    background-image:linear-gradient(rgba(120,160,220,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(120,160,220,.05) 1px, transparent 1px);
-    background-size:36px 36px;
-    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
-    font-family:'IBM Plex Mono','Plex Mono Fallback',ui-monospace,monospace;
-  }
-  a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid var(--acid); outline-offset:3px; border-radius:3px; }
-  ::selection { background:rgba(156,255,46,.3); }
-  .vh { position:absolute !important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
-  .skip { position:absolute; left:12px; top:-60px; z-index:100; padding:10px 14px; border-radius:8px; background:var(--acid); color:#0a1505; font-weight:600; text-decoration:none; }
-  .skip:focus { top:12px; }
-  main:focus { outline:none; }
-  @keyframes cc-blink { 0%,49%{opacity:1} 50%,100%{opacity:0} }
-  @keyframes cc-pulse { 0%,100%{opacity:1; transform:scale(1)} 50%{opacity:.35; transform:scale(.8)} }
-  .serif { font-family:var(--cc-display), 'Instrument Fallback', Georgia, serif; font-weight:400; }
-  .mono { font-family:'IBM Plex Mono','Plex Mono Fallback',ui-monospace,monospace; }
-  .nl { text-decoration:none; color:#8DA0BC; } .nl:hover { color:var(--ink); }
-  .pill:hover { background:rgba(156,255,46,.1); }
-  .cta { transition:transform .18s, box-shadow .18s; } .cta:hover { transform:translateY(-2px); box-shadow:0 12px 30px -10px rgba(156,255,46,.6); }
-  .ghost { transition:border-color .18s, background .18s; } .ghost:hover { border-color:rgba(156,255,46,.5) !important; background:rgba(156,255,46,.05); }
-  .chip:hover { border-color:rgba(156,255,46,.4) !important; color:var(--acid) !important; }
-  .chip-on:hover { background:rgba(156,255,46,.14) !important; }
-  .mail:hover { color:#bfff7a !important; }
-  .ccard:hover { border-color:rgba(156,255,46,.45) !important; background:rgba(156,255,46,.05); }
-  .jbtn { cursor:pointer; font-family:inherit; font-size:10.5px; letter-spacing:.1em; padding:6px 12px; border-radius:16px; border:1px solid rgba(120,160,220,.24); background:transparent; color:#cdd8e8; transition:border-color .18s, color .18s; }
-  .jbtn:hover { border-color:rgba(156,255,46,.4); color:var(--acid); }
-  .jbtn.armed { border-color:var(--acid); background:rgba(156,255,46,.14); color:var(--acid); }
-  .dots i.d-r { background:#ff5f57; } .dots i.d-y { background:#febc2e; } .dots i.d-g { background:#28c840; }
-  .tools { list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:9px; }
-  .tool { font-size:12.5px; padding:7px 13px; border-radius:7px; color:#cdd8e8; border:1px solid rgba(120,160,220,.22); }
-  @media (max-width: 900px) {
-    [data-r="hero"] { grid-template-columns:1fr !important; }
-    [data-r="channel"] { grid-template-columns:1fr !important; }
-    [data-r="navlinks"] { display:none !important; }
-  }
-  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation:none !important; transition:none !important; scroll-behavior:auto !important; } }
-  /* The pause-motion control (WCAG 2.2.2): freezes every CSS animation; app.js freezes the 3D. */
-  html.paused *, html.paused *::before, html.paused *::after { animation-play-state:paused !important; }
-  html.paused { scroll-behavior:auto !important; }
-  html.paused .rwin, html.paused .stage-flash { animation:none !important; }
-  @media (max-height: 500px) { body > header { position:static !important; } }
+:root{
+  --bg:#0c0c0d; --surface:#141415; --surface-2:#1c1c1e; --surface-3:#222224;
+  --line:rgba(255,255,255,.08); --line-2:rgba(255,255,255,.14);
+  --ink:#eeebe6; --ink-2:#b5b1a9; --mute:#8f8b85;
+  --accent:#ff5f2e; --accent-text:#ff7a4d; --on-accent:#140803;
+  --ok:#5fcf8a;
+  --display:"Archivo","Archivo Fallback",sans-serif;
+  --body:"Hanken Grotesk","Hanken Fallback",sans-serif;
+  --mono:"Geist Mono","Geist Mono Fallback",ui-monospace,monospace;
+  --r-sm:6px; --r:12px; --r-lg:18px;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px; --s8:72px; --s9:120px;
+  --wrap:1180px; --head:56px;
+  --ease:cubic-bezier(.2,.7,.1,1);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{background:var(--bg);color:var(--ink);overflow-x:clip;scroll-behavior:smooth;scroll-padding-top:calc(var(--head) + 16px);-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html:has(dialog[open]){overflow:hidden}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;font:400 1rem/1.6 var(--body);background:var(--bg);overflow-x:clip;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--display);font-weight:750;line-height:1.04;letter-spacing:-.015em;text-wrap:balance;margin:0}
+p{margin:0}
+a{color:inherit}
+img{display:block;max-width:100%}
+[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+.vh{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.skip{position:absolute;left:16px;top:-80px;z-index:50;background:var(--ink);color:#111;padding:12px 16px;border-radius:var(--r-sm);font-weight:600;text-decoration:none}
+.skip:focus{top:12px}
+.wrap{width:min(var(--wrap),100% - 32px);margin-inline:auto}
+.label{font:400 .72rem/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+sup.dag{font-size:.6em;color:var(--mute);margin-left:2px;vertical-align:.6em;line-height:0}
 
-  /* ---- Portal Shell (integrated hero) ---- */
-  @keyframes cc-emit { 0%{ opacity:0; transform:translate(14px,-8px) scale(.86); filter:blur(5px); } 60%{ opacity:1; } 100%{ opacity:1; transform:translate(0,0) scale(1); filter:blur(0); } }
-  @keyframes cc-flash { 0%{ opacity:0; } 12%{ opacity:.85; } 100%{ opacity:0; } }
-  @keyframes cc-spin { to { transform:rotate(1turn); } }
-  .stage { position:relative; border:1px solid rgba(156,255,46,.16); border-radius:16px; overflow:hidden; background:#050c08; min-height:clamp(560px,66vh,680px); box-shadow:0 50px 120px -50px rgba(0,0,0,.9), inset 0 0 100px rgba(0,0,0,.6); }
-  /* Poster: a CSS vortex that holds the frame until the 3D is up (and stays
-     if WebGL/WebGPU is unavailable). */
-  .pwrap { position:absolute; inset:0; overflow:hidden;
-    background:radial-gradient(circle at 50% 38%, rgba(191,255,122,.5), rgba(156,255,46,.22) 9%, rgba(8,30,12,.92) 30%, #050c08 58%); }
-  .pwrap::before { content:''; position:absolute; left:50%; top:38%; width:min(78%,440px); aspect-ratio:1; translate:-50% -50%; border-radius:50%;
-    background:conic-gradient(from 0deg, rgba(156,255,46,.0), rgba(156,255,46,.35), rgba(30,90,20,.1), rgba(191,255,122,.4), rgba(156,255,46,0));
-    mask:radial-gradient(circle, transparent 18%, #000 20%, #000 62%, transparent 70%); -webkit-mask:radial-gradient(circle, transparent 18%, #000 20%, #000 62%, transparent 70%);
-    animation:cc-spin 14s linear infinite; }
-  #portal-canvas { position:absolute; inset:0; width:100%; height:100%; display:block; cursor:grab; touch-action:pan-y; opacity:0; transition:opacity .6s ease; }
-  #portal-canvas.on { opacity:1; }
-  /* Pre-rendered loop, only where the 3D can't animate. Clicks pass through to the canvas. */
-  .ploop { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; pointer-events:none; opacity:0; transition:opacity .6s ease; }
-  .ploop.on { opacity:1; }
-  .pwrap:has(.ploop.on) #portal-canvas { cursor:pointer; } /* still clickable, no longer draggable-looking */
-  .stage-flash { position:absolute; inset:0; z-index:6; pointer-events:none; opacity:0; background:radial-gradient(circle at 42% 34%, rgba(200,255,160,.9), rgba(156,255,46,.28) 32%, transparent 60%); }
-  .stage-flash.flash { animation:cc-flash .7s ease-out; }
-  .stage-cap { position:absolute; top:0; left:0; right:0; z-index:5; display:flex; align-items:center; gap:10px; padding:11px 15px; font-size:10px; letter-spacing:.14em; color:#8fb27a; background:linear-gradient(rgba(3,9,5,.9), transparent); }
-  .stage-jump { position:absolute; top:44px; left:0; right:0; z-index:5; display:flex; align-items:center; flex-wrap:wrap; gap:8px; padding:8px 15px; pointer-events:none; }
-  .stage-jump .jbtn, .stage-jump #portal-hint { pointer-events:auto; }
-  .cap-btn { cursor:pointer; font:inherit; font-size:10px; letter-spacing:.12em; display:inline-flex; align-items:center; gap:6px; min-height:28px; padding:4px 10px; border-radius:14px; border:1px solid rgba(156,255,46,.3); background:rgba(3,9,5,.6); color:#bfe3a8; }
-  .cap-btn:hover { border-color:rgba(156,255,46,.6); color:var(--acid); }
-  .cap-btn[aria-pressed="true"] { border-color:var(--acid); color:var(--acid); }
-  .cap-btn[aria-disabled="true"] { cursor:default; opacity:.75; }
-  #portal-hint { margin-left:auto; font-size:10px; letter-spacing:.1em; color:var(--mute); white-space:nowrap; }
-  #portal-hint.live { color:var(--acid); }
-  .retrieval-layer { position:absolute; inset:0; z-index:7; pointer-events:none; }
-  .retrieval-layer .pwin { position:absolute; width:min(300px,58%); pointer-events:auto; }
-  .pwin { border:1px solid rgba(156,255,46,.3); border-radius:9px; overflow:hidden; background:rgba(4,11,7,.94); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); box-shadow:0 30px 70px -28px rgba(0,0,0,.92), 0 0 26px -8px rgba(156,255,46,.45); }
-  .pwin-bar { display:flex; align-items:center; gap:8px; padding:8px 11px; border-bottom:1px solid rgba(156,255,46,.18); background:linear-gradient(rgba(156,255,46,.07), transparent); font-size:10px; letter-spacing:.11em; color:var(--acid); }
-  .pwin-bar .dots { display:inline-flex; gap:5px; } .pwin-bar .dots i { width:9px; height:9px; border-radius:50%; display:block; }
-  .pwin-x { margin-left:auto; cursor:pointer; background:transparent; border:0; color:var(--leaf); font-size:12px; line-height:1; padding:2px 5px; border-radius:4px; } .pwin-x:hover { color:var(--acid); }
-  .rwin { animation:cc-emit .55s cubic-bezier(.2,.8,.25,1) both; }
-  .rwin-body { padding:11px 13px; font-size:11px; line-height:1.75; color:#bfe3a8; white-space:pre-wrap; }
-  .rwin .k { color:var(--leaf-2); }
-  .shellwin { position:absolute; z-index:8; left:clamp(14px,3%,26px); right:clamp(14px,3%,26px); bottom:clamp(16px,3vh,26px); }
-  .ln { white-space:pre-wrap; } .ln-in, .ln-prompt { color:var(--acid); } .ln-out { color:#9fb2ce; } .ln-sys { color:var(--mute); } .ln-err { color:#ff8a8a; } .ln-ok { color:#bfff7a; }
-  .idwin { margin:0 0 26px; border:1px solid rgba(156,255,46,.2); border-radius:11px; overflow:hidden; background:rgba(6,13,9,.65); max-width:440px; }
-  /* ---- proof · career · toolchain groups ---- */
-  .proof { list-style:none; margin:0 0 28px; padding:0; display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
-  .proof li { border:1px solid rgba(120,160,220,.18); border-radius:12px; padding:18px 18px 16px; background:rgba(10,16,30,.5); display:flex; flex-direction:column; gap:8px; }
-  .proof .num { font-family:var(--cc-display), 'Instrument Fallback', Georgia, serif; font-weight:400; font-size:clamp(30px,3.6vw,40px); line-height:1; color:var(--ink); letter-spacing:-.01em; white-space:nowrap; }
-  .proof .what { font-size:13px; line-height:1.55; color:#cdd8e8; }
-  .proof .where { font-size:10.5px; letter-spacing:.12em; color:var(--mute); text-transform:uppercase; margin-top:auto; }
-  .career { margin:0; display:grid; gap:10px; font-size:13px; }
-  .career div { display:grid; grid-template-columns:120px 1fr; gap:12px; align-items:baseline; }
-  .career dt { font-size:10.5px; letter-spacing:.16em; color:var(--mute); }
-  .career dd { margin:0; color:#cdd8e8; line-height:1.55; }
-  .tg { display:grid; grid-template-columns:170px 1fr; gap:14px; align-items:start; padding:14px 0; border-top:1px solid rgba(120,160,220,.1); }
-  .tg:first-child { border-top:0; }
-  .tg-h { margin:0; padding-top:7px; font-size:10.5px; font-weight:400; letter-spacing:.16em; color:var(--mute); text-transform:uppercase; }
-  @media (max-width: 900px) { .proof { grid-template-columns:1fr; } .tg, .career div { grid-template-columns:1fr; gap:8px; } .tg-h { padding-top:0; } }
-  /* ---- card actions · QR dialog · toast ---- */
-  .card-actions { display:flex; flex-wrap:wrap; gap:8px; padding:0 16px 14px; }
-  .act { cursor:pointer; font:inherit; font-size:11.5px; letter-spacing:.06em; display:inline-flex; align-items:center; gap:7px; min-height:40px; padding:8px 13px; border-radius:8px; border:1px solid rgba(120,160,220,.26); background:rgba(10,16,30,.4); color:var(--ink); transition:border-color .18s, background .18s; }
-  .act:hover { border-color:rgba(156,255,46,.5); background:rgba(156,255,46,.06); }
-  .act.primary { border-color:rgba(156,255,46,.55); color:var(--acid); background:rgba(156,255,46,.08); }
-  .act svg { width:15px; height:15px; flex:none; }
-  @media (max-width: 420px) { .act { padding:8px 10px; font-size:11px; letter-spacing:.02em; gap:6px; } .card-actions { gap:6px; } }
-  #term-scroll:focus-visible { outline:2px solid var(--acid); outline-offset:-2px; }
-  .prompt-row { display:flex; align-items:center; gap:8px; margin:0 12px 4px; border-radius:6px; padding:6px 4px; font-size:12.5px; }
-  .prompt-row:focus-within { outline:2px solid rgba(156,255,46,.7); outline-offset:0; }
-  #cc-term { outline:none; }
-  #portal-canvas[hidden] { display:none; }
-  html:has(dialog[open]) { overflow:hidden; }
-  .qr { width:min(92vw,380px); padding:0; border:1px solid rgba(156,255,46,.35); border-radius:14px; background:#060d09; color:var(--ink); box-shadow:0 40px 120px -30px rgba(0,0,0,.95), 0 0 40px -12px rgba(156,255,46,.45); }
-  .qr::backdrop { background:rgba(3,6,12,.72); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); }
-  .qr-body { padding:18px; display:grid; gap:14px; justify-items:center; text-align:center; }
-  .qr-body img { width:100%; max-width:300px; height:auto; aspect-ratio:1; border-radius:10px; image-rendering:pixelated; background:#f4ffe9; }
-  .qr-body h2 { margin:0; font-size:26px; }
-  .qr-url { font-size:12px; color:#bfe3a8; word-break:break-all; }
-  .qr-row { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; }
-  .toast[popover] { inset:auto; margin:0; overflow:visible; }
-  .toast { position:fixed; left:50%; bottom:calc(18px + env(safe-area-inset-bottom)); translate:-50% 20px; z-index:120; max-width:calc(100vw - 32px); padding:10px 16px; border-radius:10px; border:1px solid rgba(156,255,46,.4); background:rgba(6,13,9,.95); color:#bfff7a; font-size:12.5px; opacity:0; pointer-events:none; transition:opacity .2s, translate .2s; }
-  .toast.show { opacity:1; translate:-50% 0; }
-  .toast.sticky { pointer-events:auto; cursor:pointer; user-select:text; }
-  @media (max-width: 900px) {
-    /* phone-first: the card (name, role, save / share / QR) comes right after
-       the headline, above the long copy */
-    .hero-copy .idwin { max-width:none; }
-    .stage { min-height:0; }
-    .pwrap { position:relative; inset:auto; height:300px; }
-    .stage-cap, .stage-jump, .shellwin { position:static; }
-    .stage-jump { padding:10px 4px 2px; } .stage-cap { padding:12px 4px; background:none; }
-    .shellwin { left:auto; right:auto; bottom:auto; margin-top:14px; }
-    .retrieval-layer { display:none; }
-    /* iOS zooms any input under 16px on focus */
-    #cc-term { font-size:16px !important; }
-  }
+/* ---------- header ---------- */
+.top{position:sticky;top:0;z-index:20;background:rgba(12,12,13,.8);backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px) saturate(1.2);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;height:var(--head);gap:var(--s4)}
+.mark{display:inline-flex;align-items:center;gap:10px;min-height:44px;padding-inline:8px;margin-inline:-8px;font:750 .95rem/1 var(--display);letter-spacing:-.005em;text-decoration:none;white-space:nowrap}
+.mark i{width:9px;height:9px;border-radius:2px;background:var(--accent)}
+.top nav ul{display:flex;gap:var(--s2);list-style:none;margin:0;padding:0}
+.top nav a{display:inline-flex;align-items:center;min-height:44px;padding:0 10px;font-size:.9rem;color:var(--ink-2);text-decoration:none;border-radius:var(--r-sm)}
+.top nav a:hover{color:var(--ink)}
+@media (max-width:640px){.top nav li:not(:last-child){display:none}.top nav a{padding-right:0}}
+
+/* ---------- buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:0 22px;border-radius:999px;border:1px solid var(--line-2);background:var(--surface-2);color:var(--ink);font:600 .95rem/1 var(--body);text-decoration:none;cursor:pointer;transition:background .2s,border-color .2s,transform .2s var(--ease);white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.btn:hover{background:var(--surface-3);border-color:rgba(255,255,255,.24)}
+.btn:active{transform:translateY(1px)}
+.btn svg{width:18px;height:18px;flex:none}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.primary:hover{background:#ff7347;border-color:#ff7347}
+.btn.ghost{background:transparent}
+.btn.icon{width:48px;padding:0}
+.btn[disabled]{opacity:.35;cursor:default;transform:none}
+
+/* ---------- hero ---------- */
+.hero{position:relative;padding:var(--s8) 0 0;isolation:isolate}
+.hero::before{content:"";position:absolute;inset:calc(var(--head) * -1) 0 0;z-index:-1;pointer-events:none;background:
+  radial-gradient(60% 46% at 50% 22%,rgba(255,255,255,.075),transparent 70%)}
+.hero-head{text-align:center;display:grid;gap:var(--s4);justify-items:center}
+.hero h1{display:grid;gap:var(--s4);justify-items:center;font-size:clamp(2rem,5.6vw,4.9rem);line-height:.98;max-width:15ch}
+.eyebrow{font:400 .8rem/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2)}
+.kicker{color:var(--mute);font:600 18px/1.3 var(--body);letter-spacing:.005em}
+
+.stage{position:relative;margin:var(--s7) auto 0;width:min(560px,100%);aspect-ratio:85/55;perspective:1600px;container-type:inline-size;outline:none;-webkit-tap-highlight-color:transparent}
+.js .stage{touch-action:pan-y;cursor:grab;user-select:none;-webkit-user-select:none}
+.stage.dragging{cursor:grabbing}
+.stage:focus-visible{outline:2px solid var(--accent);outline-offset:14px;border-radius:var(--r-lg)}
+.card{position:absolute;inset:0;transform-style:preserve-3d;transform:rotateX(calc(var(--rx,4)*1deg)) rotateY(calc(var(--ry,-4)*1deg))}
+.card.moving{will-change:transform}
+.face,.slice{position:absolute;inset:0;border-radius:var(--r-lg)}
+.slice{background:#18181a;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);transform:translateZ(var(--z))}
+.face{backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+.face::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(90% 120% at calc(50% + var(--lx,8)*1%) -10%,rgba(255,255,255,.13),transparent 60%);mix-blend-mode:screen}
+.face::after{content:"";position:absolute;inset:0;pointer-events:none;background:#000}
+.front{transform:translateZ(3px);background:linear-gradient(155deg,#232325 0%,#18181a 48%,#121213 100%);padding:5.4cqi 6cqi;display:flex;flex-direction:column;justify-content:space-between}
+.front::after{opacity:var(--shadeF,0)}
+.back{transform:rotateY(180deg) translateZ(3px);background:linear-gradient(200deg,#1e1e20,#141415);padding:5.4cqi;display:grid;grid-template-columns:auto 1fr;gap:5.4cqi;align-items:center}
+.back::after{opacity:var(--shadeB,.6)}
+.f-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.mono-mark{font:800 max(15px,4.6cqi)/1 var(--display);letter-spacing:-.03em}
+.mono-mark i{display:inline-block;width:.42em;height:.42em;background:var(--accent);border-radius:2px;margin-left:.16em;vertical-align:.06em}
+.f-years{font:400 max(8px,1.85cqi)/1.3 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);text-align:right}
+.f-open{display:grid;gap:1.1cqi}
+.f-open .lbl{font:400 max(8px,1.75cqi)/1.2 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+.f-open .roles{font:600 max(10px,3.25cqi)/1.25 var(--body);color:var(--ink);letter-spacing:-.005em}
+.f-open .roles span{color:var(--mute);padding:0 .3em}
+.f-name{font:750 max(17px,6.1cqi)/1 var(--display);letter-spacing:-.025em}
+.f-title{margin-top:1.3cqi;font:400 max(9px,2.65cqi)/1.3 var(--body);color:var(--ink-2)}
+.f-rule{height:1px;background:var(--line-2);margin:2.6cqi 0 2cqi}
+.f-foot{display:flex;justify-content:space-between;gap:12px;font:400 max(8px,1.95cqi)/1.3 var(--mono);color:var(--mute)}
+.qr-tile{width:44cqi;aspect-ratio:1;background:#fff;border-radius:1.6cqi;padding:2.2cqi;overflow:hidden}
+.qr-tile img{width:100%;height:100%}
+.b-copy{display:grid;gap:1.8cqi;align-content:center;min-width:0}
+.b-copy strong{font:750 max(13px,3.9cqi)/1.1 var(--display);letter-spacing:-.015em}
+@container (max-width:420px){.b-copy .url{display:none}}
+.b-copy p{font-size:max(9px,2.5cqi);line-height:1.4;color:var(--ink-2)}
+.b-copy .url{font:400 max(8px,1.85cqi)/1.4 var(--mono);color:var(--mute);overflow-wrap:anywhere}
+.floor{position:absolute;left:8%;right:8%;bottom:-11%;height:16%;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.75),transparent);filter:blur(10px);transform:scaleX(var(--fs,.95));z-index:-1;pointer-events:none}
+
+.hero-actions{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:var(--s3);margin-top:var(--s7)}
+.hint{width:100%;text-align:center;margin-top:var(--s2);color:var(--mute);font-size:.84rem}
+.hint kbd{font:400 .72rem var(--mono);padding:1px 6px;border:1px solid var(--line-2);border-radius:4px;color:var(--ink-2)}
+
+.intro{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:var(--s7);margin-top:var(--s8);padding-top:var(--s6);border-top:1px solid var(--line);align-items:start}
+.lede{font-size:clamp(1.12rem,1.7vw,1.38rem);line-height:1.5;color:var(--ink);max-width:40ch}
+.badges{display:flex;flex-wrap:wrap;gap:var(--s2);list-style:none;margin:0;padding:0}
+.badges li{font:600 .84rem/1 var(--body);padding:10px 14px;border:1px solid var(--line-2);border-radius:999px;color:var(--ink-2);white-space:nowrap}
+.now{margin-top:var(--s5);color:var(--ink-2);font-size:.95rem;max-width:48ch}
+.now b{color:var(--ink);font-weight:600}
+
+/* ---------- sections ---------- */
+section{position:relative}
+.sec{padding:var(--s9) 0 0}
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:var(--s4) var(--s5);flex-wrap:wrap;margin-bottom:var(--s6)}
+.sec-head h2{font-size:clamp(2rem,4.4vw,3.4rem)}
+.sec-head p{color:var(--ink-2);max-width:46ch}
+.foot-note{margin-top:var(--s4);color:var(--mute);font-size:.84rem}
+
+/* ---------- proof ---------- */
+.proof{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.proof li{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:var(--s3) var(--s7);align-items:baseline;padding:28px 0;border-bottom:1px solid var(--line)}
+.proof .fig{font:750 clamp(1.45rem,4.4vw,3.8rem)/1 var(--display);letter-spacing:-.035em;white-space:nowrap;font-variant-numeric:tabular-nums}
+.proof .txt{font-size:1.08rem;color:var(--ink);max-width:44ch}
+.proof .where{display:block;margin-top:6px;color:var(--mute);font-size:.88rem}
+
+/* ---------- deck ---------- */
+.groups{display:flex;flex-wrap:wrap;gap:var(--s2);margin:0 0 var(--s5)}
+.groups button{display:inline-flex;align-items:center;min-height:44px;font:600 .9rem/1 var(--body);color:var(--ink-2);background:transparent;border:1px solid var(--line-2);border-radius:999px;padding:0 16px;cursor:pointer;transition:color .2s,background .2s,border-color .2s;white-space:nowrap}
+.groups button:hover{color:var(--ink);border-color:rgba(255,255,255,.26)}
+.groups button[aria-pressed="true"]{background:var(--ink);color:#111;border-color:var(--ink)}
+.groups .n{font:400 .74rem var(--mono);margin-left:8px;opacity:.75}
+
+.deck{--cw:410px;position:relative}
+.deck-view{position:relative;outline:none;margin:0 -16px;padding:20px 16px 30px}
+.deck-view:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;border-radius:var(--r-lg)}
+/* without JS: a native, swipeable scroll row */
+.deck-track{display:flex;gap:var(--s4);overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:var(--s3);scrollbar-color:var(--line-2) transparent}
+.pcard{flex:none;width:var(--cw);scroll-snap-align:start;position:relative;border-radius:var(--r-lg);
+  background:linear-gradient(165deg,#212123,#161617 60%,#131314);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 30px 60px -24px rgba(0,0,0,.85),0 8px 18px -8px rgba(0,0,0,.6);
+  padding:24px;display:flex;flex-direction:column;gap:16px}
+.pcard::after{content:"";position:absolute;inset:0;border-radius:inherit;background:#0c0c0d;opacity:var(--dim,0);transition:opacity .5s;pointer-events:none}
+.pc-top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.status{display:inline-flex;align-items:center;gap:8px;font:600 .78rem/1.2 var(--body);color:var(--ink-2);padding:7px 11px 7px 9px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid var(--line)}
+.status::before{content:"";flex:none;width:7px;height:7px;border-radius:50%;background:var(--mute)}
+.status.on::before{background:var(--ok)}
+.pc-num{font:400 .74rem/1 var(--mono);color:var(--mute);white-space:nowrap}
+.pcard h3{font-size:22px;line-height:1.1}
+.pc-tag{color:var(--ink-2);font-size:1rem;line-height:1.45}
+.figs{list-style:none;display:flex;flex-wrap:wrap;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin:0;padding:0}
+.figs li{flex:1 1 104px;background:#18181a;padding:12px 12px 13px;display:flex;flex-direction:column;gap:5px}
+.figs .v{font:400 1.2rem/1.1 var(--mono);color:var(--ink);white-space:nowrap;letter-spacing:-.03em}
+.figs .l{font-size:.78rem;line-height:1.35;color:var(--mute)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;list-style:none;margin:auto 0 0;padding:0}
+.chips li{font:400 .72rem/1 var(--mono);color:var(--ink-2);padding:6px 8px;border-radius:5px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
+.pc-more{display:grid;gap:var(--s4);padding-top:var(--s4);border-top:1px solid var(--line);color:var(--ink-2);font-size:.95rem}
+.pc-more .none,.readout .none{color:var(--mute);font-size:.88rem;white-space:nowrap}
+.pc-more .btn{justify-self:start}
+
+/* with JS: the fanned deck */
+.js .deck-track{display:grid;grid-template-columns:var(--cw);overflow:visible;padding:0;perspective:1400px;perspective-origin:20% 40%;transition:transform .35s var(--ease);touch-action:pan-y}
+.js .deck-view{overflow:hidden;touch-action:pan-y;cursor:grab;user-select:none;-webkit-user-select:none}
+.js .pcard{grid-area:1/1;transform-origin:50% 100%;transition:transform .7s var(--ease),opacity .5s var(--ease),visibility 0s;cursor:pointer}
+.js .pcard.is-active{cursor:default}
+.js .pcard.off{display:none}
+.js .pc-more{display:none}
+.dealing .pcard{transition:none!important}
+
+.deck-bar{display:flex;align-items:center;justify-content:space-between;gap:var(--s4)}
+.deck-nav{display:flex;gap:var(--s2)}
+.pips{display:flex;gap:6px;align-items:center;min-width:0}
+.pips i{display:block;width:18px;height:3px;border-radius:2px;background:var(--line-2);transition:background .3s,width .3s}
+.pips i.on{background:var(--ink);width:30px}
+.deck-count{font:400 .84rem var(--mono);color:var(--ink-2);min-width:7ch;text-align:right;white-space:nowrap}
+.readout{display:grid;justify-items:start;gap:var(--s4);margin-top:var(--s5);padding-top:var(--s5);border-top:1px solid var(--line);min-height:7.5em}
+.readout p{color:var(--ink-2);max-width:68ch}
+
+/* ---------- all work (the record) ---------- */
+.index-group+.index-group{margin-top:var(--s7)}
+.index-group h3{font:400 .76rem/1.4 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--mute);padding-bottom:var(--s3);display:flex;justify-content:space-between;gap:var(--s4)}
+.index-group h3 span{letter-spacing:.04em}
+.rows{list-style:none;margin:0;padding:0;border-top:1px solid var(--line-2)}
+.row{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) 12.5rem 9.5rem;gap:var(--s3) var(--s5);align-items:baseline;padding:18px 0;border-bottom:1px solid var(--line)}
+.row h4{font:600 1.02rem/1.3 var(--body);letter-spacing:0}
+.row .tag{color:var(--ink-2);font-size:.93rem;line-height:1.45;margin-top:2px;max-width:68ch}
+.row .rf{font:400 .82rem/1.55 var(--mono);color:var(--ink-2);margin:0;padding:0;list-style:none}
+.row .rf .l{color:var(--mute);font-family:var(--body);font-size:.86rem}
+.row .rs{font-size:.88rem;color:var(--ink-2);display:flex;align-items:baseline;gap:8px}
+.row .rs::before{content:"";flex:none;width:7px;height:7px;border-radius:50%;background:var(--mute);transform:translateY(-1px)}
+.row .rs.on::before{background:var(--ok)}
+.row .rl{font-size:.88rem;text-align:right}
+.row .rl a{display:inline-flex;align-items:center;min-height:44px;margin-block:-12px;color:var(--ink);text-decoration:underline;text-decoration-color:rgba(255,255,255,.3);text-underline-offset:3px}
+.row .rl a:hover{color:var(--accent-text);text-decoration-color:currentColor}
+.row .rl .none{color:var(--mute);font-size:13px}
+
+/* ---------- skills ---------- */
+.tools{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden}
+.tools li{background:var(--bg);padding:22px 20px 20px;display:flex;flex-direction:column;gap:10px}
+.tools h3{font:400 1.02rem/1.2 var(--mono);letter-spacing:-.01em;color:var(--ink)}
+.tools p{color:var(--ink-2);font-size:.93rem;line-height:1.45}
+.tools .stk{margin-top:auto;padding-top:6px;font:400 .72rem/1.5 var(--mono);color:var(--mute)}
+
+/* ---------- specs ---------- */
+.specs{display:grid;grid-template-columns:1fr;gap:var(--s7)}
+.spec{margin:0;border-bottom:1px solid var(--line)}
+.spec div{display:grid;grid-template-columns:200px minmax(0,1fr);gap:var(--s4) var(--s5);padding:16px 0;border-top:1px solid var(--line)}
+.spec dt{font:400 .72rem/1.6 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute);padding-top:2px}
+.spec dd{margin:0;color:var(--ink-2);font-size:.96rem;line-height:1.55;max-width:68ch}
+.spec-h{font-size:22px;line-height:1.1;margin-bottom:var(--s4);color:var(--ink)}
+
+/* ---------- contact ---------- */
+.close{margin-top:var(--s9);padding:var(--s9) 0;border-top:1px solid var(--line);background:radial-gradient(50% 70% at 50% 0%,rgba(255,255,255,.05),transparent 70%)}
+.close-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:var(--s7);align-items:center}
+.close h2{font-size:clamp(2.2rem,5.2vw,4.3rem)}
+.close p{color:var(--ink-2);margin-top:var(--s4);max-width:42ch}
+.close-actions{display:flex;flex-wrap:wrap;gap:var(--s3);margin-top:var(--s6)}
+.links{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.links li{border-bottom:1px solid var(--line)}
+.links a{display:flex;justify-content:space-between;align-items:center;gap:16px;min-height:60px;padding:12px 4px;color:var(--ink);font:600 1rem var(--body);text-decoration:none}
+.links a:hover{color:var(--accent-text)}
+.links .sub{font:400 .8rem var(--mono);color:var(--mute);overflow-wrap:anywhere;text-align:right}
+
+footer{padding:var(--s6) 0 var(--s7);border-top:1px solid var(--line);color:var(--mute);font-size:.84rem}
+footer .wrap{display:flex;justify-content:space-between;gap:var(--s2) var(--s4);flex-wrap:wrap}
+
+/* ---------- dialog / toast ---------- */
+dialog{--qr:min(86vw,420px);--dp:28px;border:1px solid var(--line-2);border-radius:var(--r-lg);background:var(--surface);color:var(--ink);padding:var(--dp);width:min(calc(var(--qr) + var(--dp) * 2),calc(100vw - 16px));max-width:none;max-height:calc(100dvh - 16px)}
+dialog::backdrop{background:rgba(5,5,6,.78);backdrop-filter:blur(4px)}
+dialog h2{font-size:1.4rem;margin-bottom:6px}
+dialog p{color:var(--ink-2);font-size:.92rem}
+dialog .qr-big{width:var(--qr);max-width:100%;margin:20px auto;background:#fff;border-radius:10px;padding:12px}
+dialog .qr-big img{width:100%;height:auto}
+dialog .actions{display:flex;justify-content:flex-end}
+.toast{position:fixed;inset:auto 16px 20px auto;margin:0;border:1px solid var(--line-2);border-radius:var(--r);background:var(--surface-3);color:var(--ink);padding:12px 16px;font-size:.9rem;max-width:min(420px,calc(100% - 32px));user-select:text;overflow-wrap:anywhere}
+.toast:not(:popover-open){display:none}
+
+/* ---------- entrance (under 1 s, once) ---------- */
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.rise{animation:rise .8s var(--ease) both}
+.rise.d1{animation-delay:.08s}.rise.d2{animation-delay:.16s}
+@media (prefers-reduced-motion:reduce){.rise{animation:none}.js .pcard,.js .deck-track,.pips i,.pcard::after{transition:none!important}}
+
+/* ---------- smaller screens ---------- */
+@media (max-width:1060px){
+  .row{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) 11rem;}
+  .row .rl{grid-column:1/-1;text-align:left;margin-top:-6px}
+  .tools{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:860px){
+  .intro,.specs,.close-grid{grid-template-columns:1fr;gap:var(--s6)}
+  .proof li{grid-template-columns:1fr;gap:var(--s2)}
+  .row{grid-template-columns:minmax(0,1fr) auto;gap:8px 16px}
+  .row>div,.row .rf{grid-column:1/-1}
+  .row .rf{display:flex;flex-wrap:wrap;gap:2px 14px}
+  .row .rl{grid-column:auto;margin-top:0;text-align:right}
+}
+@media (max-width:767px){
+  .hero{padding-top:var(--s6)}
+  .hero h1{gap:var(--s3)}
+  .stage{margin-top:var(--s6)}
+  .hero-actions{margin-top:var(--s6);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s3)}
+  .hero-actions .btn{min-width:0;padding:0 14px}
+  .hero-actions .btn.primary,.hero-actions .hint{grid-column:1/-1}
+  dialog{--dp:18px}
+  .sec{padding-top:var(--s8)}
+  .deck{--cw:min(310px,80vw)}
+  .pcard{padding:20px;gap:14px}
+  .pcard h3{font-size:1.28rem}
+  .readout{grid-template-columns:1fr}
+  .pips i{width:10px}.pips i.on{width:20px}
+  .spec div{grid-template-columns:1fr;gap:4px}
+  .close{padding:var(--s8) 0}
+  .groups{flex-wrap:nowrap;overflow-x:auto;margin-inline:-16px;padding:2px 16px;scrollbar-width:none}
+  .groups button{flex:none}
+  .groups::-webkit-scrollbar{display:none}
+}
+@media (max-width:560px){.tools{grid-template-columns:1fr}}
+@media (max-width:360px){
+  .btn{padding:0 18px}
+  .hero-actions{gap:var(--s2)}
+  .hero-actions .btn{padding:0 10px}
+  .hero-actions #flip svg{display:none}
+}
 </style>
-<script type="importmap">
-{ "imports": { "three/webgpu": "./vendor/three/three.webgpu.js", "three/tsl": "./vendor/three/three.tsl.js", "three": "./vendor/three/three.webgpu.js" } }
-</script>
-<script type="module" src="js/app.js"></script>
+<script src="js/site.js" defer></script>
 </head>
 <body>
-<a class="skip mono" href="#top">Skip to content</a>
-
-<header style="position:sticky; top:0; z-index:50; backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); background:rgba(10,16,30,.72); border-bottom:1px solid rgba(120,160,220,.14);">
-  <nav aria-label="Primary" class="mono" style="max-width:1180px; margin:0 auto; padding:15px clamp(20px,5vw,48px); display:flex; align-items:center; gap:20px; font-size:12px; letter-spacing:.08em;">
-    <a href="#top" style="text-decoration:none; color:var(--ink); display:flex; align-items:baseline; gap:8px;"><strong style="font-weight:600; letter-spacing:.04em;">OLEG HANUKAYEV</strong><span style="color:var(--mute);">/ C137.OPS</span></a>
-    <span data-r="navlinks" style="margin-left:32px; display:flex; gap:26px;">
-      <a class="nl" href="#proof"><span style="color:var(--mute);">01</span> PROOF</a>
-      <a class="nl" href="#stack"><span style="color:var(--mute);">02</span> STACK</a>
-    </span>
-    <a class="pill" href="#contact" style="text-decoration:none; color:var(--acid); border:1px solid rgba(156,255,46,.4); padding:8px 15px; border-radius:20px; margin-left:auto;">CONTACT <span aria-hidden="true">→</span></a>
-  </nav>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top">
+  <div class="wrap">
+    <a class="mark" href="#top"><i aria-hidden="true"></i>Oleg Hanukayev</a>
+    <nav aria-label="Sections">
+      <ul>
+        <li><a href="#proof">Proof</a></li>
+        <li><a href="#work">Work</a></li>
+        <li><a href="#specs">Specs</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
 </header>
 
-<main id="top" tabindex="-1">
-
-  <!-- HERO -->
-  <section aria-label="Introduction" style="max-width:1180px; margin:0 auto; padding:clamp(40px,6vw,72px) clamp(20px,5vw,48px) clamp(40px,5vw,64px);">
-    <div data-r="hero" style="display:grid; grid-template-columns:0.9fr 1.1fr; gap:clamp(28px,4vw,52px); align-items:center;">
-      <div class="hero-copy">
-        <div class="mono kicker" style="font-size:11.5px; letter-spacing:.2em; color:var(--acid); margin-bottom:26px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;"><span style="display:inline-flex; align-items:center; gap:8px;"><span aria-hidden="true" style="width:7px; height:7px; border-radius:50%; background:var(--acid); animation:cc-pulse 2s ease-in-out infinite;"></span>DIMENSION C‑137 · STABLE</span><span aria-hidden="true" style="color:#3a5680;">—</span><span style="color:var(--mute-2);">PROD STAYS UP IN ALL OF MINE</span></div>
-        <h1 class="serif" style="font-size:clamp(38px,5.4vw,58px); line-height:1.03; letter-spacing:-.015em; margin:0 0 24px;">Senior SRE &amp; <em style="font-style:italic; color:var(--acid);">AI Platform</em> Engineer.</h1>
-        <!-- identity HUD -->
-        <div class="idwin mono">
-          <div class="pwin-bar"><span class="dots" aria-hidden="true"><i class="d-r"></i><i class="d-y"></i><i class="d-g"></i></span><span>IDENTITY · C137.OPS</span></div>
-          <div style="padding:14px 16px;">
-            <div class="serif" style="font-size:22px; line-height:1.1;">Oleg Hanukayev <span aria-hidden="true" style="color:var(--leaf);">—</span></div>
-            <div style="font-size:12.5px; color:var(--acid); margin-top:4px;">Senior SRE &amp; AI Platform Engineer</div>
-            <div style="font-size:11px; color:#cdd8e8; margin-top:9px; letter-spacing:.04em;">10 YRS PRODUCTION · EX-BMC (FORTUNE 500) · FINTECH · AI INFRA</div>
-            <div style="font-size:11px; color:var(--leaf-2); margin-top:6px; letter-spacing:.04em;">OPEN TO — Senior roles · SRE · Platform · AI Platform · Cloud Infra</div>
-          </div>
-          <div class="card-actions">
-            <a id="save-btn" class="act primary" href="assets/oleg-hanukayev.vcf" type="text/vcard" style="text-decoration:none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 4v11m0 0-4-4m4 4 4-4M5 19h14"/></svg>Save contact</a>
-            <button id="share-btn" class="act" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4"/></svg>Share</button>
-            <button id="qr-btn" class="act" type="button" aria-haspopup="dialog" aria-controls="qr-dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/></svg>QR</button>
-          </div>
-        </div>
-        <p class="serif lead" style="font-size:clamp(17px,2vw,20px); line-height:1.55; color:#9fb2ce; max-width:440px; margin:0 0 22px;">10 years keeping production up across enterprise SaaS, FinTech, cybersecurity and telecom — now building the platforms behind production LLM systems: RAG, agents with MCP tooling, model routing and self-hosted inference.</p>
-        <p class="mono hint" style="font-size:12px; color:var(--mute-2); margin:0 0 30px; line-height:1.7;">// run a command in the shell — <span style="color:var(--acid);">projects</span>, <span style="color:var(--acid);">stack</span>, <span style="color:var(--acid);">about</span> — and the portal answers.</p>
-        <div class="mono ctas" style="display:flex; gap:13px; flex-wrap:wrap;">
-          <a class="cta" data-mail href="#contact" style="text-decoration:none; font-size:13px; letter-spacing:.03em; padding:14px 22px; border-radius:9px; background:var(--acid); color:#0a1505; font-weight:600;">EMAIL ME <span aria-hidden="true">→</span></a>
-          <a class="ghost" href="https://www.linkedin.com/in/oleg-hanukayev-3765b910a/" target="_blank" rel="noopener" style="text-decoration:none; font-size:13px; letter-spacing:.03em; padding:14px 22px; border-radius:9px; border:1px solid rgba(120,160,220,.28); color:var(--ink);">LINKEDIN <span aria-hidden="true">↗</span><span class="vh"> (opens in new tab)</span></a>
-        </div>
+<main id="main">
+  <section class="hero" id="top" aria-labelledby="h1">
+    <div class="wrap">
+      <div class="hero-head">
+        <h1 id="h1"><span class="eyebrow rise">Oleg Hanukayev</span> <span class="rise d1">Senior SRE &amp; AI Platform Engineer</span></h1>
+        <p class="kicker rise d2">Prod stays up in all of mine</p>
       </div>
 
-      <!-- portal + shell stage -->
-      <div class="stage" id="portal-stage">
-        <div class="stage-cap mono"><span aria-hidden="true" style="color:var(--acid);">◇</span><span>C-137 PORTAL — LINKED</span><button id="motion-btn" class="cap-btn" type="button" aria-pressed="false" style="margin-left:auto;"><span aria-hidden="true" class="motion-ico">❚❚</span><span>PAUSE MOTION</span></button></div>
-        <div class="stage-jump mono" role="group" aria-labelledby="jump-label">
-          <span id="jump-label" style="font-size:10px; letter-spacing:.12em; color:var(--leaf); white-space:nowrap;">JUMP TO</span>
-          <button class="jbtn" data-dest="stack" aria-label="Portal jump to STACK">STACK</button>
-          <button class="jbtn" data-dest="contact" aria-label="Portal jump to CHANNEL">CHANNEL</button>
-          <span id="portal-hint" aria-hidden="true">CLICK VORTEX → STACK</span>
-        </div>
-        <div id="portal-wrap" class="pwrap">
-          <canvas id="portal-canvas" aria-hidden="true"></canvas>
-        </div>
-        <div class="stage-flash" id="stage-flash"></div>
-        <div class="retrieval-layer" id="retrieval-layer" aria-hidden="true"></div>
-
-        <!-- the real shell, docked into the portal -->
-        <div class="shellwin pwin mono">
-          <div class="pwin-bar"><span class="dots" aria-hidden="true"><i class="d-r"></i><i class="d-y"></i><i class="d-g"></i></span><h2 class="vh">Interactive shell</h2><span>oleg@c137 — shell</span><span style="margin-left:auto; color:var(--leaf-2); letter-spacing:.1em;">LOCAL</span></div>
-          <div id="term-scroll" role="log" tabindex="0" aria-label="Shell output" style="height:clamp(170px,22vh,236px); overflow-y:auto; padding:14px 16px 6px; font-size:12.5px; line-height:1.7;">
-            <div id="term-lines"><div class="ln ln-sys">c137.ops shell — zsh 5.9 · portal linked</div><div class="ln ln-sys">type 'help' to list commands</div></div>
-          </div>
-            <div class="prompt-row">
-              <label for="cc-term" style="color:var(--acid);"><span aria-hidden="true">~/c137 ❯</span><span class="vh">Shell command</span></label>
-              <input id="cc-term" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="send" placeholder="type a command — try 'help'" style="flex:1; min-width:0; background:transparent; border:0; color:var(--ink); font-family:inherit; font-size:12.5px;">
-              <span aria-hidden="true" style="width:8px; height:15px; background:var(--acid); animation:cc-blink 1.1s step-end infinite;"></span>
+      <div class="stage" id="stage" role="group" aria-label="Business card" aria-describedby="card-state">
+        <div class="floor" aria-hidden="true"></div>
+        <div class="card" id="card">
+          <div class="slice" style="--z:-2px" aria-hidden="true"></div>
+          <div class="slice" style="--z:-1px" aria-hidden="true"></div>
+          <div class="slice mid" style="--z:0px" aria-hidden="true"></div>
+          <div class="slice" style="--z:1px" aria-hidden="true"></div>
+          <div class="slice" style="--z:2px" aria-hidden="true"></div>
+          <div class="face front">
+            <div class="f-top">
+              <span class="mono-mark" aria-hidden="true">OH<i></i></span>
+              <span class="f-years">10 yrs production</span>
             </div>
-          <div id="term-chips" style="display:flex; flex-wrap:wrap; gap:7px; padding:11px 16px; border-top:1px solid rgba(156,255,46,.14);">
-            <button class="chip-on" data-cmd="help" style="cursor:pointer; font-family:inherit; font-size:11px; padding:5px 11px; border-radius:20px; border:1px solid rgba(156,255,46,.3); background:rgba(156,255,46,.07); color:var(--acid);">help</button>
-            <button class="chip" data-cmd="about" style="cursor:pointer; font-family:inherit; font-size:11px; padding:5px 11px; border-radius:20px; border:1px solid rgba(120,160,220,.24); background:transparent; color:#cdd8e8;">about</button>
-            <button class="chip" data-cmd="projects" style="cursor:pointer; font-family:inherit; font-size:11px; padding:5px 11px; border-radius:20px; border:1px solid rgba(120,160,220,.24); background:transparent; color:#cdd8e8;">projects</button>
-            <button class="chip" data-cmd="stack" style="cursor:pointer; font-family:inherit; font-size:11px; padding:5px 11px; border-radius:20px; border:1px solid rgba(120,160,220,.24); background:transparent; color:#cdd8e8;">stack</button>
-            <button class="chip" data-cmd="hire" style="cursor:pointer; font-family:inherit; font-size:11px; padding:5px 11px; border-radius:20px; border:1px solid rgba(120,160,220,.24); background:transparent; color:#cdd8e8;">hire</button>
-            <button class="chip" data-cmd="vcard" style="cursor:pointer; font-family:inherit; font-size:11px; padding:5px 11px; border-radius:20px; border:1px solid rgba(120,160,220,.24); background:transparent; color:#cdd8e8;">vcard</button>
-            <button class="chip" data-cmd="clear" style="cursor:pointer; font-family:inherit; font-size:11px; padding:5px 11px; border-radius:20px; border:1px solid rgba(120,160,220,.24); background:transparent; color:var(--mute-2);">clear</button>
+            <div class="f-open">
+              <span class="lbl">Open to senior roles</span>
+              <span class="roles">SRE<span aria-hidden="true">·</span> Platform<span aria-hidden="true">·</span> AI Platform<span aria-hidden="true">·</span> Cloud Infra</span>
+            </div>
+            <div>
+              <div class="f-name" aria-hidden="true">Oleg Hanukayev</div>
+              <div class="f-title" aria-hidden="true">Senior SRE &amp; AI Platform Engineer</div>
+              <div class="f-rule" aria-hidden="true"></div>
+              <div class="f-foot"><span>GitHub @See-137</span><span>in/oleg-hanukayev</span></div>
+            </div>
           </div>
+          <div class="face back" aria-hidden="true">
+            <div class="qr-tile"><img src="assets/qr-card.svg" alt="" width="200" height="200" decoding="async"></div>
+            <div class="b-copy">
+              <strong>Scan to open this page</strong>
+              <p>Point a phone camera at the code, or use Save contact.</p>
+              <span class="url">see-137.github.io/digital-business-card</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="vh" id="card-state" aria-live="polite">Showing the front of the card.</p>
+
+      <div class="hero-actions">
+        <a class="btn primary" href="assets/oleg-hanukayev.vcf" download="oleg-hanukayev.vcf">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg>
+          Save contact
+        </a>
+        <button class="btn" type="button" id="flip" aria-controls="stage" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 12a8 8 0 0 1 13.7-5.6L20 9M20 4v5h-5M20 12a8 8 0 0 1-13.7 5.6L4 15m0 5v-5h5"/></svg>
+          <span id="flip-label">Flip card</span>
+        </button>
+        <button class="btn ghost" type="button" data-open-qr hidden>Show QR</button>
+        <p class="hint" id="hint" hidden></p>
+      </div>
+
+      <div class="intro">
+        <p class="lede">10 years keeping production up across enterprise SaaS, FinTech, cybersecurity and telecom. Now building the platforms behind production LLM systems: RAG, agents with MCP tooling, model routing and self-hosted inference.</p>
+        <div>
+          <ul class="badges" aria-label="Highlights">
+            <li>10 yrs production</li>
+            <li>Ex-BMC (Fortune 500)</li>
+            <li>FinTech</li>
+            <li>AI infra</li>
+          </ul>
+          <p class="now"><b>Now:</b> C137 AI.devops: AI infrastructure consultancy, 4 clients, 2 end-to-end builds (2025 to present)</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- PROOF -->
-  <section id="proof" aria-labelledby="proof-h" style="border-top:1px solid rgba(120,160,220,.14);">
-    <div style="max-width:1180px; margin:0 auto; padding:clamp(40px,5vw,64px) clamp(20px,5vw,48px);">
-      <div class="mono" style="font-size:11px; letter-spacing:.18em; color:var(--acid); margin-bottom:12px;">FIG. 01 — PROOF</div>
-      <h2 id="proof-h" class="serif" tabindex="-1" style="font-size:clamp(28px,4vw,40px); letter-spacing:-.01em; margin:0 0 26px;">Production, measured.</h2>
-      <ul class="proof mono">
-        <li><span class="num">50+</span><span class="what">multi-tenant EKS clusters across 5+ AWS regions, upgraded blue/green with zero downtime</span><span class="where">BMC Software · Fortune 500 SaaS</span></li>
-        <li><span class="num">−60%</span><span class="what">alert noise after redesigning Datadog alerting, with faster MTTR</span><span class="where">BMC Software</span></li>
-        <li><span class="num">~2 h → ~30 min</span><span class="what">post-deploy checks, cut by an approval-gated deploy-validation agent</span><span class="where">BMC Software</span></li>
+  <section class="sec" id="proof" aria-labelledby="proof-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="proof-h">Proof in production</h2>
+        <p>Three outcomes from BMC Software, each a number with the place it happened.</p>
+      </div>
+      <ul class="proof">
+        <li><span class="fig">50+</span><p class="txt">multi-tenant EKS clusters across 5+ AWS regions, upgraded blue/green with zero downtime<span class="where">BMC Software, Fortune 500 SaaS</span></p></li>
+        <li><span class="fig">-60%</span><p class="txt">alert noise after redesigning Datadog alerting, with faster MTTR<span class="where">BMC Software</span></p></li>
+        <li><span class="fig">~2 h to ~30 min</span><p class="txt">post-deploy checks, cut by an approval-gated deploy-validation agent<span class="where">BMC Software</span></p></li>
       </ul>
-      <dl class="career mono">
-        <div><dt>NOW</dt><dd>C137 AI.devops — AI infrastructure consultancy · 4 clients, 2 end-to-end builds</dd></div>
-        <div><dt>PREVIOUSLY</dt><dd>BMC Software (Fortune 500 SaaS) · Fireblocks · IntSights (acquired by Rapid7) · Amdocs</dd></div>
-      </dl>
     </div>
   </section>
 
-  <!-- STACK -->
-  <section id="stack" aria-labelledby="stack-h" style="max-width:1180px; margin:0 auto; padding:clamp(40px,5vw,64px) clamp(20px,5vw,48px); border-top:1px solid rgba(120,160,220,.14);">
-    <div class="mono" style="font-size:11px; letter-spacing:.18em; color:var(--acid); margin-bottom:12px;">FIG. 02 — TOOLCHAIN</div>
-    <h2 id="stack-h" class="serif" tabindex="-1" style="font-size:clamp(28px,4vw,40px); letter-spacing:-.01em; margin:0 0 6px;">The toolchain, unfiltered.</h2>
-    <p class="mono" style="font-size:13px; color:var(--mute-2); margin:0 0 30px;">// what I build and run with.</p>
-    <div id="stack-groups" class="mono"></div>
-  </section>
-
-  <!-- CONTACT + CONSOLE -->
-  <section id="contact" aria-labelledby="contact-h" style="border-top:1px solid rgba(120,160,220,.14); background:radial-gradient(120% 130% at 82% 0%, rgba(156,255,46,.05), transparent 62%);">
-    <div style="max-width:1180px; margin:0 auto; padding:clamp(56px,7vw,88px) clamp(20px,5vw,48px);">
-      <div class="mono" style="font-size:11px; letter-spacing:.18em; color:var(--acid); margin-bottom:12px;">FIG. 03 — OPEN CHANNEL</div>
-      <h2 id="contact-h" class="serif" tabindex="-1" style="font-size:clamp(32px,5vw,48px); letter-spacing:-.015em; margin:0 0 30px;">Let's build something that <em style="font-style:italic; color:var(--acid);">stays up</em>.</h2>
-      <div data-r="channel" style="display:grid; grid-template-columns:1fr 1.1fr; gap:clamp(24px,4vw,40px); align-items:start;">
-        <div class="mono">
-          <p style="font-size:13px; color:var(--mute-2); margin:0 0 24px; line-height:1.7;">// open to senior SRE, platform &amp; AI-platform roles — or just to compare notes on Kubernetes scars.</p>
-          <p style="font-size:11px; color:var(--mute); letter-spacing:.1em; margin:0 0 8px;">REACH ME ON</p>
-          <a class="mail" data-mail href="#contact" style="display:inline-block; text-decoration:none; font-size:clamp(17px,2.4vw,21px); color:var(--acid); margin-bottom:26px; word-break:break-all;"><span data-mail-text>oleghanukayev [at] gmail [dot] com</span> <span aria-hidden="true">→</span></a>
-          <div style="display:flex; flex-direction:column; gap:12px;">
-            <a class="ccard" href="https://www.linkedin.com/in/oleg-hanukayev-3765b910a/" target="_blank" rel="noopener" style="text-decoration:none; padding:15px 18px; border:1px solid rgba(156,255,46,.3); border-radius:11px; display:flex; justify-content:space-between; align-items:baseline; background:rgba(156,255,46,.05);"><span style="font-size:10px; color:var(--leaf-2); letter-spacing:.1em;">LINKEDIN</span><span style="font-size:13px; color:var(--ink);">in/oleg-hanukayev <span aria-hidden="true">↗</span><span class="vh"> (opens in new tab)</span></span></a>
-            <a class="ccard" href="https://github.com/See-137/" target="_blank" rel="noopener" style="text-decoration:none; padding:15px 18px; border:1px solid rgba(120,160,220,.2); border-radius:11px; display:flex; justify-content:space-between; align-items:baseline;"><span style="font-size:10px; color:var(--mute); letter-spacing:.1em;">GITHUB</span><span style="font-size:13px; color:var(--ink);">@See-137 <span aria-hidden="true">↗</span><span class="vh"> (opens in new tab)</span></span></a>
-            <a id="vcard-btn" class="ccard mono" href="assets/oleg-hanukayev.vcf" type="text/vcard" style="text-decoration:none; padding:15px 18px; border:1px solid rgba(120,160,220,.2); border-radius:11px; display:flex; justify-content:space-between; align-items:baseline;"><span style="font-size:10px; color:var(--mute); letter-spacing:.1em;">VCARD</span><span style="font-size:13px; color:var(--ink);">save oleg-hanukayev.vcf <span aria-hidden="true">↓</span></span></a>
+  <section class="sec" id="work" aria-labelledby="work-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="work-h">The work, dealt</h2>
+        <p id="work-how">Pick a group, then step through its cards with the arrows, a swipe or the arrow keys. Every card is also listed in All work below.</p>
+      </div>
+      <div class="groups" role="group" aria-labelledby="groups-l" id="groups" hidden>
+        <span class="vh" id="groups-l">Project group</span>
+        <button type="button" data-group-btn="production" aria-pressed="true">Production systems<span class="n" aria-hidden="true">5</span></button>
+        <button type="button" data-group-btn="apps" aria-pressed="false">Apps for small business<span class="n" aria-hidden="true">3</span></button>
+        <button type="button" data-group-btn="agentic" aria-pressed="false">Agentic systems<span class="n" aria-hidden="true">3</span></button>
+        <button type="button" data-group-btn="trading" aria-pressed="false">Trading systems<span class="n" aria-hidden="true">2</span></button>
+      </div>
+      <div class="deck" id="deck">
+        <div class="deck-view" tabindex="0" role="region" aria-label="Project cards" aria-describedby="work-how">
+          <div class="deck-track">
+            <article class="pcard" data-group="production" aria-labelledby="d-editorial">
+              <div class="pc-top"><span class="status on">In production</span><span class="pc-num" aria-hidden="true">01 / 05</span></div>
+              <h3 id="d-editorial">Multilingual Editorial Automation Platform</h3>
+              <p class="pc-tag">English news in, reviewed Hebrew articles out, with no human typing in between.</p>
+              <ul class="figs" aria-label="Figures"><li><span class="v">~10/day<sup class="dag" aria-hidden="true">†</sup><span class="vh"> (stated in the project's own README; not re-measured)</span></span><span class="l">articles, unattended since 2026-08-30</span></li><li><span class="v">~$0.08<sup class="dag" aria-hidden="true">†</sup><span class="vh"> (stated in the project's own README; not re-measured)</span></span><span class="l">per translated article</span></li><li><span class="v">~34.8k</span><span class="l">lines across 3 generations</span></li></ul>
+              <ul class="chips" aria-label="Stack"><li>Cloudflare Workers</li><li>D1</li><li>Queues</li><li>Cron</li><li>Access</li><li>Claude API</li><li>React 19</li><li>React Router 8</li><li>TypeScript</li><li>Python</li></ul>
+              <div class="pc-more"><p>An event-driven publishing pipeline: scheduled ingest, article extraction, structured LLM translation, and a human-approval gate behind Cloudflare Access before anything reaches the public site. Built three times: a local Python prototype, a production Cloudflare engine, and a server-rendered Hebrew site.</p><span class="none">No public link</span></div>
+            </article>
+            <article class="pcard" data-group="production" aria-labelledby="d-finpulse">
+              <div class="pc-top"><span class="status">Private build</span><span class="pc-num" aria-hidden="true">02 / 05</span></div>
+              <h3 id="d-finpulse">FinPulse</h3>
+              <p class="pc-tag">Portfolio, market data and alerts on one serverless screen.</p>
+              <ul class="figs" aria-label="Figures"><li><span class="v">636</span><span class="l">commits</span></li><li><span class="v">3<sup class="dag" aria-hidden="true">†</sup><span class="vh"> (stated in the project's own README; not re-measured)</span></span><span class="l">pipelines: CI, security, deploy</span></li></ul>
+              <ul class="chips" aria-label="Stack"><li>AWS serverless</li><li>React 19</li><li>TypeScript</li><li>GitHub Actions</li></ul>
+              <div class="pc-more"><p>A financial intelligence platform: a React 19 front end on a serverless AWS backbone, real-time market data, holdings, whale alerts and an AI copilot, shipped through separate CI, security and deploy pipelines.</p><span class="none">No public link</span></div>
+            </article>
+            <article class="pcard" data-group="production" aria-labelledby="d-cma">
+              <div class="pc-top"><span class="status on">Open source</span><span class="pc-num" aria-hidden="true">03 / 05</span></div>
+              <h3 id="d-cma">CMA: Cost Monitoring Agent</h3>
+              <p class="pc-tag">Know which agent spent the money, and why the bill moved.</p>
+              <ul class="figs" aria-label="Figures"><li><span class="v">MIT</span><span class="l">open source, with CI</span></li></ul>
+              <ul class="chips" aria-label="Stack"><li>Python</li><li>FastAPI</li><li>React</li><li>Grafana</li><li>Docker Compose</li><li>RAG</li></ul>
+              <div class="pc-more"><p>Self-hosted cost observability for multi-agent LLM systems: spend captured at the call site and attributed per agent, model and provider, budgets and alerts, and a RAG assistant that explains changes in plain language.</p><a class="btn" href="https://github.com/See-137/CMA" target="_blank" rel="noopener">Source on GitHub<span class="vh"> for CMA: Cost Monitoring Agent (opens in new tab)</span></a></div>
+            </article>
+            <article class="pcard" data-group="production" aria-labelledby="d-ciso">
+              <div class="pc-top"><span class="status">Built and tested; not yet deployed</span><span class="pc-num" aria-hidden="true">04 / 05</span></div>
+              <h3 id="d-ciso">CISO Agent</h3>
+              <p class="pc-tag">A security officer inside every coding agent&#x27;s loop.</p>
+              <ul class="figs" aria-label="Figures"><li><span class="v">5,563</span><span class="l">tests passing</span></li><li><span class="v">20</span><span class="l">rules: 11 deny, 6 ask, 3 allow</span></li><li><span class="v">5/5</span><span class="l">deliberately broken rules caught by tests</span></li></ul>
+              <ul class="chips" aria-label="Stack"><li>Python</li><li>Claude Code hooks</li><li>Policy as code</li></ul>
+              <div class="pc-more"><p>A Claude Code plugin: before an agent runs a command or pushes code, a local hook identifies the local account and lets 20 fixed rules decide. The plugin needs no server and no model in the decision path; editing the shipped ruleset makes every decision fail closed.</p><a class="btn" href="https://github.com/See-137/ciso-agent" target="_blank" rel="noopener">Source on GitHub<span class="vh"> for CISO Agent (opens in new tab)</span></a></div>
+            </article>
+            <article class="pcard" data-group="production" aria-labelledby="d-aegis">
+              <div class="pc-top"><span class="status">Private build</span><span class="pc-num" aria-hidden="true">05 / 05</span></div>
+              <h3 id="d-aegis">Aegis</h3>
+              <p class="pc-tag">Crash-test agents before they ship.</p>
+              <ul class="figs" aria-label="Figures"><li><span class="v">131</span><span class="l">commits</span></li><li><span class="v">M1 to M4<sup class="dag" aria-hidden="true">†</sup><span class="vh"> (stated in the project's own README; not re-measured)</span></span><span class="l">milestones documented</span></li></ul>
+              <ul class="chips" aria-label="Stack"><li>Python</li><li>REST API</li><li>OpenTelemetry (OTLP)</li></ul>
+              <div class="pc-more"><p>An agent reliability platform: runs an agent against versioned scenarios in sandboxes with simulated tools and injected faults, compares baseline with candidate, and gates releases through a separate approver role. Exports OpenTelemetry.</p><span class="none">No public link</span></div>
+            </article>
+            <article class="pcard" data-group="apps" aria-labelledby="d-freekick">
+              <div class="pc-top"><span class="status on">Live</span><span class="pc-num" aria-hidden="true">01 / 03</span></div>
+              <h3 id="d-freekick">Free Kick</h3>
+              <p class="pc-tag">Swipe, bend, score. It works offline.</p>
+              <ul class="figs" aria-label="Figures"><li><span class="v">892</span><span class="l">tests passing</span></li><li><span class="v">184</span><span class="l">commits</span></li></ul>
+              <ul class="chips" aria-label="Stack"><li>TypeScript</li><li>Vite</li><li>PWA</li><li>Service worker</li><li>Cloudflare Pages</li><li>Playwright</li></ul>
+              <div class="pc-more"><p>A mobile football game that installs from the browser and plays without a connection. Swipe direction aims, speed is power, a curved swipe bends the ball.</p><a class="btn" href="https://free-kick-demo.pages.dev" target="_blank" rel="noopener">Open the live site<span class="vh"> for Free Kick (opens in new tab)</span></a></div>
+            </article>
+            <article class="pcard" data-group="apps" aria-labelledby="d-bakery">
+              <div class="pc-top"><span class="status on">Live</span><span class="pc-num" aria-hidden="true">02 / 03</span></div>
+              <h3 id="d-bakery">Happiness bakery</h3>
+              <p class="pc-tag">A Hebrew storefront for a custom cake bakery.</p>
+              <ul class="chips" aria-label="Stack"><li>HTML</li><li>CSS</li><li>JavaScript</li><li>RTL</li><li>GitHub Pages</li></ul>
+              <div class="pc-more"><p>A right-to-left single-page site for a bento cake bakery: gallery with keyboard and touch lightbox, scroll-triggered reveals, glass-card UI.</p><a class="btn" href="https://see-137.github.io/happiness-bakery/" target="_blank" rel="noopener">Open the live site<span class="vh"> for Happiness bakery (opens in new tab)</span></a></div>
+            </article>
+            <article class="pcard" data-group="apps" aria-labelledby="d-cardwatch">
+              <div class="pc-top"><span class="status">Complete</span><span class="pc-num" aria-hidden="true">03 / 03</span></div>
+              <h3 id="d-cardwatch">Cardwatch</h3>
+              <p class="pc-tag">Price alerts only when they matter.</p>
+              <ul class="chips" aria-label="Stack"><li>Python</li><li>FastAPI</li><li>SQLite</li></ul>
+              <div class="pc-more"><p>A calm price-awareness assistant for collectible cards: owned cards alert on a meaningful rise, wanted cards on a meaningful drop. It surfaces moves; it never buys or sells.</p><span class="none">No public link</span></div>
+            </article>
+            <article class="pcard" data-group="agentic" aria-labelledby="d-chief">
+              <div class="pc-top"><span class="status on">In daily use</span><span class="pc-num" aria-hidden="true">01 / 03</span></div>
+              <h3 id="d-chief">Personal Agent System</h3>
+              <p class="pc-tag">My own agent estate, with an authority model, audits and backups.</p>
+              <ul class="figs" aria-label="Figures"><li><span class="v">~980</span><span class="l">commits across 5 repos</span></li><li><span class="v">437</span><span class="l">tests passing</span></li></ul>
+              <ul class="chips" aria-label="Stack"><li>Node.js</li><li>Python</li><li>SQLite</li><li>Claude Code Routines</li><li>Telegram</li><li>Kopia</li></ul>
+              <div class="pc-more"><p>A self-run agent system where permissions are tiered in a ledger that code enforces, a read-only local dashboard, a task queue to cloud agents, and a backup design that keeps secrets out of git.</p><span class="none">No public link</span></div>
+            </article>
+            <article class="pcard" data-group="agentic" aria-labelledby="d-studio">
+              <div class="pc-top"><span class="status on">Publishing</span><span class="pc-num" aria-hidden="true">02 / 03</span></div>
+              <h3 id="d-studio">Automated Video Studio</h3>
+              <p class="pc-tag">An AI studio that ships a clay-animation series.</p>
+              <ul class="chips" aria-label="Stack"><li>Claude</li><li>Higgsfield</li><li>ffmpeg</li><li>Instagram API</li><li>YouTube API</li></ul>
+              <div class="pc-more"><p>A three-engine production line: Claude for story and orchestration, generative media plus ffmpeg for assembly, and platform APIs for publishing and measurement, sharing one record per episode with review and ship gates.</p><span class="none">No public link</span></div>
+            </article>
+            <article class="pcard" data-group="agentic" aria-labelledby="d-rag">
+              <div class="pc-top"><span class="status">Prototype</span><span class="pc-num" aria-hidden="true">03 / 03</span></div>
+              <h3 id="d-rag">Citation-Checked RAG</h3>
+              <p class="pc-tag">Answers about privacy policies, with every quote checked.</p>
+              <ul class="figs" aria-label="Figures"><li><span class="v">14<sup class="dag" aria-hidden="true">†</sup><span class="vh"> (stated in the project's own README; not re-measured)</span></span><span class="l">policies indexed, fully local</span></li></ul>
+              <ul class="chips" aria-label="Stack"><li>Python</li><li>Ollama</li><li>Local embeddings</li></ul>
+              <div class="pc-more"><p>Fully local retrieval over 14<sup class="dag" aria-hidden="true">†</sup><span class="vh"> (stated in the project's own README; not re-measured)</span> privacy policies and key GDPR articles. After generation, every citation and verbatim quote is checked against the retrieved text, and anything unverifiable is flagged.</p><span class="none">No public link</span></div>
+            </article>
+            <article class="pcard" data-group="trading" aria-labelledby="d-edgekeeper">
+              <div class="pc-top"><span class="status">Paper trading</span><span class="pc-num" aria-hidden="true">01 / 02</span></div>
+              <h3 id="d-edgekeeper">EdgeKeeper</h3>
+              <p class="pc-tag">A trading core that refuses bad trades.</p>
+              <ul class="figs" aria-label="Figures"><li><span class="v">272</span><span class="l">commits</span></li><li><span class="v">29/29</span><span class="l">deliberately broken risk limits caught by tests</span></li></ul>
+              <ul class="chips" aria-label="Stack"><li>Python</li><li>Crypto spot and perpetuals</li></ul>
+              <div class="pc-more"><p>Every order passes a fail-closed risk gate, limits are frozen with hard ceilings in code, and circuit breakers stay tripped until a person resets them. Every hard ceiling is pinned by boundary tests that catch even a tiny loosening.</p><span class="none">No public link</span></div>
+            </article>
+            <article class="pcard" data-group="trading" aria-labelledby="d-polymkt">
+              <div class="pc-top"><span class="status">Paper only</span><span class="pc-num" aria-hidden="true">02 / 02</span></div>
+              <h3 id="d-polymkt">Market-making validator</h3>
+              <p class="pc-tag">Kill the bad idea before it costs money.</p>
+              <ul class="figs" aria-label="Figures"><li><span class="v">110<sup class="dag" aria-hidden="true">†</sup><span class="vh"> (stated in the project's own README; not re-measured)</span></span><span class="l">tests</span></li></ul>
+              <ul class="chips" aria-label="Stack"><li>Python</li></ul>
+              <div class="pc-more"><p>A paper-only kill-filter that returns GO, KILL or INCONCLUSIVE on a market-making thesis before any capital is at risk. Dry-run by default; live trading hard-blocked.</p><span class="none">No public link</span></div>
+            </article>
           </div>
         </div>
-
-        <!-- now: the consultancy -->
-        <div class="pwin mono" style="align-self:stretch;">
-          <div class="pwin-bar"><span class="dots" aria-hidden="true"><i class="d-r"></i><i class="d-y"></i><i class="d-g"></i></span><span>NOW — C137 AI.DEVOPS</span><span style="margin-left:auto; color:var(--leaf-2); letter-spacing:.1em;">2025 — PRESENT</span></div>
-          <div style="padding:18px 18px 20px; font-size:12.5px; line-height:1.8; color:#9fb2ce;">
-            <div style="color:var(--leaf-2);">$ c137 --status</div>
-            <div style="color:#bfe3a8;">↳ AI infrastructure consultancy · 4 clients · 2 end-to-end builds</div>
-            <div style="margin-top:12px; color:var(--leaf-2);">$ cat builds.log</div>
-            <div style="color:#bfe3a8;">↳ gaming: RAG content platform over large article volumes, with an agent interface</div>
-            <div style="color:#bfe3a8;">↳ customer comms: RAG over docs, billing and customer data</div>
-            <div style="color:#bfe3a8;">↳ fintech: AWS storage and backup with automated model rotation</div>
-            <div style="margin-top:12px; color:var(--leaf-2);">$ route --providers</div>
-            <div style="color:#bfe3a8;">↳ anthropic · openai · groq — complexity scoring, caching, fallback</div>
-            <div style="margin-top:16px; padding-top:14px; border-top:1px solid rgba(156,255,46,.14); color:var(--mute-2); font-size:11.5px;">// the shell in the hero takes commands too — try <span style="color:var(--acid);">projects</span> or <span style="color:var(--acid);">stack</span>.</div>
+        <div class="deck-bar" hidden>
+          <div class="deck-nav">
+            <button class="btn icon" type="button" data-deck="prev" aria-label="Previous card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+            <button class="btn icon" type="button" data-deck="next" aria-label="Next card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
           </div>
+          <div class="pips" aria-hidden="true"></div>
+          <span class="deck-count" aria-hidden="true"></span>
+        </div>
+        <p class="vh" aria-live="polite" id="deck-live"></p>
+        <div class="readout" id="readout" hidden></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="all-work" aria-labelledby="all-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="all-h">All work</h2>
+        <p>The same projects as a plain list: what each one is, where it stands, and the numbers behind it.</p>
+      </div>
+      <div class="index-group">
+        <h3>Production systems<span aria-hidden="true">05</span></h3>
+        <ul class="rows">
+          <li class="row"><div><h4>Multilingual Editorial Automation Platform</h4><p class="tag">English news in, reviewed Hebrew articles out, with no human typing in between.</p></div><ul class="rf"><li>~10/day<sup class="dag" aria-hidden="true">†</sup><span class="vh"> (stated in the project's own README; not re-measured)</span> <span class="l">articles, unattended since 2026-08-30</span></li><li>~$0.08<sup class="dag" aria-hidden="true">†</sup><span class="vh"> (stated in the project's own README; not re-measured)</span> <span class="l">per translated article</span></li><li>~34.8k <span class="l">lines across 3 generations</span></li></ul><span class="rs on">In production</span><span class="rl"><span class="none">Private</span></span></li>
+          <li class="row"><div><h4>FinPulse</h4><p class="tag">Portfolio, market data and alerts on one serverless screen.</p></div><ul class="rf"><li>636 <span class="l">commits</span></li><li>3<sup class="dag" aria-hidden="true">†</sup><span class="vh"> (stated in the project's own README; not re-measured)</span> <span class="l">pipelines: CI, security, deploy</span></li></ul><span class="rs">Private build</span><span class="rl"><span class="none">Private</span></span></li>
+          <li class="row"><div><h4>CMA: Cost Monitoring Agent</h4><p class="tag">Know which agent spent the money, and why the bill moved.</p></div><ul class="rf"><li>MIT <span class="l">open source, with CI</span></li></ul><span class="rs on">Open source</span><span class="rl"><a class="" href="https://github.com/See-137/CMA" target="_blank" rel="noopener">Source on GitHub<span class="vh"> for CMA: Cost Monitoring Agent (opens in new tab)</span></a></span></li>
+          <li class="row"><div><h4>CISO Agent</h4><p class="tag">A security officer inside every coding agent&#x27;s loop.</p></div><ul class="rf"><li>5,563 <span class="l">tests passing</span></li><li>20 <span class="l">rules: 11 deny, 6 ask, 3 allow</span></li><li>5/5 <span class="l">deliberately broken rules caught by tests</span></li></ul><span class="rs">Built and tested; not yet deployed</span><span class="rl"><a class="" href="https://github.com/See-137/ciso-agent" target="_blank" rel="noopener">Source on GitHub<span class="vh"> for CISO Agent (opens in new tab)</span></a></span></li>
+          <li class="row"><div><h4>Aegis</h4><p class="tag">Crash-test agents before they ship.</p></div><ul class="rf"><li>131 <span class="l">commits</span></li><li>M1 to M4<sup class="dag" aria-hidden="true">†</sup><span class="vh"> (stated in the project's own README; not re-measured)</span> <span class="l">milestones documented</span></li></ul><span class="rs">Private build</span><span class="rl"><span class="none">Private</span></span></li>
+        </ul>
+      </div>
+      <div class="index-group">
+        <h3>Apps for small business<span aria-hidden="true">03</span></h3>
+        <ul class="rows">
+          <li class="row"><div><h4>Free Kick</h4><p class="tag">Swipe, bend, score. It works offline.</p></div><ul class="rf"><li>892 <span class="l">tests passing</span></li><li>184 <span class="l">commits</span></li></ul><span class="rs on">Live</span><span class="rl"><a class="" href="https://free-kick-demo.pages.dev" target="_blank" rel="noopener">Open the live site<span class="vh"> for Free Kick (opens in new tab)</span></a></span></li>
+          <li class="row"><div><h4>Happiness bakery</h4><p class="tag">A Hebrew storefront for a custom cake bakery.</p></div><span class="rf"><span class="l">No published figures</span></span><span class="rs on">Live</span><span class="rl"><a class="" href="https://see-137.github.io/happiness-bakery/" target="_blank" rel="noopener">Open the live site<span class="vh"> for Happiness bakery (opens in new tab)</span></a></span></li>
+          <li class="row"><div><h4>Cardwatch</h4><p class="tag">Price alerts only when they matter.</p></div><span class="rf"><span class="l">No published figures</span></span><span class="rs">Complete</span><span class="rl"><span class="none">Private</span></span></li>
+        </ul>
+      </div>
+      <div class="index-group">
+        <h3>Agentic systems<span aria-hidden="true">03</span></h3>
+        <ul class="rows">
+          <li class="row"><div><h4>Personal Agent System</h4><p class="tag">My own agent estate, with an authority model, audits and backups.</p></div><ul class="rf"><li>~980 <span class="l">commits across 5 repos</span></li><li>437 <span class="l">tests passing</span></li></ul><span class="rs on">In daily use</span><span class="rl"><span class="none">Private</span></span></li>
+          <li class="row"><div><h4>Automated Video Studio</h4><p class="tag">An AI studio that ships a clay-animation series.</p></div><span class="rf"><span class="l">No published figures</span></span><span class="rs on">Publishing</span><span class="rl"><span class="none">Private</span></span></li>
+          <li class="row"><div><h4>Citation-Checked RAG</h4><p class="tag">Answers about privacy policies, with every quote checked.</p></div><ul class="rf"><li>14<sup class="dag" aria-hidden="true">†</sup><span class="vh"> (stated in the project's own README; not re-measured)</span> <span class="l">policies indexed, fully local</span></li></ul><span class="rs">Prototype</span><span class="rl"><span class="none">Private</span></span></li>
+        </ul>
+      </div>
+      <div class="index-group">
+        <h3>Trading systems<span aria-hidden="true">02</span></h3>
+        <ul class="rows">
+          <li class="row"><div><h4>EdgeKeeper</h4><p class="tag">A trading core that refuses bad trades.</p></div><ul class="rf"><li>272 <span class="l">commits</span></li><li>29/29 <span class="l">deliberately broken risk limits caught by tests</span></li></ul><span class="rs">Paper trading</span><span class="rl"><span class="none">Private</span></span></li>
+          <li class="row"><div><h4>Market-making validator</h4><p class="tag">Kill the bad idea before it costs money.</p></div><ul class="rf"><li>110<sup class="dag" aria-hidden="true">†</sup><span class="vh"> (stated in the project's own README; not re-measured)</span> <span class="l">tests</span></li></ul><span class="rs">Paper only</span><span class="rl"><span class="none">Private</span></span></li>
+        </ul>
+      </div>
+      <p class="foot-note"><span aria-hidden="true">†</span> Stated in the project's own README; not re-measured.</p>
+    </div>
+  </section>
+
+  <section class="sec" id="skills" aria-labelledby="skills-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="skills-h">Skills and tools</h2>
+        <p>Smaller pieces I built for my own agent workflow.</p>
+      </div>
+      <ul class="tools">
+        <li><h3>web-craft</h3><p>A field guide for building and shipping web front ends, with 16 references and 5 working scripts.</p><span class="stk">Claude Code skill · Node.js · Python</span></li>
+        <li><h3>turnstile-spin</h3><p>One-command Cloudflare Turnstile setup in any project.</p><span class="stk">Claude Code skill · Cloudflare API</span></li>
+        <li><h3>cutaway</h3><p>Interactive 3D explainers of mechanisms, as one offline page.</p><span class="stk">Claude Code skill · three.js</span></li>
+        <li><h3>living-flow-map</h3><p>Animated maps of how a pipeline or process actually moves.</p><span class="stk">Claude Code skill · SVG</span></li>
+        <li><h3>consensus-fix</h3><p>Competing analyses must agree before a critical fix lands.</p><span class="stk">Claude Code skill</span></li>
+        <li><h3>claude-code-hooks</h3><p>A hardened SSH host-check hook with a 44-case test suite.</p><span class="stk">Python · Claude Code hooks</span></li>
+        <li><h3>higgsfield guide</h3><p>A cost-gated operating guide for a generative-media connector.</p><span class="stk">Claude Code skill</span></li>
+        <li><h3>wrapup</h3><p>A session-closing ritual: gate, commit, memory, report.</p><span class="stk">Claude Code skill</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="sec" id="specs" aria-labelledby="specs-h">
+    <div class="wrap">
+      <div class="sec-head"><h2 id="specs-h">Specifications</h2></div>
+      <div class="specs">
+        <div>
+          <h3 class="spec-h">Background</h3>
+          <dl class="spec">
+            <div><dt>Previously</dt><dd>BMC Software (Fortune 500 SaaS), Fireblocks, IntSights (acquired by Rapid7), Amdocs</dd></div>
+            <div><dt>Open to</dt><dd>Senior roles: SRE, Platform, AI Platform, Cloud Infra</dd></div>
+          </dl>
+        </div>
+        <div>
+          <h3 class="spec-h">Toolchain</h3>
+          <dl class="spec">
+            <div><dt>Cloud &amp; infra</dt><dd>AWS (EKS, EC2, RDS, S3, Lambda, DynamoDB), GCP (GKE Autopilot), Kubernetes, Terraform, Docker, Helm</dd></div>
+            <div><dt>Reliability</dt><dd>SLOs &amp; error budgets, Incident command, On-call &amp; DR drills, Datadog, Grafana, ELK</dd></div>
+            <div><dt>Delivery</dt><dd>Jenkins, GitHub Actions, GitOps, Blue/green deploys, n8n</dd></div>
+            <div><dt>AI platform</dt><dd>RAG pipelines, AI agents &amp; MCP, Amazon Bedrock, Anthropic, OpenAI, Groq APIs, Ollama, vLLM, Langfuse, LangSmith, Qdrant, pgvector</dd></div>
+            <div><dt>Code &amp; data</dt><dd>Python, TypeScript, Bash, PowerShell, PostgreSQL, Redis</dd></div>
+          </dl>
         </div>
       </div>
     </div>
   </section>
 
+  <section class="close" id="contact" aria-labelledby="contact-h">
+    <div class="wrap close-grid">
+      <div>
+        <h2 id="contact-h">Keep the card.</h2>
+        <p>Open to senior roles: SRE, Platform, AI Platform, Cloud Infra.</p>
+        <div class="close-actions">
+          <a class="btn primary" href="assets/oleg-hanukayev.vcf" download="oleg-hanukayev.vcf">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg>
+            Save contact
+          </a>
+          <button class="btn" type="button" id="share" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>
+            Share
+          </button>
+          <button class="btn ghost" type="button" data-open-qr hidden>Show QR</button>
+        </div>
+      </div>
+      <ul class="links" aria-label="Contact links">
+        <li><a href="assets/oleg-hanukayev.vcf" download="oleg-hanukayev.vcf" data-mail><span>Email</span><span class="sub" data-mail-text>in the contact file</span></a></li>
+        <li><a href="https://www.linkedin.com/in/oleg-hanukayev-3765b910a/" target="_blank" rel="noopener"><span>LinkedIn<span class="vh"> (opens in new tab)</span></span><span class="sub">in/oleg-hanukayev</span></a></li>
+        <li><a href="https://github.com/See-137" target="_blank" rel="noopener"><span>GitHub<span class="vh"> (opens in new tab)</span></span><span class="sub">@See-137</span></a></li>
+      </ul>
+    </div>
+  </section>
 </main>
 
-  <footer style="border-top:1px solid rgba(120,160,220,.14);">
-    <div class="mono" style="max-width:1180px; margin:0 auto; padding:22px clamp(20px,5vw,48px); display:flex; flex-wrap:wrap; gap:10px; font-size:10.5px; color:var(--mute); letter-spacing:.08em;"><span>© 2026 OLEG HANUKAYEV · C137.OPS</span><span style="margin-left:auto;">DIMENSION C‑137 · DRAWN TO SPEC</span></div>
-  </footer>
+<footer>
+  <div class="wrap"><span>Oleg Hanukayev · Senior SRE &amp; AI Platform Engineer</span><span>No trackers, no cookies.</span></div>
+</footer>
 
-<dialog id="qr-dialog" class="qr mono" aria-labelledby="qr-title">
-  <div class="pwin-bar"><span class="dots" aria-hidden="true"><i class="d-r"></i><i class="d-y"></i><i class="d-g"></i></span><span>PORTAL QR — C137.OPS</span></div>
-  <div class="qr-body">
-    <h2 id="qr-title" class="serif">Scan to open this card</h2>
-    <img src="assets/qr.svg" width="300" height="300" alt="QR code for this card">
-    <div class="qr-url">see-137.github.io/digital-business-card</div>
-    <div class="qr-row">
-      <button id="qr-copy" class="act" type="button">Copy link</button>
-      <button id="qr-share" class="act" type="button">Share</button>
-      <form method="dialog"><button class="act primary" type="submit" autofocus>Close</button></form>
-    </div>
-    <div id="qr-status" class="vh" role="status"></div>
-  </div>
+<dialog id="qr-dialog" aria-labelledby="qr-h">
+  <h2 id="qr-h">Scan to open this page</h2>
+  <p>Point a phone camera at the code.</p>
+  <div class="qr-big"><img src="assets/qr-card.svg" alt="QR code that opens this page" width="420" height="420" decoding="async"></div>
+  <div class="actions"><button class="btn" type="button" id="qr-close" autofocus>Close</button></div>
+  <p class="vh" role="status" id="dialog-status"></p>
 </dialog>
-<div id="toast" class="toast mono" aria-hidden="true" popover="manual"></div>
-<div id="sr-status" class="vh" role="status"></div>
+
+<div class="toast" id="toast" popover="manual" aria-hidden="true"></div>
+<p class="vh" role="status" id="status"></p>
 </body>
 </html>
