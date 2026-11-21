@@ -13,7 +13,7 @@
  * only ever reads, writes and deletes caches named PREFIX*.
  */
 const PREFIX = 'c137-card-';
-const VERSION = `${PREFIX}v7`;
+const VERSION = `${PREFIX}v8`;
 const LEGACY = ['c137-v1']; // this card's own pre-prefix cache name
 const NETWORK_BUDGET_MS = 3000;
 // After one request blows the budget, the network is treated as degraded for a
@@ -39,6 +39,7 @@ const CORE = [
   'assets/work/cma-dashboard.webp',
   'assets/work/freekick.webp',
   'assets/work/bakery.webp',
+  'assets/work/finpulse.webp',
 ];
 
 self.addEventListener('install', (event) => {
