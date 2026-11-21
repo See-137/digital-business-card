@@ -1,10 +1,9 @@
-# Headless regression checks for the card (tests/e2e.mjs): portal boot,
-# axe-core, shell, QR dialog contract, phone-first layout, overflow at five
-# widths, font-swap CLS, fallbacks, and offline with the server shut down.
+# Smoke checks for the site (tests/e2e.mjs): clean load at phone and desktop
+# widths, no overflow, the content contract (H1, all projects, no email in the
+# HTML), the vCard, the QR dialog, axe-core, and the no-JavaScript fallback.
 #
-# The runner has no GPU, so the portal runs on the WebGL2 fallback through
-# SwiftShader; WebGPU is exercised locally. Pages deploys independently
-# (legacy branch mode), so a red run here does not block a deploy: read it.
+# Pages deploys independently (legacy branch mode), so a red run here does not
+# block a deploy: read it.
 name: tests
 
 on:

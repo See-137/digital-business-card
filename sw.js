@@ -3,8 +3,8 @@
  * opened). Bump VERSION on every deploy that changes a cache-first file or
  * the CORE list.
  *
- * - Immutable files (fonts, vendored three r186, icons): cache first, filled
- *   on first use (the 3D files are cached once the portal has been seen).
+ * - Immutable files (fonts, icons): cache first, filled on first use. A changed
+ *   font or icon gets a NEW filename, never new bytes under an old name.
  * - Everything else, pages included: network first with a 3 s budget. A
  *   network that hangs (connected, no data) falls back to the cache after 3 s
  *   instead of the TCP timeout; the slow response still refreshes the cache.
@@ -13,7 +13,7 @@
  * only ever reads, writes and deletes caches named PREFIX*.
  */
 const PREFIX = 'c137-card-';
-const VERSION = `${PREFIX}v5`;
+const VERSION = `${PREFIX}v6`;
 const LEGACY = ['c137-v1']; // this card's own pre-prefix cache name
 const NETWORK_BUDGET_MS = 3000;
 // After one request blows the budget, the network is treated as degraded for a
@@ -25,14 +25,14 @@ const IMMUTABLE = /\/(fonts|vendor|icons)\//;
 const CORE = [
   './',
   'index.html',
-  'js/app.js',
+  'js/site.js',
   'manifest.webmanifest',
-  'fonts/instrument-serif-400.woff2',
-  'fonts/instrument-serif-400-italic.woff2',
-  'fonts/ibm-plex-mono-400.woff2',
-  'fonts/ibm-plex-mono-600.woff2',
-  'icons/icon-192.png',
-  'assets/qr.svg',
+  'fonts/archivo-expanded-latin.woff2',
+  'fonts/hanken-grotesk-latin-400.woff2',
+  'fonts/hanken-grotesk-latin-600.woff2',
+  'fonts/geist-mono-latin-400.woff2',
+  'icons/card-192.png',
+  'assets/qr-card.svg',
   'assets/oleg-hanukayev.vcf',
 ];
 

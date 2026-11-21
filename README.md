@@ -1,9 +1,11 @@
 # Oleg Hanukayev — Personal Site
 
-Personal portfolio / business card. Live at https://see-137.github.io/digital-business-card/
+Portfolio and digital business card in one page. Live at https://see-137.github.io/digital-business-card/
 
-Static site, no build step. Open `index.html` directly or serve locally:
+Static site, no build step. Serve the folder locally (the service worker and fonts need http, not `file://`):
 
 ```bash
-python -m http.server 3000
+python -m http.server 3137
 ```
+
+Regression checks live in `tests/` (`npm ci`, then `npm test`). See `CLAUDE.md` for the file map and conventions.
