@@ -1,0 +1,612 @@
+<!doctype html>
+<!--
+  CONCEPT A: "Control Plane"
+  GENRE: an infrastructure tool / operator console.
+  The left rail is the business card (pinned on desktop); the right side scrolls like a console:
+  proof strip, a topology map of the work, the five project groups as "systems", toolchain, contact.
+  PROOF MOCK-UP ONLY: throwaway single file. Fonts come from Google Fonts here; the real build self-hosts.
+  All content is rendered at runtime from ../shared/content.json. The email address is assembled in JS.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Oleg Hanukayev, Senior SRE &amp; AI Platform Engineer</title>
+<meta name="description" content="Oleg Hanukayev, Senior SRE & AI Platform Engineer. Portfolio and contact card.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Crect width=%2716%27 height=%2716%27 rx=%272%27 fill=%27%230a0c0f%27/%3E%3Ccircle cx=%278%27 cy=%278%27 r=%273%27 fill=%27%235fd3e6%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* surfaces */
+  --bg:#0a0c0f; --panel:#0f1318; --raised:#141a21; --line:#1f2731; --line-2:#2a3440;
+  /* ink (measured): ink 16.5/15.7/14.8:1, mute 7.8/7.5/7.0:1 on bg/panel/raised */
+  --ink:#e9ecef; --mute:#9ba5b0;
+  /* ONE accent. --acc = marks (edges, focus, fills); --acc-text = text-safe, 11.1/10.6/10.0:1 on bg/panel/raised */
+  --acc:#1fb6d1; --acc-text:#5fd3e6; --acc-ink:#06161a; /* acc-ink on acc-text: 10.5:1 */
+  /* semantic status only (all >= 8.9:1 on every surface) */
+  --ok:#6fd39a; --warn:#e7b85e; --info:#9db8ff;
+  --display:"Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --mono:"Martian Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --r:3px; --rail:clamp(330px, 28vw, 420px);
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px; --s8:72px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+html.paused, html.paused *{scroll-behavior:auto}
+html:has(dialog[open]){overflow:hidden}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--display);
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:48px 48px;background-attachment:fixed;background-position:-1px -1px}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 70% 0%,transparent 0%,var(--bg) 70%);opacity:.92;z-index:0}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--acc-text);outline-offset:3px;border-radius:2px}
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+.mono{font-family:var(--mono);font-size:.72rem;letter-spacing:.02em}
+.label{font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.skip{position:absolute;left:var(--s4);top:-60px;background:var(--acc-text);color:var(--acc-ink);padding:var(--s2) var(--s3);z-index:20;border-radius:var(--r);font-weight:600}
+.skip:focus{top:var(--s4)}
+
+.shell{position:relative;z-index:1;display:grid;grid-template-columns:var(--rail) minmax(0,1fr);min-height:100vh}
+
+/* ---------- RAIL (business card) ---------- */
+.rail{position:sticky;top:0;height:100vh;overflow-y:auto;border-right:1px solid var(--line-2);background:color-mix(in srgb,var(--panel) 94%,transparent);
+  display:flex;flex-direction:column;padding:var(--s6) var(--s6) var(--s5)}
+.rail-top{display:flex;justify-content:space-between;align-items:center;gap:var(--s3);margin-bottom:var(--s6)}
+.node-id{display:flex;align-items:center;gap:var(--s2)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 22%,transparent)}
+.name{font:600 1.05rem/1.2 var(--display);margin:0 0 var(--s2);letter-spacing:-.005em}
+h1{font:700 clamp(2rem,2.7vw,2.6rem)/1.02 var(--display);letter-spacing:-.025em;margin:0 0 var(--s4);text-wrap:balance}
+h1 .k{color:var(--acc-text)}
+.kicker{font-family:var(--mono);font-size:.72rem;color:var(--mute);margin:0 0 var(--s4)}
+.kicker::before{content:"# ";color:var(--line-2)}
+.summary{color:var(--ink);opacity:.9;margin:0 0 var(--s4);font-size:.95rem}
+.badges{display:flex;flex-wrap:wrap;gap:6px;list-style:none;padding:0;margin:0 0 var(--s5)}
+.badges li{font-family:var(--mono);font-size:.64rem;border:1px solid var(--line-2);border-radius:var(--r);padding:3px 7px;color:var(--mute)}
+.facts{margin:0 0 var(--s5);display:grid;gap:var(--s3)}
+.facts div{display:grid;grid-template-columns:72px 1fr;gap:var(--s3);font-size:.86rem}
+.facts dt{padding-top:3px}
+.facts dd{margin:0}
+.actions{display:grid;grid-template-columns:1fr auto auto;gap:var(--s2);margin-bottom:var(--s4)}
+.btn{appearance:none;display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);min-height:44px;padding:0 var(--s4);
+  border-radius:var(--r);border:1px solid var(--line-2);background:var(--raised);color:var(--ink);font:500 .9rem/1 var(--display);
+  text-decoration:none;cursor:pointer;transition:border-color .15s,background .15s}
+.btn:hover{border-color:var(--mute)}
+.btn.primary{background:var(--acc-text);border-color:var(--acc-text);color:var(--acc-ink);font-weight:600}
+.btn.primary:hover{background:#86e0ef;border-color:#86e0ef}
+.btn svg{width:16px;height:16px;flex:none}
+.links{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.links li{border-bottom:1px solid var(--line)}
+.links a{display:grid;grid-template-columns:72px 1fr auto;gap:var(--s3);align-items:center;padding:11px 0;text-decoration:none;font-size:.88rem}
+.links a:hover .v{color:var(--acc-text)}
+.links .arr{color:var(--mute);font-family:var(--mono);font-size:.75rem}
+.rail-foot{margin-top:auto;padding-top:var(--s5)}
+
+/* ---------- CONSOLE (right side) ---------- */
+main{min-width:0}
+.topbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:var(--s4);
+  padding:0 var(--s6);height:52px;border-bottom:1px solid var(--line-2);background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px)}
+.crumb{min-width:0;font-family:var(--mono);font-size:.7rem;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crumb b{color:var(--ink);font-weight:500}
+.topnav{display:flex;gap:var(--s4);align-items:center}
+.topnav a{font-family:var(--mono);font-size:.68rem;color:var(--mute);text-decoration:none;text-transform:uppercase;letter-spacing:.06em}
+.topnav a:hover{color:var(--ink)}
+.pause{appearance:none;background:none;border:1px solid var(--line-2);color:var(--mute);border-radius:var(--r);font-family:var(--mono);font-size:.66rem;
+  letter-spacing:.06em;text-transform:uppercase;padding:0 10px;height:30px;white-space:nowrap;flex:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.pause:hover{color:var(--ink)}
+.pause[aria-pressed="true"]{color:var(--ink);border-color:var(--mute)}
+.pause[aria-disabled="true"]{cursor:not-allowed}
+.wrap{padding:var(--s7) var(--s6) var(--s8);max-width:1180px}
+section{margin-bottom:var(--s8)}
+.sec-h{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:var(--s4);border-bottom:1px solid var(--line-2);padding-bottom:var(--s3);margin-bottom:var(--s5)}
+h2{font:600 1.35rem/1.2 var(--display);letter-spacing:-.01em;margin:0}
+h2 .n{font-family:var(--mono);font-size:.7rem;color:var(--mute);font-weight:400;margin-right:var(--s3);letter-spacing:.04em;vertical-align:middle}
+.dir-m{display:none}
+.lede{color:var(--mute);max-width:68ch;margin:-8px 0 var(--s5);font-size:.92rem}
+
+/* proof */
+.proof{margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--line-2);border-radius:var(--r);background:var(--panel)}
+.proof li{list-style:none;padding:var(--s5);border-left:1px solid var(--line-2);display:flex;flex-direction:column;gap:var(--s3)}
+.proof li:first-child{border-left:0}
+.fig{font:500 clamp(1.15rem,1.45vw,1.6rem)/1.1 var(--mono);letter-spacing:-.04em;white-space:nowrap;font-variant-numeric:tabular-nums}
+.proof p{margin:0;font-size:.9rem}
+.proof .where{margin-top:auto}
+.proof ol{margin:0;padding:0}
+
+/* map */
+.map{position:relative;border:1px solid var(--line-2);border-radius:var(--r);background:var(--panel);padding:var(--s5)}
+.map svg.edges{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.edges path{fill:none;stroke:#3a4756;stroke-width:1;transition:stroke .15s,opacity .15s}
+.edges path.flow{stroke-dasharray:3 7;animation:flow 2.4s linear infinite}
+.edges path.lit{stroke:var(--acc);stroke-width:1.5;opacity:1}
+.map.has-lit .edges path:not(.lit){opacity:.25}
+@keyframes flow{to{stroke-dashoffset:-20}}
+.lanes{position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--s7)}
+.lane h3{margin:0 0 var(--s3);display:flex;flex-direction:column;gap:2px}
+.lane h3 .t{font:600 .92rem/1.2 var(--display)}
+.lane ul{list-style:none;margin:0;padding:0;display:grid;gap:var(--s3)}
+.mnode{position:relative;display:flex;flex-direction:column;gap:6px;padding:10px 12px;border:1px solid var(--line-2);border-radius:var(--r);background:var(--raised);
+  text-decoration:none;font-size:.84rem;line-height:1.25;transition:border-color .15s,background .15s}
+.mnode .status{white-space:normal}
+.mnode:hover,.mnode.lit{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 9%,var(--raised))}
+.standalone{position:relative;margin-top:var(--s5);padding-top:var(--s4);border-top:1px dashed var(--line-2);display:flex;flex-wrap:wrap;gap:var(--s3);align-items:center}
+.standalone .label{margin-right:var(--s2)}
+.standalone .mnode{flex-direction:row;align-items:center;padding:8px 12px}
+.map-legend{display:flex;flex-wrap:wrap;gap:var(--s4);margin-top:var(--s4)}
+
+/* status pills: the only place semantic colour appears */
+.status{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:.62rem;letter-spacing:.04em;white-space:nowrap;color:var(--mute)}
+.status::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.status.ok{color:var(--ok)} .status.warn{color:var(--warn)} .status.info{color:var(--info)}
+.status.neutral::before{background:transparent;border:1px solid currentColor}
+.status.ok.live::before{animation:pulse 2.8s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--ok) 0%,transparent),0 0 0 3px color-mix(in srgb,var(--ok) 30%,transparent)}}
+html.paused .edges path.flow,html.paused .status.live::before{animation:none}
+
+/* systems */
+.sys{margin-bottom:var(--s7)}
+.sys-h{display:flex;justify-content:space-between;align-items:baseline;gap:var(--s3);margin-bottom:var(--s3)}
+.sys-h h3{margin:0;font:600 1.05rem/1.2 var(--display)}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--s4)}
+.card{position:relative;display:flex;flex-direction:column;border:1px solid var(--line-2);border-radius:var(--r);background:var(--panel);padding:var(--s5);
+  transition:border-color .2s,box-shadow .2s;scroll-margin-top:80px}
+.card.wide{grid-column:1/-1}
+.card.lit{border-color:var(--acc);box-shadow:inset 3px 0 0 var(--acc)}
+.card-top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:var(--s3);margin-bottom:var(--s3)}
+.card h4{margin:0 0 6px;font:600 1.15rem/1.2 var(--display);letter-spacing:-.01em}
+.card h4:focus{outline:none}
+.card .tag{margin:0 0 var(--s3);font-weight:500}
+.card .blurb{margin:0 0 var(--s4);color:var(--mute);font-size:.9rem}
+.figs{display:flex;flex-wrap:wrap;gap:var(--s4) var(--s5);margin:0 0 var(--s4);padding:var(--s3) 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.figs div{display:flex;flex-direction:column;gap:3px;min-width:0}
+.figs dd{margin:0;font:500 1.05rem/1.1 var(--mono);white-space:nowrap;font-variant-numeric:tabular-nums;order:-1}
+.figs dt{font-size:.78rem;color:var(--mute)}
+.figs dt .src{font-family:var(--mono);font-size:.6rem;letter-spacing:.04em}
+.stack{list-style:none;margin:0 0 var(--s4);padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.stack li{font-family:var(--mono);font-size:.62rem;color:var(--mute);border:1px solid var(--line);border-radius:2px;padding:2px 6px}
+.card-foot{margin-top:auto;display:flex;justify-content:space-between;align-items:center;gap:var(--s3);font-size:.85rem}
+.card-foot a{color:var(--acc-text);text-underline-offset:3px}
+.card-foot .priv{color:var(--mute);font-family:var(--mono);font-size:.64rem}
+.skills{border:1px solid var(--line-2);border-radius:var(--r);background:var(--panel)}
+.skills li{list-style:none;display:grid;grid-template-columns:180px 1fr auto;gap:var(--s4);align-items:baseline;padding:12px var(--s5);border-top:1px solid var(--line);scroll-margin-top:80px}
+.skills li:first-child{border-top:0}
+.skills ol{margin:0;padding:0}
+.skills .nm{font-family:var(--mono);font-size:.78rem;color:var(--ink)}
+.skills .tg{font-size:.88rem;color:var(--mute)}
+.skills .stk{font-family:var(--mono);font-size:.6rem;color:var(--mute);white-space:nowrap}
+.skills li.lit{box-shadow:inset 3px 0 0 var(--acc)}
+
+/* toolchain */
+.tools{display:grid;grid-template-columns:1fr;gap:0;border:1px solid var(--line-2);border-radius:var(--r);background:var(--panel);margin:0}
+.tools div{display:grid;grid-template-columns:170px minmax(0,1fr);gap:var(--s4);align-items:baseline;padding:14px var(--s5);border-top:1px solid var(--line)}
+.tools div:first-child{border-top:0}
+.tools dt{margin:0}
+.tools dd{margin:0;font-size:.86rem;line-height:1.7}
+
+/* contact close */
+.close{border:1px solid var(--line-2);border-radius:var(--r);background:var(--panel);padding:var(--s6);display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:var(--s6);align-items:center}
+.close h2{font-size:clamp(1.5rem,2.4vw,2rem);letter-spacing:-.02em;margin-bottom:var(--s3);text-wrap:balance}
+.close p{margin:0;color:var(--mute)}
+.close .btns{display:grid;gap:var(--s2)}
+footer{position:relative;z-index:1;border-top:1px solid var(--line-2);padding:var(--s5) var(--s6);margin-left:var(--rail);display:flex;justify-content:space-between;gap:var(--s4);flex-wrap:wrap}
+
+/* dialog + toast */
+dialog{border:1px solid var(--line-2);border-radius:var(--r);background:var(--panel);color:var(--ink);padding:var(--s5);max-width:min(360px,calc(100vw - 32px))}
+dialog::backdrop{background:rgba(3,5,7,.78)}
+dialog h2{font-size:1.05rem;margin-bottom:var(--s3)}
+dialog img{display:block;width:100%;height:auto;background:#fff;border-radius:2px;padding:10px}
+dialog .row{display:flex;justify-content:space-between;align-items:center;gap:var(--s3);margin-top:var(--s4)}
+.toast{position:fixed;inset:auto var(--s4) var(--s4) auto;margin:0;border:1px solid var(--line-2);background:var(--raised);color:var(--ink);padding:10px 14px;border-radius:var(--r);font-size:.86rem;max-width:calc(100vw - 32px)}
+.toast::backdrop{display:none}
+
+/* entrance (skipped when paused or reduced) */
+.rise{animation:rise .5s cubic-bezier(.2,.7,.2,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}}
+html.paused .rise{animation:none}
+
+/* ---------- narrower desktops ---------- */
+@media (max-width:1180px){
+  .lanes{gap:var(--s5)}
+  .cards{grid-template-columns:1fr}
+  .close{grid-template-columns:1fr}
+}
+/* ---------- phones (< 768px): rail becomes a compact top card ---------- */
+@media (max-width:767.98px){
+  body{font-size:15px;background-size:32px 32px}
+  .shell{display:block}
+  .rail{position:static;height:auto;overflow:visible;border-right:0;border-bottom:1px solid var(--line-2);padding:var(--s5) var(--s4)}
+  .rail-top{margin-bottom:var(--s4)}
+  h1{font-size:clamp(1.65rem,8vw,2.1rem)}
+  .rail-foot{display:none}
+  .facts{margin-bottom:var(--s4)}
+  .facts div:not(.open){display:none}
+  .cn,.dir-d{display:none}
+  .dir-m{display:inline}
+  .badges{margin-bottom:var(--s4)}
+  .actions{grid-template-columns:1fr 1fr}
+  .actions .btn{padding:0 var(--s2)}
+  .actions .btn.primary{grid-column:1/-1}
+  .links a{grid-template-columns:64px 1fr auto}
+  .topbar{padding:0 var(--s4)}
+  .topnav a{display:none}
+  .wrap{padding:var(--s5) var(--s4) var(--s7)}
+  section{margin-bottom:var(--s7)}
+  .proof{grid-template-columns:1fr}
+  .proof li{border-left:0;border-top:1px solid var(--line-2);padding:var(--s4)}
+  .proof li:first-child{border-top:0}
+  .map{padding:var(--s4)}
+  .map svg.edges{display:none}
+  .lanes{grid-template-columns:minmax(0,1fr);gap:0}
+  .lane{position:relative;padding-left:22px}
+  .lane::before{content:"";position:absolute;left:5px;top:6px;bottom:0;border-left:1px dashed var(--line-2)}
+  .lane::after{content:"";position:absolute;left:1px;top:4px;width:9px;height:9px;border-radius:50%;border:1px solid var(--acc);background:var(--panel)}
+  .lane + .lane{padding-top:var(--s4)}
+  .lane + .lane::after{top:calc(var(--s4) + 4px)}
+  .lane ul{padding-bottom:var(--s4)}
+  .lane:last-child::before{bottom:auto;height:12px}
+  .card{padding:var(--s4)}
+  .tools div{grid-template-columns:1fr;gap:4px;padding:12px var(--s4)}
+  .skills li{grid-template-columns:1fr;gap:2px;padding:12px var(--s4)}
+  .close{padding:var(--s5) var(--s4)}
+  footer{margin-left:0;padding:var(--s4)}
+}
+@media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the systems</a>
+<noscript><p style="position:relative;z-index:2;padding:16px">This proof renders from a shared data file and needs JavaScript.</p></noscript>
+
+<div class="shell">
+  <!-- LEFT RAIL: the business card -->
+  <header class="rail" id="card" aria-label="Contact card">
+    <div class="rail-top">
+      <span class="node-id label"><span class="dot" aria-hidden="true"></span><span>node / operator</span></span>
+      <span class="label" aria-hidden="true">v1</span>
+    </div>
+    <p class="name" data-bind="name"></p>
+    <h1 id="title"></h1>
+    <p class="kicker" data-bind="kicker"></p>
+    <p class="summary" data-bind="summary"></p>
+    <ul class="badges" id="badges" aria-label="Highlights"></ul>
+    <dl class="facts">
+      <div><dt class="label">Now</dt><dd data-bind="now"></dd></div>
+      <div><dt class="label">Before</dt><dd data-bind="previously"></dd></div>
+      <div class="open"><dt class="label">Open to</dt><dd data-bind="open_to"></dd></div>
+    </dl>
+    <div class="actions" role="group" aria-label="Contact actions">
+      <a class="btn primary" id="save" href="#" download>
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v8m0 0 3-3m-3 3L5 7M3 13h10" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+        Save contact</a>
+      <button class="btn" type="button" id="share">Share</button>
+      <button class="btn" type="button" id="qr-open" aria-haspopup="dialog">QR</button>
+    </div>
+    <ul class="links" id="links" aria-label="Contact links"></ul>
+    <div class="rail-foot"><p class="label" style="margin:0">Open to: <span data-bind="open_to" style="text-transform:none;letter-spacing:0;color:var(--ink);font-family:var(--display);font-size:.82rem"></span></p></div>
+  </header>
+
+  <!-- RIGHT: the console -->
+  <main id="main" tabindex="-1">
+    <div class="topbar">
+      <p class="crumb" style="margin:0">control-plane /<span class="cn"> <b>oleg-hanukayev</b> /</span> overview</p>
+      <nav class="topnav" aria-label="Sections">
+        <a href="#map-h">Map</a><a href="#systems-h">Systems</a><a href="#tools-h">Toolchain</a><a href="#contact-h">Contact</a>
+        <button class="pause" type="button" id="pause" aria-pressed="false"><span aria-hidden="true">||</span> <span class="pl">Pause motion</span></button>
+      </nav>
+    </div>
+    <div class="wrap">
+      <section aria-labelledby="proof-h">
+        <div class="sec-h"><h2 id="proof-h"><span class="n" aria-hidden="true">01</span>Proof in production</h2><span class="label">at enterprise scale</span></div>
+        <ol class="proof" id="proof"></ol>
+      </section>
+
+      <section aria-labelledby="map-h">
+        <div class="sec-h"><h2 id="map-h"><span class="n" aria-hidden="true">02</span>Topology of the work</h2><span class="label" id="map-count"></span></div>
+        <p class="lede">Read <span class="dir-d">left to right</span><span class="dir-m">top to bottom</span>: the agents I run, the layer that tests, guards and costs agents, the platforms I ship, and trading cores behind risk gates. Lines show how the layers stack, not live traffic. Hover or focus a node to light its card; select it to jump there.</p>
+        <div class="map" id="map">
+          <svg class="edges" id="edges" aria-hidden="true" focusable="false"></svg>
+          <div class="lanes" id="lanes"></div>
+          <div class="standalone" id="standalone"></div>
+        </div>
+      </section>
+
+      <section aria-labelledby="systems-h">
+        <div class="sec-h"><h2 id="systems-h"><span class="n" aria-hidden="true">03</span>Systems</h2><span class="label" id="sys-count"></span></div>
+        <div id="systems"></div>
+      </section>
+
+      <section aria-labelledby="tools-h">
+        <div class="sec-h"><h2 id="tools-h"><span class="n" aria-hidden="true">04</span>Toolchain</h2><span class="label">what I run</span></div>
+        <dl class="tools" id="tools"></dl>
+      </section>
+
+      <section aria-labelledby="contact-h" style="margin-bottom:0">
+        <div class="close">
+          <div>
+            <p class="label" style="margin:0 0 8px">Open to</p>
+            <h2 id="contact-h" data-bind="open_to"></h2>
+            <p data-bind="now"></p>
+          </div>
+          <div class="btns" role="group" aria-label="Get in touch">
+            <a class="btn primary" id="email-close" href="#contact-h">Email me</a>
+            <a class="btn" id="li-close" href="#" target="_blank" rel="noopener">LinkedIn<span class="vh"> (opens in new tab)</span></a>
+            <a class="btn" id="save-close" href="#" download>Save contact</a>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+<footer>
+  <span class="label" data-bind="name"></span>
+  <span class="label">Figures marked "per README" are stated in the project's own README and were not re-measured.</span>
+</footer>
+
+<dialog id="qr" aria-labelledby="qr-h">
+  <h2 id="qr-h">Scan to open this card</h2>
+  <img id="qr-img" alt="QR code that opens this contact card" width="300" height="300">
+  <div class="row">
+    <span class="label">point a phone camera</span>
+    <button class="btn" type="button" id="qr-close" autofocus>Close</button>
+  </div>
+</dialog>
+<div class="toast" id="toast" popover="manual" aria-hidden="true"></div>
+<div class="vh" role="status" id="live"></div>
+
+<script>
+(() => {
+  'use strict';
+  const $ = (s, r = document) => r.querySelector(s);
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  /* Map lanes: how the project groups stack (by id from content.json). */
+  const LANES = [
+    {t: 'Agentic systems', sub: 'agents I run', ids: ['chief', 'studio', 'rag']},
+    {t: 'Guardrails & cost', sub: 'test, guard, measure', ids: ['aegis', 'ciso', 'cma']},
+    {t: 'Production systems', sub: 'platforms I ship', ids: ['editorial', 'finpulse']},
+    {t: 'Trading systems', sub: 'behind risk gates', ids: ['edgekeeper', 'polymkt']}
+  ];
+  const STATUS = (s) => {
+    const v = s.toLowerCase();
+    if (/^(in production|live|in daily use|publishing)$/.test(v)) return 'ok' + (v === 'in production' ? ' live' : '');
+    if (/paper/.test(v)) return 'warn';
+    if (/not yet deployed|prototype/.test(v)) return 'info';
+    return 'neutral';
+  };
+
+  /* ---------- motion: pause control + reduced motion (live) ---------- */
+  const rm = matchMedia('(prefers-reduced-motion: reduce)');
+  const pauseBtn = $('#pause');
+  const stored = () => { try { return localStorage.getItem('cp-motion') === 'off'; } catch { return false; } };
+  function applyMotion() {
+    const forced = rm.matches, off = forced || stored();
+    document.documentElement.classList.toggle('paused', off);
+    pauseBtn.setAttribute('aria-pressed', String(off));
+    pauseBtn.setAttribute('aria-disabled', String(forced));
+    pauseBtn.title = forced ? 'Motion is off by your system setting' : '';
+    $('.pl', pauseBtn).textContent = off ? 'Motion paused' : 'Pause motion';
+  }
+  pauseBtn.addEventListener('click', () => {
+    if (rm.matches) return;
+    try { localStorage.setItem('cp-motion', stored() ? 'on' : 'off'); } catch {}
+    applyMotion();
+  });
+  rm.addEventListener('change', applyMotion);
+  applyMotion();
+
+  /* ---------- announcements + toast ---------- */
+  const live = $('#live'), toast = $('#toast');
+  let toastT;
+  function say(msg) {
+    live.textContent = '';
+    setTimeout(() => { live.textContent = msg; }, 60);
+    toast.textContent = msg;
+    try { toast.showPopover(); } catch {}
+    clearTimeout(toastT);
+    toastT = setTimeout(() => { try { toast.hidePopover(); } catch {} }, 4000);
+  }
+
+  /* ---------- render ---------- */
+  function bindText(data) {
+    const id = data.identity;
+    const map = {name: id.name, kicker: id.kicker, summary: id.summary, now: id.now, open_to: id.open_to, previously: id.previously.join(', ')};
+    document.querySelectorAll('[data-bind]').forEach((el) => { el.textContent = map[el.dataset.bind] ?? ''; });
+    const t = id.title, i = t.indexOf('AI Platform');
+    $('#title').innerHTML = i < 0 ? esc(t) : esc(t.slice(0, i)) + '<span class="k">' + esc(t.slice(i)) + '</span>';
+    $('#badges').innerHTML = id.badges.map((b) => '<li>' + esc(b) + '</li>').join('');
+  }
+
+  function bindContact(c) {
+    const email = [c.email_user, c.email_domain].join('@');
+    const vcard = c.vcard;
+    ['#save', '#save-close'].forEach((s) => { $(s).href = vcard; });
+    $('#li-close').href = c.linkedin;
+    const mailBtn = $('#email-close');
+    mailBtn.href = 'mailto:' + email;
+    $('#qr-img').src = c.qr;
+    const rows = [
+      {k: 'Email', v: email, href: 'mailto:' + email, ext: false},
+      {k: 'LinkedIn', v: c.linkedin_label, href: c.linkedin, ext: true},
+      {k: 'GitHub', v: c.github_label, href: c.github, ext: true}
+    ];
+    $('#links').innerHTML = rows.map((r) => '<li><a href="' + esc(r.href) + '"' + (r.ext ? ' target="_blank" rel="noopener"' : '') + '>' +
+      '<span class="label">' + r.k + '</span><span class="v">' + esc(r.v) + '</span>' +
+      '<span class="arr" aria-hidden="true">' + (r.ext ? '&#8599;' : '&#8594;') + '</span>' +
+      (r.ext ? '<span class="vh"> (opens in new tab)</span>' : '') + '</a></li>').join('');
+  }
+
+  function renderProof(list) {
+    $('#proof').innerHTML = list.map((p) => '<li><span class="fig">' + esc(p.figure) + '</span><p>' + esc(p.text) + '</p><span class="label where">' + esc(p.where) + '</span></li>').join('');
+  }
+
+  function figsHtml(figs) {
+    if (!figs || !figs.length) return '';
+    return '<dl class="figs">' + figs.map((f) => '<div><dt>' + esc(f.label) +
+      (f.basis === 'readme' ? ' <span class="src">(per README)</span>' : '') + '</dt><dd>' + esc(f.value) + '</dd></div>').join('') + '</dl>';
+  }
+
+  function linkHtml(p) {
+    if (!p.link) return '<span class="priv">private repo, no public link</span>';
+    const gh = /github\.com/.test(p.link);
+    return '<a href="' + esc(p.link) + '" target="_blank" rel="noopener">' + (gh ? 'Source on GitHub' : 'Open the live site') +
+      ' <span aria-hidden="true">&#8599;</span><span class="vh"> (opens in new tab)</span></a>';
+  }
+
+  function cardHtml(p, wide) {
+    return '<article class="card' + (wide ? ' wide' : '') + '" id="p-' + esc(p.id) + '" data-pid="' + esc(p.id) + '" aria-labelledby="h-' + esc(p.id) + '">' +
+      '<div class="card-top"><span class="label">svc/' + esc(p.id) + '</span><span class="status ' + STATUS(p.status) + '">' + esc(p.status) + '</span></div>' +
+      '<h4 id="h-' + esc(p.id) + '" tabindex="-1">' + esc(p.name) + '</h4>' +
+      '<p class="tag">' + esc(p.tagline) + '</p><p class="blurb">' + esc(p.blurb) + '</p>' + figsHtml(p.figures) +
+      '<ul class="stack" aria-label="Stack">' + p.stack.map((s) => '<li>' + esc(s) + '</li>').join('') + '</ul>' +
+      '<div class="card-foot">' + linkHtml(p) + '</div></article>';
+  }
+
+  function renderSystems(groups) {
+    const total = groups.reduce((n, g) => n + g.projects.length, 0);
+    $('#sys-count').textContent = groups.length + ' groups / ' + total + ' units';
+    $('#systems').innerHTML = groups.map((g, gi) => {
+      const head = '<div class="sys-h"><h3 id="g-' + esc(g.id) + '">' + esc(g.name) + '</h3><span class="label">ns/' + esc(g.id) + ' &middot; ' + g.projects.length + '</span></div>';
+      if (g.id === 'skills') {
+        return '<div class="sys" role="group" aria-labelledby="g-' + esc(g.id) + '">' + head + '<div class="skills"><ol>' + g.projects.map((p) =>
+          '<li id="p-' + esc(p.id) + '" data-pid="' + esc(p.id) + '"><span class="nm">' + esc(p.name) + '</span><span class="tg">' + esc(p.tagline) + '</span><span class="stk">' + esc(p.stack.join(' / ')) + '</span></li>').join('') +
+          '</ol></div></div>';
+      }
+      const odd = g.projects.length % 2 === 1;
+      return '<div class="sys" role="group" aria-labelledby="g-' + esc(g.id) + '">' + head + '<div class="cards">' +
+        g.projects.map((p, i) => cardHtml(p, odd && i === 0)).join('') + '</div></div>';
+    }).join('');
+  }
+
+  function nodeHtml(p) {
+    return '<a class="mnode" href="#p-' + esc(p.id) + '" data-pid="' + esc(p.id) + '"><span>' + esc(p.name) + '</span>' +
+      '<span class="status ' + STATUS(p.status) + '">' + esc(p.status) + '</span></a>';
+  }
+
+  function renderMap(groups) {
+    const byId = {};
+    groups.forEach((g) => g.projects.forEach((p) => { byId[p.id] = p; }));
+    $('#lanes').innerHTML = LANES.map((l, li) => '<div class="lane" data-lane="' + li + '"><h3><span class="label">' + esc(l.sub) + '</span><span class="t">' + esc(l.t) + '</span></h3><ul>' +
+      l.ids.filter((id) => byId[id]).map((id) => '<li>' + nodeHtml(byId[id]) + '</li>').join('') + '</ul></div>').join('');
+    const apps = groups.find((g) => g.id === 'apps');
+    const skills = groups.find((g) => g.id === 'skills');
+    let s = '<span class="label">Standalone</span>';
+    if (apps) s += apps.projects.map((p) => '<a class="mnode" href="#p-' + esc(p.id) + '" data-pid="' + esc(p.id) + '">' + esc(p.name) + '</a>').join('');
+    if (skills) s += '<a class="mnode" href="#g-skills" data-pid="skills">' + skills.projects.length + ' ' + esc(skills.name.toLowerCase()) + '</a>';
+    $('#standalone').innerHTML = s;
+    const n = LANES.reduce((a, l) => a + l.ids.length, 0);
+    $('#map-count').textContent = LANES.length + ' layers / ' + n + ' nodes';
+  }
+
+  /* Edges: every node connects to each node in the next lane. Recomputed on resize. */
+  function drawEdges() {
+    const map = $('#map'), svg = $('#edges');
+    if (getComputedStyle(svg).display === 'none') return;
+    const box = map.getBoundingClientRect();
+    const lanes = [...map.querySelectorAll('.lane')];
+    let d = '';
+    const paths = [];
+    for (let i = 0; i < lanes.length - 1; i++) {
+      const a = [...lanes[i].querySelectorAll('.mnode')], b = [...lanes[i + 1].querySelectorAll('.mnode')];
+      a.forEach((na) => b.forEach((nb) => {
+        const ra = na.getBoundingClientRect(), rb = nb.getBoundingClientRect();
+        const x1 = ra.right - box.left, y1 = ra.top + ra.height / 2 - box.top;
+        const x2 = rb.left - box.left, y2 = rb.top + rb.height / 2 - box.top;
+        const mx = (x1 + x2) / 2;
+        paths.push('<path class="flow" data-a="' + na.dataset.pid + '" data-b="' + nb.dataset.pid + '" d="M' + x1.toFixed(1) + ' ' + y1.toFixed(1) +
+          ' C' + mx.toFixed(1) + ' ' + y1.toFixed(1) + ' ' + mx.toFixed(1) + ' ' + y2.toFixed(1) + ' ' + x2.toFixed(1) + ' ' + y2.toFixed(1) + '"/>');
+      }));
+    }
+    svg.setAttribute('viewBox', '0 0 ' + box.width.toFixed(0) + ' ' + box.height.toFixed(0));
+    svg.innerHTML = paths.join('') + d;
+  }
+
+  /* Hover / focus a node (or a card) lights both, plus the node's edges. */
+  function light(pid) {
+    const map = $('#map');
+    document.querySelectorAll('.lit').forEach((el) => el.classList.remove('lit'));
+    map.classList.toggle('has-lit', !!pid);
+    if (!pid) return;
+    document.querySelectorAll('[data-pid="' + pid + '"]').forEach((el) => el.classList.add('lit'));
+    if (pid === 'skills') document.querySelectorAll('.skills li').forEach((el) => el.classList.add('lit'));
+    map.querySelectorAll('.edges path').forEach((p) => { if (p.dataset.a === pid || p.dataset.b === pid) p.classList.add('lit'); });
+  }
+  function wireMap() {
+    const map = $('#map');
+    map.addEventListener('pointerover', (e) => { const n = e.target.closest('.mnode'); if (n) light(n.dataset.pid); });
+    map.addEventListener('pointerleave', () => light(null));
+    map.addEventListener('focusin', (e) => { const n = e.target.closest('.mnode'); if (n) light(n.dataset.pid); });
+    map.addEventListener('focusout', (e) => { if (!map.contains(e.relatedTarget)) light(null); });
+    map.addEventListener('click', (e) => {
+      const n = e.target.closest('.mnode'); if (!n) return;
+      const target = document.querySelector(n.getAttribute('href'));
+      if (!target) return;
+      e.preventDefault();
+      target.scrollIntoView({block: 'start'});
+      const h = target.querySelector('h4') || target;
+      if (!h.hasAttribute('tabindex')) h.setAttribute('tabindex', '-1');
+      h.focus({preventScroll: true});
+      light(n.dataset.pid);
+      history.replaceState(null, '', n.getAttribute('href'));
+    });
+    $('#systems').addEventListener('pointerover', (e) => { const c = e.target.closest('.card'); if (c) light(c.dataset.pid); });
+    $('#systems').addEventListener('pointerleave', () => light(null));
+    let raf = 0;
+    const redraw = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(drawEdges); };
+    if ('ResizeObserver' in window) new ResizeObserver(redraw).observe(map);
+    addEventListener('resize', redraw);
+    drawEdges();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(drawEdges);
+  }
+
+  function renderTools(tc) {
+    $('#tools').innerHTML = Object.entries(tc).map(([k, v]) => '<div><dt class="label">' + esc(k) + '</dt><dd>' + v.map(esc).join(', ') + '</dd></div>').join('');
+  }
+
+  /* ---------- actions: share, QR ---------- */
+  function wireActions() {
+    $('#share').addEventListener('click', async () => {
+      const data = {title: document.title, url: location.href.split('#')[0]};
+      if (navigator.share && (!navigator.canShare || navigator.canShare(data))) {
+        try { await navigator.share(data); return; } catch (e) { if (e && e.name === 'AbortError') return; }
+      }
+      try { await navigator.clipboard.writeText(data.url); say('Link copied: ' + data.url); }
+      catch { say('Copy this link: ' + data.url); }
+    });
+    const dlg = $('#qr');
+    $('#qr-open').addEventListener('click', () => dlg.showModal());
+    $('#qr-close').addEventListener('click', () => dlg.close());
+    let downOnBackdrop = false;
+    dlg.addEventListener('pointerdown', (e) => { downOnBackdrop = e.target === dlg; });
+    dlg.addEventListener('click', (e) => { if (downOnBackdrop && e.target === dlg) dlg.close(); downOnBackdrop = false; });
+  }
+
+  function reveal() {
+    document.querySelectorAll('.rail > *, section').forEach((el, i) => {
+      el.classList.add('rise');
+      el.style.animationDelay = Math.min(i * 40, 400) + 'ms';
+    });
+  }
+
+  fetch('../shared/content.json')
+    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then((data) => {
+      bindText(data);
+      bindContact(data.contact);
+      renderProof(data.proof);
+      renderMap(data.groups);
+      renderSystems(data.groups);
+      renderTools(data.toolchain);
+      wireActions();
+      wireMap();
+      reveal();
+    })
+    .catch((err) => {
+      console.warn('content load failed', err);
+      $('#systems').innerHTML = '<p class="lede">The content file could not be loaded. Reload the page to try again.</p>';
+    });
+})();
+</script>
+</body>
+</html>

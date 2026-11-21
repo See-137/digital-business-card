@@ -1,0 +1,238 @@
+{
+  "_source": "Single source of truth for all three concepts. Identity and proof lines are copied from the live site (fact-checked against the owner's CVs on 2026-10-01). Project figures are measured in a verification pass on 2026-11-21 unless marked 'readme' (stated in the project's own README, not re-measured). Do not add claims that are not here.",
+  "identity": {
+    "name": "Oleg Hanukayev",
+    "title": "Senior SRE & AI Platform Engineer",
+    "kicker": "Prod stays up in all of mine",
+    "summary": "10 years keeping production up across enterprise SaaS, FinTech, cybersecurity and telecom. Now building the platforms behind production LLM systems: RAG, agents with MCP tooling, model routing and self-hosted inference.",
+    "badges": ["10 yrs production", "Ex-BMC (Fortune 500)", "FinTech", "AI infra"],
+    "open_to": "Senior roles: SRE, Platform, AI Platform, Cloud Infra",
+    "now": "C137 AI.devops: AI infrastructure consultancy, 4 clients, 2 end-to-end builds (2025 to present)",
+    "previously": ["BMC Software (Fortune 500 SaaS)", "Fireblocks", "IntSights (acquired by Rapid7)", "Amdocs"]
+  },
+  "contact": {
+    "email_user": "oleghanukayev",
+    "email_domain": "gmail.com",
+    "_email_rule": "Assemble the address at runtime in JS; never write it as plain text or a plain mailto in the HTML.",
+    "linkedin": "https://www.linkedin.com/in/oleg-hanukayev-3765b910a/",
+    "linkedin_label": "in/oleg-hanukayev",
+    "github": "https://github.com/See-137",
+    "github_label": "@See-137",
+    "vcard": "../../assets/oleg-hanukayev.vcf",
+    "qr": "../../assets/qr.svg",
+    "_privacy": "No phone number and no city anywhere."
+  },
+  "proof": [
+    {"figure": "50+", "text": "multi-tenant EKS clusters across 5+ AWS regions, upgraded blue/green with zero downtime", "where": "BMC Software, Fortune 500 SaaS"},
+    {"figure": "-60%", "text": "alert noise after redesigning Datadog alerting, with faster MTTR", "where": "BMC Software"},
+    {"figure": "~2 h to ~30 min", "text": "post-deploy checks, cut by an approval-gated deploy-validation agent", "where": "BMC Software"}
+  ],
+  "toolchain": {
+    "Cloud & infra": ["AWS (EKS, EC2, RDS, S3, Lambda, DynamoDB)", "GCP (GKE Autopilot)", "Kubernetes", "Terraform", "Docker", "Helm"],
+    "Reliability": ["SLOs & error budgets", "Incident command", "On-call & DR drills", "Datadog", "Grafana", "ELK"],
+    "Delivery": ["Jenkins", "GitHub Actions", "GitOps", "Blue/green deploys", "n8n"],
+    "AI platform": ["RAG pipelines", "AI agents & MCP", "Amazon Bedrock", "Anthropic, OpenAI, Groq APIs", "Ollama", "vLLM", "Langfuse", "LangSmith", "Qdrant", "pgvector"],
+    "Code & data": ["Python", "TypeScript", "Bash", "PowerShell", "PostgreSQL", "Redis"]
+  },
+  "groups": [
+    {
+      "id": "production",
+      "name": "Production systems",
+      "projects": [
+        {
+          "id": "editorial",
+          "name": "Multilingual Editorial Automation Platform",
+          "tagline": "English news in, reviewed Hebrew articles out, with no human typing in between.",
+          "blurb": "An event-driven publishing pipeline: scheduled ingest, article extraction, structured LLM translation, and a human-approval gate behind Cloudflare Access before anything reaches the public site. Built three times: a local Python prototype, a production Cloudflare engine, and a server-rendered Hebrew site.",
+          "stack": ["Cloudflare Workers", "D1", "Queues", "Cron", "Access", "Claude API", "React 19", "React Router 8", "TypeScript", "Python"],
+          "figures": [
+            {"value": "~10/day", "label": "articles, unattended since 2026-08-30", "basis": "readme"},
+            {"value": "~$0.08", "label": "per translated article", "basis": "readme"},
+            {"value": "~34.8k", "label": "lines across 3 generations", "basis": "measured"}
+          ],
+          "status": "In production",
+          "link": null,
+          "_rule": "Unbranded. Never name the client, brand, domain or org."
+        },
+        {
+          "id": "finpulse",
+          "name": "FinPulse",
+          "tagline": "Portfolio, market data and alerts on one serverless screen.",
+          "blurb": "A financial intelligence platform: a React 19 front end on a serverless AWS backbone, real-time market data, holdings, whale alerts and an AI copilot, shipped through separate CI, security and deploy pipelines.",
+          "stack": ["AWS serverless", "React 19", "TypeScript", "GitHub Actions"],
+          "figures": [
+            {"value": "636", "label": "commits", "basis": "measured"},
+            {"value": "3", "label": "pipelines: CI, security, deploy", "basis": "readme"}
+          ],
+          "status": "Private build",
+          "link": null
+        },
+        {
+          "id": "cma",
+          "name": "CMA: Cost Monitoring Agent",
+          "tagline": "Know which agent spent the money, and why the bill moved.",
+          "blurb": "Self-hosted cost observability for multi-agent LLM systems: spend captured at the call site and attributed per agent, model and provider, budgets and alerts, and a RAG assistant that explains changes in plain language.",
+          "stack": ["Python", "FastAPI", "React", "Grafana", "Docker Compose", "RAG"],
+          "figures": [
+            {"value": "MIT", "label": "open source, with CI", "basis": "measured"}
+          ],
+          "status": "Open source",
+          "link": "https://github.com/See-137/CMA"
+        },
+        {
+          "id": "ciso",
+          "name": "CISO Agent",
+          "tagline": "A security officer inside every coding agent's loop.",
+          "blurb": "A Claude Code plugin: before an agent runs a command or pushes code, a local hook identifies the local account and lets 20 fixed rules decide. The plugin needs no server and no model in the decision path; editing the shipped ruleset makes every decision fail closed.",
+          "stack": ["Python", "Claude Code hooks", "Policy as code"],
+          "figures": [
+            {"value": "5,563", "label": "tests passing", "basis": "measured"},
+            {"value": "20", "label": "rules: 11 deny, 6 ask, 3 allow", "basis": "measured"},
+            {"value": "5/5", "label": "deliberately broken rules caught by tests", "basis": "measured"}
+          ],
+          "status": "Built and tested; not yet deployed",
+          "link": "https://github.com/See-137/ciso-agent"
+        },
+        {
+          "id": "aegis",
+          "name": "Aegis",
+          "tagline": "Crash-test agents before they ship.",
+          "blurb": "An agent reliability platform: runs an agent against versioned scenarios in sandboxes with simulated tools and injected faults, compares baseline with candidate, and gates releases through a separate approver role. Exports OpenTelemetry.",
+          "stack": ["Python", "REST API", "OpenTelemetry (OTLP)"],
+          "figures": [
+            {"value": "131", "label": "commits", "basis": "measured"},
+            {"value": "M1 to M4", "label": "milestones documented", "basis": "readme"}
+          ],
+          "status": "Private build",
+          "link": null
+        }
+      ]
+    },
+    {
+      "id": "apps",
+      "name": "Apps for small business",
+      "projects": [
+        {
+          "id": "freekick",
+          "name": "Free Kick",
+          "tagline": "Swipe, bend, score. It works offline.",
+          "blurb": "A mobile football game that installs from the browser and plays without a connection. Swipe direction aims, speed is power, a curved swipe bends the ball.",
+          "stack": ["TypeScript", "Vite", "PWA", "Service worker", "Cloudflare Pages", "Playwright"],
+          "figures": [
+            {"value": "892", "label": "tests passing", "basis": "measured"},
+            {"value": "184", "label": "commits", "basis": "measured"}
+          ],
+          "status": "Live",
+          "link": "https://free-kick-demo.pages.dev"
+        },
+        {
+          "id": "bakery",
+          "name": "Happiness bakery",
+          "tagline": "A Hebrew storefront for a custom cake bakery.",
+          "blurb": "A right-to-left single-page site for a bento cake bakery: gallery with keyboard and touch lightbox, scroll-triggered reveals, glass-card UI.",
+          "stack": ["HTML", "CSS", "JavaScript", "RTL", "GitHub Pages"],
+          "figures": [],
+          "status": "Live",
+          "link": "https://see-137.github.io/happiness-bakery/"
+        },
+        {
+          "id": "cardwatch",
+          "name": "Cardwatch",
+          "tagline": "Price alerts only when they matter.",
+          "blurb": "A calm price-awareness assistant for collectible cards: owned cards alert on a meaningful rise, wanted cards on a meaningful drop. It surfaces moves; it never buys or sells.",
+          "stack": ["Python", "FastAPI", "SQLite"],
+          "figures": [],
+          "status": "Complete",
+          "link": null
+        }
+      ]
+    },
+    {
+      "id": "agentic",
+      "name": "Agentic systems",
+      "projects": [
+        {
+          "id": "chief",
+          "name": "Personal Agent System",
+          "tagline": "My own agent estate, with an authority model, audits and backups.",
+          "blurb": "A self-run agent system where permissions are tiered in a ledger that code enforces, a read-only local dashboard, a task queue to cloud agents, and a backup design that keeps secrets out of git.",
+          "stack": ["Node.js", "Python", "SQLite", "Claude Code Routines", "Telegram", "Kopia"],
+          "figures": [
+            {"value": "~980", "label": "commits across 5 repos", "basis": "measured"},
+            {"value": "437", "label": "tests passing", "basis": "measured"}
+          ],
+          "status": "In daily use",
+          "link": null
+        },
+        {
+          "id": "studio",
+          "name": "Automated Video Studio",
+          "tagline": "An AI studio that ships a clay-animation series.",
+          "blurb": "A three-engine production line: Claude for story and orchestration, generative media plus ffmpeg for assembly, and platform APIs for publishing and measurement, sharing one record per episode with review and ship gates.",
+          "stack": ["Claude", "Higgsfield", "ffmpeg", "Instagram API", "YouTube API"],
+          "figures": [],
+          "status": "Publishing",
+          "link": null
+        },
+        {
+          "id": "rag",
+          "name": "Citation-Checked RAG",
+          "tagline": "Answers about privacy policies, with every quote checked.",
+          "blurb": "Fully local retrieval over 14 privacy policies and key GDPR articles. After generation, every citation and verbatim quote is checked against the retrieved text, and anything unverifiable is flagged.",
+          "stack": ["Python", "Ollama", "Local embeddings"],
+          "figures": [
+            {"value": "14", "label": "policies indexed, fully local", "basis": "readme"}
+          ],
+          "status": "Prototype",
+          "link": null
+        }
+      ]
+    },
+    {
+      "id": "trading",
+      "name": "Trading systems",
+      "projects": [
+        {
+          "id": "edgekeeper",
+          "name": "EdgeKeeper",
+          "tagline": "A trading core that refuses bad trades.",
+          "blurb": "Every order passes a fail-closed risk gate, limits are frozen with hard ceilings in code, and circuit breakers stay tripped until a person resets them. Every hard ceiling is pinned by boundary tests that catch even a tiny loosening.",
+          "stack": ["Python", "Crypto spot and perpetuals"],
+          "figures": [
+            {"value": "272", "label": "commits", "basis": "measured"},
+            {"value": "29/29", "label": "deliberately broken risk limits caught by tests", "basis": "measured"}
+          ],
+          "status": "Paper trading",
+          "link": null,
+          "_rule": "Never show P&L."
+        },
+        {
+          "id": "polymkt",
+          "name": "Market-making validator",
+          "tagline": "Kill the bad idea before it costs money.",
+          "blurb": "A paper-only kill-filter that returns GO, KILL or INCONCLUSIVE on a market-making thesis before any capital is at risk. Dry-run by default; live trading hard-blocked.",
+          "stack": ["Python"],
+          "figures": [
+            {"value": "110", "label": "tests", "basis": "readme"}
+          ],
+          "status": "Paper only",
+          "link": null
+        }
+      ]
+    },
+    {
+      "id": "skills",
+      "name": "Skills and tools",
+      "projects": [
+        {"id": "webcraft", "name": "web-craft", "tagline": "A field guide for building and shipping web front ends, with 16 references and 5 working scripts.", "stack": ["Claude Code skill", "Node.js", "Python"], "link": null},
+        {"id": "turnstile", "name": "turnstile-spin", "tagline": "One-command Cloudflare Turnstile setup in any project.", "stack": ["Claude Code skill", "Cloudflare API"], "link": null},
+        {"id": "cutaway", "name": "cutaway", "tagline": "Interactive 3D explainers of mechanisms, as one offline page.", "stack": ["Claude Code skill", "three.js"], "link": null},
+        {"id": "flowmap", "name": "living-flow-map", "tagline": "Animated maps of how a pipeline or process actually moves.", "stack": ["Claude Code skill", "SVG"], "link": null},
+        {"id": "consensus", "name": "consensus-fix", "tagline": "Competing analyses must agree before a critical fix lands.", "stack": ["Claude Code skill"], "link": null},
+        {"id": "hooks", "name": "claude-code-hooks", "tagline": "A hardened SSH host-check hook with a 44-case test suite.", "stack": ["Python", "Claude Code hooks"], "link": null},
+        {"id": "higgsfield", "name": "higgsfield guide", "tagline": "A cost-gated operating guide for a generative-media connector.", "stack": ["Claude Code skill"], "link": null},
+        {"id": "wrapup", "name": "wrapup", "tagline": "A session-closing ritual: gate, commit, memory, report.", "stack": ["Claude Code skill"], "link": null}
+      ]
+    }
+  ]
+}

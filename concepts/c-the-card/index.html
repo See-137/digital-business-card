@@ -1,0 +1,809 @@
+<!doctype html>
+<!--
+  CONCEPT C, "THE CARD" (proof mock-up, throwaway)
+  GENRE: a premium product page built around one physical object, the way a hardware or
+  luxury product launch page is built around the device. The object is the business card.
+  Tier T1: pure CSS 3D transforms (no WebGL). The card is DOM, so the QR on its back is the
+  real SVG and stays scannable, the text stays sharp, and there is nothing to lazy-boot.
+  All content is rendered at runtime from ../shared/content.json.
+  Tokens (measured with web-craft scripts/contrast.mjs, 2026-11-21):
+    --ink    #eeebe6  >= 13.36:1 on every surface
+    --ink-2  #b5b1a9  >=  7.43:1
+    --mute   #8f8b85  >=  4.69:1 (lowest: on #222224)
+    --accent-text #ff7a4d >= 6.16:1 (lowest: on #222224)
+    --accent #ff5f2e marks/fills: >= 5.61:1 as a mark; button text #140803 on it 6.50:1
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Card</title>
+<meta name="description" content="Concept C proof: a portfolio and digital business card built around one physical card.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='7' width='28' height='18' rx='3' fill='%231c1c1e'/%3E%3Crect x='6' y='17' width='5' height='5' rx='1' fill='%23ff5f2e'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..800&family=Hanken+Grotesk:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#0c0c0d; --surface:#141415; --surface-2:#1c1c1e; --surface-3:#222224;
+  --line:rgba(255,255,255,.08); --line-2:rgba(255,255,255,.14);
+  --ink:#eeebe6; --ink-2:#b5b1a9; --mute:#8f8b85;
+  --accent:#ff5f2e; --accent-text:#ff7a4d; --on-accent:#140803;
+  --ok:#5fcf8a;
+  --display:"Archivo","Arial Narrow",system-ui,sans-serif;
+  --body:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"Geist Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+  --r-sm:6px; --r:12px; --r-lg:18px;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px; --s8:72px; --s9:120px;
+  --wrap:1180px;
+  --ease:cubic-bezier(.2,.7,.1,1);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{background:var(--bg);color:var(--ink);overflow-x:clip;scroll-behavior:smooth;scroll-padding-top:72px}
+html:has(dialog[open]){overflow:hidden}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;font:400 1rem/1.6 var(--body);background:var(--bg);overflow-x:clip;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+h1,h2,h3{font-family:var(--display);font-weight:700;line-height:1.04;letter-spacing:-.015em;text-wrap:balance;margin:0}
+p{margin:0}
+a{color:inherit}
+img{display:block;max-width:100%}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+.vh{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.wrap{width:min(var(--wrap),100% - 32px);margin-inline:auto}
+.mono{font-family:var(--mono);font-size:.78rem;letter-spacing:.02em}
+.label{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+
+/* ---------- header ---------- */
+.top{position:sticky;top:0;z-index:20;background:rgba(12,12,13,.78);backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;height:56px;gap:var(--s4)}
+.mark{font:700 .95rem/1 var(--display);font-stretch:118%;letter-spacing:.01em;text-decoration:none;white-space:nowrap}
+.top nav ul{display:flex;gap:var(--s5);list-style:none;margin:0;padding:0}
+.top nav a{font-size:.88rem;color:var(--ink-2);text-decoration:none;padding:6px 0}
+.top nav a:hover{color:var(--ink)}
+@media (max-width:640px){.top nav li:not(:last-child){display:none}}
+
+/* ---------- buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:46px;padding:0 20px;border-radius:999px;border:1px solid var(--line-2);background:var(--surface-2);color:var(--ink);font:600 .95rem/1 var(--body);text-decoration:none;cursor:pointer;transition:background .2s,border-color .2s,transform .2s var(--ease);white-space:nowrap}
+.btn:hover{background:var(--surface-3);border-color:rgba(255,255,255,.24)}
+.btn:active{transform:translateY(1px)}
+.btn svg{width:18px;height:18px;flex:none}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.primary:hover{background:#ff7347;border-color:#ff7347}
+.btn.ghost{background:transparent}
+.btn.icon{width:46px;padding:0}
+.btn[disabled]{opacity:.4;cursor:default}
+
+/* ---------- hero ---------- */
+.hero{position:relative;padding:var(--s8) 0 var(--s8);isolation:isolate}
+.hero::before{content:"";position:absolute;inset:-56px 0 0;z-index:-1;background:
+  radial-gradient(60% 55% at 50% 18%,rgba(255,255,255,.075),transparent 70%),
+  radial-gradient(40% 30% at 50% 78%,rgba(255,255,255,.035),transparent 70%)}
+.hero-head{text-align:center;display:grid;gap:var(--s4);justify-items:center}
+.kicker{color:var(--accent-text);font:500 .95rem/1.3 var(--body);letter-spacing:.01em}
+.hero h1{font-size:clamp(2rem,6.2vw,5.4rem);font-stretch:116%;font-weight:750;max-width:15ch;line-height:.98}
+.eyebrow{font:500 .82rem/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2)}
+
+.stage{position:relative;margin:var(--s7) auto 0;width:min(560px,100%);aspect-ratio:85/55;perspective:1600px;touch-action:pan-y;cursor:grab;outline:none;user-select:none;-webkit-user-select:none}
+.stage.dragging{cursor:grabbing}
+.stage:focus-visible{outline:2px solid var(--accent);outline-offset:14px;border-radius:var(--r-lg)}
+.card{position:absolute;inset:0;transform-style:preserve-3d;transform:rotateX(calc(var(--rx,0)*1deg)) rotateY(calc(var(--ry,0)*1deg));will-change:transform}
+.face,.slice{position:absolute;inset:0;border-radius:var(--r-lg)}
+.slice{background:#7a2a12;transform:translateZ(var(--z))}
+.slice.mid{background:var(--accent)}
+.face{backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)}
+.face::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(90% 120% at calc(50% + var(--lx,0)*1%) -10%,rgba(255,255,255,.13),transparent 60%);mix-blend-mode:screen}
+.face::after{content:"";position:absolute;inset:0;pointer-events:none;background:#000;opacity:var(--shade,0)}
+.front{transform:translateZ(2.5px);background:
+  linear-gradient(155deg,#232325 0%,#18181a 48%,#121213 100%);
+  padding:clamp(16px,5.2%,30px);display:flex;flex-direction:column;justify-content:space-between}
+.front::after{opacity:var(--shadeF,0)}
+.back{transform:rotateY(180deg) translateZ(2.5px);background:linear-gradient(200deg,#1e1e20,#141415);padding:clamp(14px,5%,28px);display:grid;grid-template-columns:auto 1fr;gap:clamp(14px,5%,28px);align-items:center}
+.back::after{opacity:var(--shadeB,1)}
+.f-top{display:flex;justify-content:space-between;align-items:flex-start}
+.mono-mark{font:800 clamp(1rem,3.6vw,1.45rem)/1 var(--display);font-stretch:125%;letter-spacing:-.02em}
+.mono-mark span{display:inline-block;width:.42em;height:.42em;background:var(--accent);border-radius:2px;margin-left:.18em;vertical-align:.08em}
+.f-handles{text-align:right;font:400 clamp(.58rem,1.7vw,.74rem)/1.55 var(--mono);color:var(--ink-2)}
+.f-name{font:750 clamp(1.25rem,4.9vw,2.15rem)/1 var(--display);font-stretch:112%;letter-spacing:-.02em}
+.f-title{margin-top:clamp(4px,1.2vw,8px);font:500 clamp(.7rem,2.3vw,.98rem)/1.3 var(--body);color:var(--ink-2)}
+.f-rule{height:1px;background:var(--line-2);margin:clamp(8px,2.6vw,16px) 0 clamp(6px,2vw,12px)}
+.f-foot{display:flex;justify-content:space-between;gap:12px;font:400 clamp(.56rem,1.7vw,.74rem)/1.4 var(--mono);color:var(--mute)}
+.qr-tile{height:100%;aspect-ratio:1;background:#f4ffe9;border-radius:8px;padding:4%;overflow:hidden}
+.qr-tile img{width:100%;height:100%}
+.b-copy{display:grid;gap:clamp(4px,1.4vw,10px);align-content:center;min-width:0}
+.b-copy strong{font:700 clamp(.95rem,3.2vw,1.4rem)/1.05 var(--display);font-stretch:112%}
+.b-copy p{font-size:clamp(.66rem,2vw,.9rem);line-height:1.4;color:var(--ink-2)}
+.b-copy .mono{font-size:clamp(.56rem,1.6vw,.72rem);color:var(--mute);overflow-wrap:anywhere}
+.floor{position:absolute;left:8%;right:8%;bottom:-11%;height:16%;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.75),transparent);filter:blur(10px);transform:scaleX(var(--fs,1));opacity:var(--fo,.9);z-index:-1;pointer-events:none}
+
+.hero-actions{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:var(--s3);margin-top:var(--s7)}
+.hint{width:100%;text-align:center;margin-top:var(--s3);color:var(--mute);font-size:.82rem}
+.hint kbd{font:500 .72rem var(--mono);padding:1px 6px;border:1px solid var(--line-2);border-radius:4px;color:var(--ink-2)}
+
+.intro{display:grid;grid-template-columns:1.25fr 1fr;gap:var(--s7);margin-top:var(--s9);padding-top:var(--s6);border-top:1px solid var(--line);align-items:start}
+.intro p.lede{font-size:clamp(1.12rem,1.7vw,1.38rem);line-height:1.5;color:var(--ink);max-width:40ch}
+.badges{display:flex;flex-wrap:wrap;gap:var(--s2);list-style:none;margin:0;padding:0}
+.badges li{font:500 .82rem/1 var(--body);padding:9px 13px;border:1px solid var(--line-2);border-radius:999px;color:var(--ink-2);white-space:nowrap}
+.open-to{margin-top:var(--s5);color:var(--ink-2);font-size:.95rem}
+.open-to b{color:var(--ink);font-weight:600}
+
+/* ---------- section heads ---------- */
+section{position:relative}
+.sec{padding:var(--s9) 0 0}
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:var(--s5);flex-wrap:wrap;margin-bottom:var(--s6)}
+.sec-head h2{font-size:clamp(2rem,4.6vw,3.6rem);font-stretch:114%;font-weight:750}
+.sec-head p{color:var(--ink-2);max-width:44ch}
+
+/* ---------- deck ---------- */
+.groups{display:flex;flex-wrap:wrap;gap:var(--s2);margin-bottom:var(--s6)}
+.groups button{font:500 .9rem/1 var(--body);color:var(--ink-2);background:transparent;border:1px solid var(--line-2);border-radius:999px;padding:11px 16px;cursor:pointer;transition:color .2s,background .2s,border-color .2s}
+.groups button:hover{color:var(--ink);border-color:rgba(255,255,255,.26)}
+.groups button[aria-pressed="true"]{background:var(--ink);color:#111;border-color:var(--ink)}
+.groups button .n{font-family:var(--mono);font-size:.75rem;margin-left:6px;opacity:.7}
+
+.deck{--cw:410px;position:relative}
+.deck.sm{--cw:320px}
+.deck-view{position:relative;overflow:hidden;padding:20px 0 34px;margin:0 -16px;outline:none;touch-action:pan-y}
+.deck-view:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;border-radius:var(--r-lg)}
+.deck-track{position:relative;perspective:1400px;perspective-origin:20% 40%;height:var(--dh,480px);transition:transform .35s var(--ease)}
+.pcard{position:absolute;top:0;left:16px;width:var(--cw);min-height:var(--dh,480px);border-radius:var(--r-lg);
+  background:linear-gradient(165deg,#212123,#161617 60%,#131314);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 30px 60px -24px rgba(0,0,0,.85),0 8px 18px -8px rgba(0,0,0,.6);
+  padding:24px;display:flex;flex-direction:column;gap:18px;transform-origin:50% 100%;
+  transition:transform .7s var(--ease),opacity .5s var(--ease),filter .5s;cursor:pointer;-webkit-user-select:none;user-select:none}
+.pcard.is-active{cursor:default}
+.pcard::after{content:"";position:absolute;inset:0;border-radius:inherit;background:#0c0c0d;opacity:var(--dim,0);transition:opacity .5s;pointer-events:none}
+.pc-top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.status{display:inline-flex;align-items:center;gap:8px;font:500 .78rem/1 var(--body);color:var(--ink-2);padding:7px 11px 7px 9px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid var(--line)}
+.status::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--mute)}
+.status.on::before{background:var(--ok)}
+.pc-num{font:500 .74rem/1 var(--mono);color:var(--mute);white-space:nowrap}
+.pcard h3{font-size:1.5rem;font-stretch:108%;font-weight:700;line-height:1.08}
+.pc-tag{color:var(--ink-2);font-size:1rem;line-height:1.45}
+.figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin:0}
+.figs div{background:#18181a;padding:12px 12px 13px}
+.figs dt{order:2;font-size:.76rem;line-height:1.35;color:var(--mute);margin-top:5px}
+.figs dd{margin:0;font:500 1.2rem/1.1 var(--mono);color:var(--ink);white-space:nowrap;letter-spacing:-.02em}
+.figs div{display:flex;flex-direction:column}
+.figs dd{order:1}
+.figs sup{font-size:.62em;color:var(--mute);margin-left:2px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;list-style:none;margin:auto 0 0;padding:0}
+.chips li{font:400 .72rem/1 var(--mono);color:var(--ink-2);padding:6px 8px;border-radius:5px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
+.deck.sm .pcard{padding:20px;gap:14px}
+.deck.sm .pcard h3{font-size:1.2rem;font-family:var(--mono);font-weight:500;font-stretch:100%;letter-spacing:-.01em}
+.deck.sm .pc-tag{font-size:.94rem}
+
+.deck-bar{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);margin-top:var(--s2)}
+.deck-nav{display:flex;gap:var(--s2)}
+.pips{display:flex;gap:6px;align-items:center}
+.pips i{display:block;width:18px;height:3px;border-radius:2px;background:var(--line-2);transition:background .3s,width .3s}
+.pips i.on{background:var(--ink);width:30px}
+.deck-count{font:500 .82rem var(--mono);color:var(--ink-2);min-width:5ch;text-align:right}
+
+.readout{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--s4) var(--s7);align-items:start;margin-top:var(--s6);padding:var(--s5) 0 0;border-top:1px solid var(--line)}
+.readout h3{font-size:1.15rem;font-stretch:108%;margin-bottom:8px}
+.readout p{color:var(--ink-2);max-width:68ch}
+.readout .none{color:var(--mute);font-size:.88rem;white-space:nowrap}
+.foot-note{margin-top:var(--s4);color:var(--mute);font-size:.82rem}
+
+/* deal: the stack the cards leave from */
+.dealing .pcard{transition:none!important}
+
+/* ---------- proof ---------- */
+.proof{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.proof li{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:var(--s4) var(--s7);align-items:baseline;padding:var(--s6) 0;border-bottom:1px solid var(--line)}
+.proof .fig{font:750 clamp(1.7rem,4.6vw,4rem)/1 var(--display);font-stretch:110%;letter-spacing:-.03em;white-space:nowrap;font-variant-numeric:tabular-nums}
+.proof .txt{font-size:1.08rem;color:var(--ink)}
+.proof .where{display:block;margin-top:6px;color:var(--mute);font-size:.88rem}
+
+/* ---------- specs ---------- */
+.specs{display:grid;grid-template-columns:1fr 1fr;gap:var(--s7)}
+.spec{margin:0}
+.spec div{display:grid;grid-template-columns:150px minmax(0,1fr);gap:var(--s4);padding:16px 0;border-top:1px solid var(--line)}
+.spec dt{font:500 .72rem/1.6 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute);padding-top:2px}
+.spec dd{margin:0;color:var(--ink-2);font-size:.96rem;line-height:1.55}
+.spec dd b{color:var(--ink);font-weight:500}
+.spec-h{font:600 .95rem/1 var(--body);margin-bottom:var(--s4);color:var(--ink)}
+
+/* ---------- contact ---------- */
+.close{margin-top:var(--s9);padding:var(--s9) 0;border-top:1px solid var(--line);background:radial-gradient(50% 70% at 50% 0%,rgba(255,255,255,.05),transparent 70%)}
+.close-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:var(--s7);align-items:center}
+.close h2{font-size:clamp(2.2rem,5.4vw,4.4rem);font-stretch:116%;font-weight:750}
+.close p{color:var(--ink-2);margin-top:var(--s4);max-width:42ch}
+.close-actions{display:flex;flex-wrap:wrap;gap:var(--s3);margin-top:var(--s6)}
+.links{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.links li{border-bottom:1px solid var(--line)}
+.links a,.links button{display:flex;justify-content:space-between;align-items:center;gap:16px;width:100%;padding:18px 4px;background:none;border:0;color:var(--ink);font:500 1rem var(--body);text-decoration:none;cursor:pointer;text-align:left}
+.links a:hover,.links button:hover{color:var(--accent-text)}
+.links .sub{font:400 .8rem var(--mono);color:var(--mute);overflow-wrap:anywhere;text-align:right}
+
+footer{padding:var(--s6) 0 var(--s7);border-top:1px solid var(--line);color:var(--mute);font-size:.84rem}
+footer .wrap{display:flex;justify-content:space-between;gap:var(--s4);flex-wrap:wrap}
+
+/* ---------- dialog / toast ---------- */
+dialog{border:1px solid var(--line-2);border-radius:var(--r-lg);background:var(--surface);color:var(--ink);padding:28px;width:min(400px,calc(100% - 32px))}
+dialog::backdrop{background:rgba(5,5,6,.78);backdrop-filter:blur(4px)}
+dialog h2{font-size:1.4rem;font-stretch:110%;margin-bottom:6px}
+dialog p{color:var(--ink-2);font-size:.92rem}
+dialog .qr-big{margin:20px 0;background:#f4ffe9;border-radius:10px;padding:10px}
+dialog .row{display:flex;justify-content:flex-end}
+.toast{position:fixed;inset:auto 16px 20px auto;margin:0;left:auto;border:1px solid var(--line-2);border-radius:var(--r);background:var(--surface-3);color:var(--ink);padding:12px 16px;font-size:.9rem;max-width:min(420px,calc(100% - 32px));user-select:text}
+.toast:not(:popover-open){display:none}
+
+/* ---------- entrance ---------- */
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.rise{animation:rise .9s var(--ease) both}
+.rise.d1{animation-delay:.08s}.rise.d2{animation-delay:.16s}.rise.d3{animation-delay:.5s}
+@media (prefers-reduced-motion:reduce){.rise{animation:none}.pcard,.deck-track{transition:none!important}}
+
+/* ---------- phones ---------- */
+@media (max-width:860px){
+  .intro,.specs,.close-grid{grid-template-columns:1fr;gap:var(--s6)}
+  .proof li{grid-template-columns:1fr;gap:var(--s2)}
+}
+@media (max-width:767px){
+  .hero{padding:var(--s6) 0 var(--s7)}
+  .stage{width:min(440px,94%);margin-top:var(--s6)}
+  .hero-actions{margin-top:var(--s6)}
+  .hero-actions [data-open-qr]{display:none}
+  .intro{margin-top:var(--s8)}
+  .sec{padding-top:var(--s8)}
+  .deck{--cw:min(300px,78vw)}
+  .deck.sm{--cw:min(260px,72vw)}
+  .pcard{padding:20px}
+  .pcard h3{font-size:1.3rem}
+  .readout{grid-template-columns:1fr}
+  .pips i{width:10px}.pips i.on{width:20px}
+  .deck-count{white-space:nowrap}
+  .spec div{grid-template-columns:1fr;gap:4px}
+  .close{padding:var(--s8) 0}
+  .groups{flex-wrap:nowrap;overflow-x:auto;margin-inline:-16px;padding:2px 16px;scrollbar-width:none}
+  .groups button{flex:none}
+}
+@media (max-width:360px){
+  .btn{padding:0 16px}
+  .hero h1{font-stretch:106%}
+}
+</style>
+</head>
+<body>
+<a class="vh" href="#main" id="skip">Skip to content</a>
+<header class="top">
+  <div class="wrap">
+    <a class="mark" href="#top" data-bind="identity.name">&nbsp;</a>
+    <nav aria-label="Sections">
+      <ul>
+        <li><a href="#work">Work</a></li>
+        <li><a href="#proof">Proof</a></li>
+        <li><a href="#specs">Specs</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" id="top" aria-labelledby="h1">
+    <div class="wrap">
+      <div class="hero-head">
+        <p class="eyebrow rise" data-bind="identity.name">&nbsp;</p>
+        <h1 id="h1" class="rise d1" data-bind="identity.title">&nbsp;</h1>
+        <p class="kicker rise d2" data-bind="identity.kicker">&nbsp;</p>
+      </div>
+
+      <div class="stage" id="stage" tabindex="0" role="group" aria-roledescription="3D business card"
+           aria-label="Business card. Drag or use the arrow keys to turn it; Enter flips it." aria-describedby="card-state">
+        <div class="floor" aria-hidden="true"></div>
+        <div class="card" id="card" aria-hidden="true">
+          <div class="slice" style="--z:-2px"></div>
+          <div class="slice" style="--z:-1px"></div>
+          <div class="slice mid" style="--z:0px"></div>
+          <div class="slice" style="--z:1px"></div>
+          <div class="slice" style="--z:2px"></div>
+          <div class="face front">
+            <div class="f-top">
+              <div class="mono-mark" id="monogram"></div>
+              <div class="f-handles"><span data-bind="contact.github_label"></span><br><span data-bind="contact.linkedin_label"></span></div>
+            </div>
+            <div>
+              <div class="f-name" data-bind="identity.name"></div>
+              <div class="f-title" data-bind="identity.title"></div>
+              <div class="f-rule"></div>
+              <div class="f-foot"><span id="card-email"></span><span data-bind="identity.badges.3"></span></div>
+            </div>
+          </div>
+          <div class="face back">
+            <div class="qr-tile"><img id="card-qr" alt="" width="200" height="200" decoding="async"></div>
+            <div class="b-copy">
+              <strong>Scan to open the card</strong>
+              <p>Point a phone camera here, or use Save contact below.</p>
+              <span class="mono" data-bind="identity.name"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="vh" id="card-state" aria-live="polite">Showing the front of the card.</p>
+
+      <div class="hero-actions">
+        <a class="btn primary" id="save-hero" href="#" download>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg>
+          Save contact
+        </a>
+        <button class="btn" type="button" id="flip" aria-controls="stage">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 12a8 8 0 0 1 13.7-5.6L20 9M20 4v5h-5M20 12a8 8 0 0 1-13.7 5.6L4 15m0 5v-5h5"/></svg>
+          <span id="flip-label">Flip card</span>
+        </button>
+        <button class="btn ghost" type="button" data-open-qr>Show QR</button>
+        <p class="hint" id="hint"><span class="fine">Drag the card to turn it</span> · focus it and use <kbd>&larr;</kbd> <kbd>&rarr;</kbd> <kbd>Enter</kbd></p>
+      </div>
+
+      <div class="intro">
+        <p class="lede" data-bind="identity.summary"></p>
+        <div>
+          <ul class="badges" id="badges" aria-label="Highlights"></ul>
+          <p class="open-to"><b>Open to:</b> <span data-bind="identity.open_to"></span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="work" aria-labelledby="work-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="work-h">The work, dealt</h2>
+        <p>Pick a group, then step through its cards with the arrows, a swipe, or the arrow keys.</p>
+      </div>
+      <div class="groups" role="group" aria-label="Project group" id="groups"></div>
+      <div class="deck" id="deck-projects"></div>
+      <p class="foot-note"><span aria-hidden="true">&dagger;</span> Stated in the project's own README, not re-measured.</p>
+    </div>
+  </section>
+
+  <section class="sec" id="skills" aria-labelledby="skills-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="skills-h" data-bind="groups.skills.name"></h2>
+        <p>The smaller deck: tools I built for my own agent workflow.</p>
+      </div>
+      <div class="deck sm" id="deck-skills"></div>
+    </div>
+  </section>
+
+  <section class="sec" id="proof" aria-labelledby="proof-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="proof-h">Proof in production</h2>
+      </div>
+      <ul class="proof" id="proof-list"></ul>
+    </div>
+  </section>
+
+  <section class="sec" id="specs" aria-labelledby="specs-h">
+    <div class="wrap">
+      <div class="sec-head"><h2 id="specs-h">Specifications</h2></div>
+      <div class="specs">
+        <div>
+          <h3 class="spec-h">Background</h3>
+          <dl class="spec" id="spec-bg"></dl>
+        </div>
+        <div>
+          <h3 class="spec-h">Toolchain</h3>
+          <dl class="spec" id="spec-tools"></dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="close" id="contact" aria-labelledby="contact-h">
+    <div class="wrap close-grid">
+      <div>
+        <h2 id="contact-h">Keep the card.</h2>
+        <p data-bind="identity.open_to"></p>
+        <div class="close-actions">
+          <a class="btn primary" id="save-close" href="#" download>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg>
+            Save contact
+          </a>
+          <button class="btn" type="button" id="share">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>
+            Share
+          </button>
+          <button class="btn" type="button" data-open-qr>Show QR</button>
+        </div>
+      </div>
+      <ul class="links" aria-label="Contact links">
+        <li><button type="button" id="email-btn"><span>Email</span><span class="sub" id="email-text"></span></button></li>
+        <li><a id="li-link" href="#" target="_blank" rel="noopener"><span>LinkedIn<span class="vh"> (opens in new tab)</span></span><span class="sub" data-bind="contact.linkedin_label"></span></a></li>
+        <li><a id="gh-link" href="#" target="_blank" rel="noopener"><span>GitHub<span class="vh"> (opens in new tab)</span></span><span class="sub" data-bind="contact.github_label"></span></a></li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap"><span data-bind="identity.name"></span><span>Concept C proof: The Card</span></div>
+</footer>
+
+<dialog id="qr-dialog" aria-labelledby="qr-h">
+  <h2 id="qr-h">Scan to open the card</h2>
+  <p>Point a phone camera at the code.</p>
+  <div class="qr-big"><img id="dialog-qr" alt="QR code that opens this digital business card" width="320" height="320"></div>
+  <div class="row"><button class="btn" type="button" id="qr-close" autofocus>Close</button></div>
+  <p class="vh" role="status" id="dialog-status"></p>
+</dialog>
+
+<div class="toast" id="toast" popover="manual" aria-hidden="true"></div>
+<p class="vh" role="status" id="status"></p>
+<noscript><p style="padding:16px;text-align:center">This proof renders its content from a data file and needs JavaScript.</p></noscript>
+
+<script>
+(() => {
+  'use strict';
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const reduceMq = matchMedia('(prefers-reduced-motion: reduce)');
+  const phoneMq = matchMedia('(max-width: 767px)');
+  const coarse = matchMedia('(pointer: coarse)').matches;
+  const LIVE = new Set(['In production', 'Live', 'In daily use', 'Publishing', 'Open source']);
+
+  function el(tag, attrs = {}, kids = []) {
+    const n = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) {
+      if (v == null || v === false) continue;
+      if (k === 'class') n.className = v; else if (k === 'text') n.textContent = v; else n.setAttribute(k, v);
+    }
+    for (const k of [].concat(kids)) if (k != null) n.append(k);
+    return n;
+  }
+  function pick(obj, path) { return path.split('.').reduce((o, k) => (o == null ? o : o[k]), obj); }
+
+  /* ---------- status / toast ---------- */
+  function announce(text, region = $('#status')) {
+    region.textContent = '';
+    setTimeout(() => { region.textContent = text; }, 60);
+  }
+  let toastTimer;
+  function toast(text, ms = 4000) {
+    const t = $('#toast');
+    t.textContent = text;
+    try { if (!t.matches(':popover-open')) t.showPopover(); } catch (_) {}
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { try { t.hidePopover(); } catch (_) {} }, ms);
+    const d = $('#qr-dialog');
+    announce(text, d.open ? $('#dialog-status') : $('#status'));
+  }
+
+  /* ---------- the card (CSS 3D) ---------- */
+  function initCard() {
+    const stage = $('#stage'), card = $('#card');
+    const REST_FRONT = { rx: 7, ry: -16 };
+    const s = { rx: REST_FRONT.rx, ry: REST_FRONT.ry - 38, trx: REST_FRONT.rx, try_: REST_FRONT.ry };
+    let raf = 0, last = 0, drag = null, face = 'front';
+
+    function apply() {
+      const ry = s.ry, rad = ry * Math.PI / 180;
+      const c = Math.cos(rad);
+      card.style.setProperty('--rx', s.rx.toFixed(2));
+      card.style.setProperty('--ry', ry.toFixed(2));
+      card.style.setProperty('--lx', (-Math.sin(rad) * 55).toFixed(1));
+      card.style.setProperty('--shadeF', Math.max(0, Math.min(.6, (1 - c) * .55)).toFixed(3));
+      card.style.setProperty('--shadeB', Math.max(0, Math.min(.6, (1 + c) * .55)).toFixed(3));
+      stage.style.setProperty('--fs', (0.35 + 0.65 * Math.abs(c)).toFixed(3));
+      const nowFace = c >= 0 ? 'front' : 'back';
+      if (nowFace !== face) {
+        face = nowFace;
+        $('#card-state').textContent = face === 'front' ? 'Showing the front of the card.' : 'Showing the back of the card, with the QR code.';
+        $('#flip-label').textContent = face === 'front' ? 'Flip card' : 'Flip to front';
+      }
+    }
+    function tick(t) {
+      const dt = Math.min(.05, (t - (last || t)) / 1000); last = t;
+      const k = 1 - Math.exp(-dt * 9);
+      s.rx += (s.trx - s.rx) * k; s.ry += (s.try_ - s.ry) * k;
+      apply();
+      if (drag || Math.abs(s.trx - s.rx) > .02 || Math.abs(s.try_ - s.ry) > .02) raf = requestAnimationFrame(tick);
+      else { s.rx = s.trx; s.ry = s.try_; apply(); raf = 0; last = 0; }
+    }
+    function go(rx, ry) {
+      s.trx = rx; s.try_ = ry;
+      if (reduceMq.matches || document.hidden) { s.rx = rx; s.ry = ry; apply(); return; }
+      if (!raf) raf = requestAnimationFrame(tick);
+    }
+    // nearest face rest pose: the front rests tilted like a product shot, the back rests flat so the QR scans
+    function settle(vy = 0) {
+      const projected = s.ry + vy * 12;
+      const k = Math.round(projected / 180);
+      const back = Math.abs(k % 2) === 1;
+      go(back ? 0 : REST_FRONT.rx, k * 180 + (back ? 0 : REST_FRONT.ry));
+    }
+    function flip() {
+      const k = Math.round(s.try_ / 180);
+      const back = Math.abs((k + 1) % 2) === 1;
+      go(back ? 0 : REST_FRONT.rx, (k + 1) * 180 + (back ? 0 : REST_FRONT.ry));
+    }
+
+    stage.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      drag = { x: e.clientX, y: e.clientY, ry: s.try_, rx: s.trx, vx: 0, lx: e.clientX, lt: performance.now() };
+      stage.setPointerCapture(e.pointerId);
+      stage.classList.add('dragging');
+      if (!raf) raf = requestAnimationFrame(tick);
+    });
+    stage.addEventListener('pointermove', (e) => {
+      if (!drag) return;
+      const now = performance.now();
+      drag.vx = (e.clientX - drag.lx) / Math.max(1, now - drag.lt) * 16; drag.lx = e.clientX; drag.lt = now;
+      s.try_ = drag.ry + (e.clientX - drag.x) * 0.45;
+      if (e.pointerType !== 'touch') s.trx = Math.max(-32, Math.min(32, drag.rx - (e.clientY - drag.y) * 0.3));
+      if (reduceMq.matches) { s.ry = s.try_; s.rx = s.trx; apply(); }
+    });
+    const end = () => {
+      if (!drag) return;
+      const v = drag.vx; drag = null;
+      stage.classList.remove('dragging');
+      settle(v);
+    };
+    stage.addEventListener('pointerup', end);
+    stage.addEventListener('pointercancel', end);
+    stage.addEventListener('keydown', (e) => {
+      const step = e.shiftKey ? 45 : 15;
+      switch (e.key) {
+        case 'ArrowLeft': go(s.trx, s.try_ - step); break;
+        case 'ArrowRight': go(s.trx, s.try_ + step); break;
+        case 'ArrowUp': go(Math.min(32, s.trx + 8), s.try_); break;
+        case 'ArrowDown': go(Math.max(-32, s.trx - 8), s.try_); break;
+        case 'Enter': case ' ': flip(); break;
+        case 'Home': go(REST_FRONT.rx, REST_FRONT.ry); break;
+        default: return;
+      }
+      e.preventDefault();
+    });
+    $('#flip').addEventListener('click', flip);
+    if (coarse) $('#hint').innerHTML = 'Swipe the card sideways to turn it, or tap Flip card';
+
+    apply();
+    if (reduceMq.matches) { s.ry = REST_FRONT.ry; apply(); }
+    else requestAnimationFrame(() => go(REST_FRONT.rx, REST_FRONT.ry));
+    window.theCard = { state: () => ({ rx: +s.rx.toFixed(2), ry: +s.ry.toFixed(2), face, animating: !!raf }), flip };
+  }
+
+  /* ---------- deck ---------- */
+  function createDeck(root, { label, small = false, onChange }) {
+    let items = [], groupName = '', active = 0, cards = [];
+    const view = el('div', { class: 'deck-view', tabindex: '0', role: 'region', 'aria-roledescription': 'carousel', 'aria-label': label });
+    const track = el('div', { class: 'deck-track' });
+    view.append(track);
+    const prev = el('button', { class: 'btn icon', type: 'button', 'aria-label': 'Previous card' });
+    prev.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>';
+    const next = el('button', { class: 'btn icon', type: 'button', 'aria-label': 'Next card' });
+    next.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
+    const pips = el('div', { class: 'pips', 'aria-hidden': 'true' });
+    const count = el('span', { class: 'deck-count', 'aria-hidden': 'true' });
+    const live = el('p', { class: 'vh', 'aria-live': 'polite' });
+    const bar = el('div', { class: 'deck-bar' }, [el('div', { class: 'deck-nav' }, [prev, next]), pips, count]);
+    root.append(view, bar, live);
+    let readout = null;
+    if (!small) { readout = el('div', { class: 'readout' }); root.append(readout); }
+
+    function slot(d) {
+      // the active card sits at the left edge; the rest of the deck fans out behind it to the right,
+      // and cards already seen are dealt off to the left
+      const ad = Math.abs(d), phone = phoneMq.matches;
+      if (d < 0) return { t: `translateX(${-118 + d * 4}%) translateZ(-60px) rotateZ(-4deg)`, o: 0, dim: 0, z: 60 + d };
+      const span = small ? (phone ? 94 : 66) : (phone ? 92 : 56);
+      const x = d * span;
+      const z = -d * (phone ? 90 : 130);
+      const ry = -d * (phone ? 5 : 9);
+      const rz = d * (phone ? .6 : 1.1);
+      const hidden = d > (phone ? 1 : 3);
+      return { t: `translateX(${x}%) translateZ(${z}px) rotateY(${ry}deg) rotateZ(${rz}deg)`, o: hidden ? 0 : 1, dim: Math.min(.72, d * .24), z: 50 - ad };
+    }
+    function layout() {
+      cards.forEach((c, i) => {
+        const p = slot(i - active);
+        c.style.transform = p.t; c.style.opacity = p.o; c.style.zIndex = p.z;
+        c.style.setProperty('--dim', p.dim);
+        c.style.transitionDelay = '0ms';
+        c.classList.toggle('is-active', i === active);
+        c.setAttribute('aria-hidden', i === active ? 'false' : 'true');
+        c.style.pointerEvents = p.o ? '' : 'none';
+      });
+      prev.disabled = active === 0; next.disabled = active === items.length - 1;
+      [...pips.children].forEach((p, i) => p.classList.toggle('on', i === active));
+      count.textContent = `${String(active + 1).padStart(2, '0')} / ${String(items.length).padStart(2, '0')}`;
+      if (readout) renderReadout(items[active]);
+    }
+    function measure() {
+      track.style.setProperty('--dh', 'auto');
+      cards.forEach((c) => { c.style.minHeight = '0'; });
+      const h = Math.max(...cards.map((c) => c.offsetHeight));
+      track.style.setProperty('--dh', h + 'px');
+      cards.forEach((c) => { c.style.minHeight = ''; });
+    }
+    function renderReadout(p) {
+      readout.replaceChildren();
+      const left = el('div', {}, [el('h3', { text: p.name }), p.blurb ? el('p', { text: p.blurb }) : null]);
+      let right;
+      if (p.link) {
+        const gh = /github\.com/.test(p.link);
+        right = el('a', { class: 'btn', href: p.link, target: '_blank', rel: 'noopener' }, [gh ? 'Source on GitHub' : 'Open the live site', el('span', { class: 'vh', text: ' (opens in new tab)' })]);
+      } else right = el('span', { class: 'none', text: 'Private repository' });
+      readout.append(left, right);
+    }
+    function card(p, i, n) {
+      const status = p.status ? el('span', { class: 'status' + (LIVE.has(p.status) ? ' on' : ''), text: p.status }) : el('span', { class: 'pc-num', text: (p.stack || [])[0] || '' });
+      const kids = [
+        el('div', { class: 'pc-top' }, [status, el('span', { class: 'pc-num', text: `${String(i + 1).padStart(2, '0')} / ${String(n).padStart(2, '0')}` })]),
+        el('h3', { text: p.name }),
+        el('p', { class: 'pc-tag', text: p.tagline }),
+      ];
+      if (p.figures && p.figures.length) {
+        kids.push(el('dl', { class: 'figs' }, p.figures.map((f) => el('div', {}, [
+          el('dt', { text: f.label }),
+          el('dd', {}, [f.value, f.basis === 'readme' ? el('sup', { 'aria-hidden': 'true', text: '†' }) : null, f.basis === 'readme' ? el('span', { class: 'vh', text: ' (stated in the README)' }) : null]),
+        ]))));
+      }
+      kids.push(el('ul', { class: 'chips', 'aria-label': 'Stack' }, (p.stack || []).map((t) => el('li', { text: t }))));
+      const c = el('article', { class: 'pcard', role: 'group', 'aria-roledescription': 'card', 'aria-label': `${p.name}, ${i + 1} of ${n}` }, kids);
+      c.addEventListener('click', () => { if (!moved && i !== active) go(i); });
+      return c;
+    }
+    function go(i, quiet) {
+      const n = Math.max(0, Math.min(items.length - 1, i));
+      if (n === active && !quiet) return;
+      active = n; layout();
+      if (!quiet) { live.textContent = `${items[n].name}, card ${n + 1} of ${items.length}${groupName ? ', ' + groupName : ''}`; onChange && onChange(n); }
+    }
+    // the deal: every card starts on one stack, then flies to its slot with a stagger
+    function deal() {
+      if (reduceMq.matches) { layout(); return; }
+      root.classList.add('dealing');
+      cards.forEach((c, i) => { c.style.transform = `translateY(60px) translateZ(-260px) rotateZ(${(i % 2 ? 1 : -1) * (2 + i)}deg)`; c.style.opacity = '0'; });
+      void track.offsetWidth;
+      root.classList.remove('dealing');
+      layout();
+      cards.forEach((c, i) => { c.style.transitionDelay = `${Math.abs(i - active) * 70}ms`; });
+    }
+    function setItems(list, name) {
+      items = list; groupName = name || ''; active = 0;
+      cards = list.map((p, i) => card(p, i, list.length));
+      track.replaceChildren(...cards);
+      pips.replaceChildren(...list.map(() => el('i')));
+      measure();
+      // before the first deal the cards already sit in their slots, so the deck is complete
+      // even where the deal never runs (no IntersectionObserver, print, full-page capture)
+      if (dealt) deal(); else { root.classList.add('dealing'); layout(); void track.offsetWidth; root.classList.remove('dealing'); }
+    }
+
+    prev.addEventListener('click', () => go(active - 1));
+    next.addEventListener('click', () => go(active + 1));
+    view.addEventListener('keydown', (e) => {
+      const m = { ArrowLeft: active - 1, ArrowRight: active + 1, Home: 0, End: items.length - 1 }[e.key];
+      if (m === undefined) return;
+      e.preventDefault(); go(m);
+    });
+    // swipe
+    let sx = null, moved = false;
+    view.addEventListener('pointerdown', (e) => { sx = e.clientX; moved = false; });
+    view.addEventListener('pointermove', (e) => {
+      if (sx == null) return;
+      const dx = e.clientX - sx;
+      if (Math.abs(dx) > 6) moved = true;
+      if (moved && !reduceMq.matches) track.style.transform = `translateX(${dx * .25}px)`;
+    });
+    const up = (e) => {
+      if (sx == null) return;
+      const dx = e.clientX - sx; sx = null;
+      track.style.transform = '';
+      if (dx < -40) go(active + 1); else if (dx > 40) go(active - 1);
+      setTimeout(() => { moved = false; }, 0);
+    };
+    view.addEventListener('pointerup', up);
+    view.addEventListener('pointercancel', up);
+    view.addEventListener('pointerleave', (e) => { if (sx != null && e.pointerType === 'mouse') up(e); });
+
+    let dealt = false;
+    const io = new IntersectionObserver((ents) => {
+      if (ents.some((x) => x.isIntersecting) && !dealt) { dealt = true; deal(); io.disconnect(); }
+    }, { threshold: .25 });
+    io.observe(view);
+    let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { measure(); if (dealt) layout(); }, 120); });
+    if (document.fonts) document.fonts.ready.then(() => { measure(); });
+    return { setItems, go, state: () => ({ active, total: items.length, dealt }) };
+  }
+
+  /* ---------- render from content.json ---------- */
+  function render(data) {
+    const id = data.identity, ct = data.contact;
+    $$('[data-bind]').forEach((n) => {
+      const path = n.dataset.bind;
+      let v;
+      if (path.startsWith('groups.')) { const g = data.groups.find((x) => x.id === path.split('.')[1]); v = g && g[path.split('.')[2]]; }
+      else v = pick(data, path);
+      if (typeof v === 'string') n.textContent = v;
+    });
+    $('#monogram').replaceChildren(id.name.split(/\s+/).map((w) => w[0]).join(''), el('span'));
+    $('#badges').replaceChildren(...id.badges.map((b) => el('li', { text: b })));
+
+    // email: assembled at runtime only
+    const email = [ct.email_user, ct.email_domain].join('@');
+    $('#card-email').textContent = email;
+    $('#email-text').textContent = email;
+    $('#email-btn').addEventListener('click', () => {
+      const a = document.createElement('a'); a.href = 'mailto:' + email; a.rel = 'noopener';
+      document.body.append(a); a.click(); a.remove();
+    });
+
+    // links, vCard, QR
+    for (const s of ['#save-hero', '#save-close']) { const a = $(s); a.href = ct.vcard; a.setAttribute('download', 'oleg-hanukayev.vcf'); }
+    $('#li-link').href = ct.linkedin; $('#gh-link').href = ct.github;
+    $('#card-qr').src = ct.qr; $('#dialog-qr').src = ct.qr;
+
+    // decks
+    const groups = data.groups.filter((g) => g.id !== 'skills');
+    const deck = createDeck($('#deck-projects'), { label: 'Project cards' });
+    const gwrap = $('#groups');
+    const gbtns = groups.map((g, i) => {
+      const b = el('button', { type: 'button', 'aria-pressed': i === 0 ? 'true' : 'false' }, [g.name, el('span', { class: 'n', 'aria-hidden': 'true', text: g.projects.length })]);
+      b.addEventListener('click', () => {
+        gbtns.forEach((x) => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+        deck.setItems(g.projects, g.name);
+        announce(`${g.name}: ${g.projects.length} cards dealt. ${g.projects[0].name}, card 1 of ${g.projects.length}.`);
+      });
+      return b;
+    });
+    gwrap.replaceChildren(...gbtns);
+    deck.setItems(groups[0].projects, groups[0].name);
+    const skills = data.groups.find((g) => g.id === 'skills');
+    const sdeck = createDeck($('#deck-skills'), { label: 'Skill and tool cards', small: true });
+    sdeck.setItems(skills.projects, skills.name);
+    window.theDecks = { projects: deck.state, skills: sdeck.state };
+
+    // proof
+    $('#proof-list').replaceChildren(...data.proof.map((p) => el('li', {}, [
+      el('span', { class: 'fig', text: p.figure }),
+      el('p', { class: 'txt' }, [p.text, el('span', { class: 'where', text: p.where })]),
+    ])));
+
+    // specs
+    const row = (k, v) => el('div', {}, [el('dt', { text: k }), el('dd', {}, v)]);
+    $('#spec-bg').replaceChildren(
+      row('Now', id.now),
+      row('Previously', id.previously.join(', ')),
+      row('Open to', id.open_to),
+    );
+    $('#spec-tools').replaceChildren(...Object.entries(data.toolchain).map(([k, v]) => row(k, v.join(', '))));
+  }
+
+  /* ---------- share + dialog ---------- */
+  function initShare() {
+    $('#share').addEventListener('click', async () => {
+      const payload = { title: document.title, url: location.href };
+      if (navigator.share && (!navigator.canShare || navigator.canShare(payload))) {
+        try { await navigator.share(payload); return; } catch (e) { if (e && e.name === 'AbortError') return; }
+      }
+      try { await navigator.clipboard.writeText(location.href); toast('Link copied to the clipboard.'); }
+      catch (_) { toast('Copy this link: ' + location.href, 12000); }
+    });
+    const dlg = $('#qr-dialog');
+    let opener = null, downOnBackdrop = false;
+    $$('[data-open-qr]').forEach((b) => b.addEventListener('click', () => { opener = b; dlg.showModal(); }));
+    $('#qr-close').addEventListener('click', () => dlg.close());
+    dlg.addEventListener('pointerdown', (e) => { downOnBackdrop = e.target === dlg; });
+    dlg.addEventListener('click', (e) => { if (e.target === dlg && downOnBackdrop) dlg.close(); downOnBackdrop = false; });
+    dlg.addEventListener('close', () => { if (opener) opener.focus(); });
+  }
+
+  initShare();
+  initCard();
+  fetch('../shared/content.json')
+    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(render)
+    .catch((err) => {
+      console.warn('content load failed', err);
+      $('#h1').textContent = 'Content could not load';
+      toast('The content file could not load. Reload the page to try again.', 20000);
+    });
+})();
+</script>
+</body>
+</html>
