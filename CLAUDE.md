@@ -19,18 +19,13 @@ https://see-137.github.io/digital-business-card/.
 | `fonts/` | Self-hosted latin woff2 (OFL): `archivo-expanded-latin` (variable Archivo fixed at width 116, weights 650-800), `hanken-grotesk-latin-400/600`, `geist-mono-latin-400`. From `@fontsource` 5.3.0. |
 | `icons/card-*.png`, `manifest.webmanifest`, `sw.js` | PWA: icons (incl. maskable + apple-touch), manifest, offline service worker. |
 | `assets/work/*.webp` | Project stills for the cards (review dashboard crop, CMA dashboard, Free Kick, bakery, the public finpulse.me home page with sample data, the Aegis console prototype on demo data). No personal data or third-party headlines; precached. The Clay Town card loads YouTube only after a click (thumbnail facade, `youtube-nocookie`). |
-| `assets/qr-card.svg` | QR for the site URL in the site palette (black modules, white ground, orange centre mark). Same geometry as the older `assets/qr.svg`; only colours differ. If the URL changes, regenerate and verify it decodes. |
+| `assets/qr-card.svg` | QR for the site URL in the site palette (black modules, white ground, orange centre mark). If the URL changes, regenerate and verify it decodes. |
 | `assets/oleg-hanukayev.vcf` | The contact card, a static file (blob downloads fail in in-app browsers). vCard 3.0, CRLF, stored byte-exact via `.gitattributes`. Precached by the service worker. |
 | `assets/og-card-v3.png` | 1200x630 social preview. Rendered from an HTML template with headless Chrome and the site's fonts; when it changes, use a NEW filename (LinkedIn/Slack cache previews by URL) and re-scrape with LinkedIn Post Inspector. |
 | `tests/` | Headless regression checks (puppeteer-core + axe-core). Not loaded by the site. |
 | `.github/workflows/tests.yml` | CI: runs `tests/` on push / PR. |
 
-Files from the previous design ("C-137 portal") are still in the repo but unused
-by the page: `js/app.js`, `js/portal.js`, `vendor/three/`, `assets/portal-loop.mp4`,
-`assets/qr.svg`, `assets/og-card-v2.png`, `assets/SOURCES.md`, the Instrument Serif
-and IBM Plex Mono fonts, and `icons/icon-*.png`, `icons/favicon-32.png`,
-`icons/apple-touch-icon.png`. They are served by Pages like everything else in the
-repo. Removing them is the owner's decision.
+The previous design ("C-137 portal": WebGPU portal, shell, vendored three.js) was removed on 2026-11-22; it lives only in git history before tag `v2.0.0`.
 
 ## Commands
 
