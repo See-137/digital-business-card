@@ -13,7 +13,7 @@
  * only ever reads, writes and deletes caches named PREFIX*.
  */
 const PREFIX = 'c137-card-';
-const VERSION = `${PREFIX}v6`;
+const VERSION = `${PREFIX}v7`;
 const LEGACY = ['c137-v1']; // this card's own pre-prefix cache name
 const NETWORK_BUDGET_MS = 3000;
 // After one request blows the budget, the network is treated as degraded for a
@@ -34,6 +34,11 @@ const CORE = [
   'icons/card-192.png',
   'assets/qr-card.svg',
   'assets/oleg-hanukayev.vcf',
+  // project stills, each under 20 KB (the YouTube thumbnail is cross-origin and never cached here)
+  'assets/work/editorial-queue.webp',
+  'assets/work/cma-dashboard.webp',
+  'assets/work/freekick.webp',
+  'assets/work/bakery.webp',
 ];
 
 self.addEventListener('install', (event) => {

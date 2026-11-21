@@ -11,6 +11,9 @@ import { serve } from './serve.mjs';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const TITLE = 'Senior SRE & AI Platform Engineer';
 const PROJECTS = 13;
+const STATUSES = ['Live', 'Open source', 'In production', 'In daily use'];
+// Third-party hosts the page may touch: only the lazy YouTube thumbnail, before any click.
+const THIRD_PARTY_OK = /^https:\/\/i\.ytimg\.com\//;
 const AXE = readFileSync(createRequire(import.meta.url).resolve('axe-core/axe.min.js'), 'utf8');
 const CHROME = [process.env.CHROME_PATH, 'C:/Program Files/Google/Chrome/Application/chrome.exe',
   '/usr/bin/google-chrome', '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find((p) => p && existsSync(p));
@@ -43,8 +46,11 @@ try {
     const errors = [];
     page.on('pageerror', (e) => errors.push(e.message));
     page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
-    page.on('requestfailed', (r) => errors.push(`failed ${r.url()}`));
-    page.on('response', (r) => r.status() >= 400 && errors.push(`${r.status()} ${r.url()}`));
+    const thirdParty = [];
+    page.on('request', (r) => { if (!r.url().startsWith(base) && !r.url().startsWith('data:')) thirdParty.push(r.url()); });
+    // the YouTube thumbnail is the one off-site file; offline or blocked, it must not fail the page
+    page.on('requestfailed', (r) => THIRD_PARTY_OK.test(r.url()) || errors.push(`failed ${r.url()}`));
+    page.on('response', (r) => r.status() >= 400 && !THIRD_PARTY_OK.test(r.url()) && errors.push(`${r.status()} ${r.url()}`));
     const res = await page.goto(`${base}/index.html`, { waitUntil: 'networkidle0' });
     await page.evaluate(() => document.fonts.ready);
 
@@ -56,6 +62,11 @@ try {
       vcf: !!document.querySelector('a[href="assets/oleg-hanukayev.vcf"][download]'),
       fonts: [...document.fonts].filter((f) => f.status === 'loaded').length,
       title: document.title.includes(title),
+      text: document.body.innerText,
+      statuses: [...document.querySelectorAll('.pcard .status, #all-work .rs')].map((n) => n.textContent.trim()),
+      ext: [...document.querySelectorAll('a[href^="http"]')].filter((a) => a.target !== '_blank' || !/\bnoopener\b/.test(a.rel) || !/opens in a new tab/.test(a.textContent)).map((a) => a.href),
+      imgs: [...document.querySelectorAll('img')].filter((i) => !i.getAttribute('alt') || !i.getAttribute('width') || !i.getAttribute('height')).map((i) => i.src),
+      yt: (() => { const b = document.querySelector('button.yt-facade'); return b ? b.getAttribute('aria-label') : null; })(),
     }), TITLE);
     check(`${width}: page 200 and no errors`, res.status() === 200 && errors.length === 0, errors.slice(0, 3).join(' | '));
     check(`${width}: one H1: name, then the job title`, s.h1.length === 1 && s.h1[0] === `Oleg Hanukayev ${TITLE}`, s.h1.join(' / '));
@@ -63,6 +74,13 @@ try {
     check(`${width}: all ${PROJECTS} projects in the plain list`, s.rows === PROJECTS, `${s.rows}`);
     check(`${width}: email links assembled, Save contact downloads the vCard`, s.mail && s.vcf);
     check(`${width}: web fonts loaded`, s.fonts >= 4, `${s.fonts} faces`);
+    const banned = (s.text.match(/\bcommits\b|tests? passing|\bpaper\b|prototype|private build/gi) || []);
+    check(`${width}: no "commits", "tests passing", "paper", "prototype" or "private build" on the page`, banned.length === 0, banned.slice(0, 3).join(', '));
+    check(`${width}: only the four allowed statuses`, s.statuses.length > 0 && s.statuses.every((t) => STATUSES.includes(t)), s.statuses.filter((t) => !STATUSES.includes(t)).join(', '));
+    check(`${width}: external links open a new tab with noopener and say so`, s.ext.length === 0, s.ext.slice(0, 3).join(' '));
+    check(`${width}: every img has alt text, width and height`, s.imgs.length === 0, s.imgs.slice(0, 3).join(' '));
+    check(`${width}: YouTube facade is a named button`, s.yt === 'Play the Clay Town episode: Clyde jumps into GTA 6 on release day', String(s.yt));
+    check(`${width}: nothing loaded from YouTube before a click but the thumbnail`, thirdParty.every((u) => THIRD_PARTY_OK.test(u)), thirdParty.filter((u) => !THIRD_PARTY_OK.test(u)).slice(0, 2).join(' '));
 
     // QR: visible button opens a modal dialog with the code; Escape closes it.
     const opened = await page.evaluate(() => {
@@ -88,8 +106,14 @@ try {
   const nojs = await browser.newPage();
   await nojs.setJavaScriptEnabled(false);
   await nojs.goto(`${base}/index.html`);
-  const rows = await nojs.evaluate(() => document.querySelectorAll('#all-work li.row').length);
-  check('no-JS: every project still listed', rows === PROJECTS, `${rows}`);
+  const nj = await nojs.evaluate(() => ({
+    rows: document.querySelectorAll('#all-work li.row').length,
+    facade: !!document.querySelector('a.yt-facade[href="https://youtu.be/4vUhPMhUVzk"][target="_blank"][rel~="noopener"]'),
+    ext: [...document.querySelectorAll('a[href^="http"]')].filter((a) => a.target !== '_blank' || !/\bnoopener\b/.test(a.rel) || !/opens in a new tab/.test(a.textContent)).map((a) => a.href),
+  }));
+  check('no-JS: every project still listed', nj.rows === PROJECTS, `${nj.rows}`);
+  check('no-JS: the episode is a plain link to YouTube', nj.facade);
+  check('no-JS: external links open a new tab with noopener and say so', nj.ext.length === 0, nj.ext.slice(0, 3).join(' '));
   await nojs.close();
 } finally {
   await browser.close();
