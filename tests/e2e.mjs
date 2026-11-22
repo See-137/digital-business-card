@@ -10,6 +10,7 @@ import { serve } from './serve.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const TITLE = 'Senior SRE & AI Platform Engineer';
+const HEADLINE = 'Making AI systems reliable enough for production.';
 const PROJECTS = 13;
 const STATUSES = ['Live', 'Open source', 'In production', 'In daily use'];
 // Third-party hosts the page may touch: only the lazy YouTube thumbnail, before any click.
@@ -56,6 +57,9 @@ try {
 
     const s = await page.evaluate((title) => ({
       h1: [...document.querySelectorAll('h1')].map((h) => h.textContent.replace(/\s+/g, ' ').trim()),
+      role: [...document.querySelectorAll('#top .who .role')].filter((n) => n.getBoundingClientRect().height > 0).map((n) => n.textContent.trim()),
+      fold: ['#h1', '#top .sub', '#top .btn.primary'].map((q) => Math.round(document.querySelector(q)?.getBoundingClientRect().bottom ?? 1e6)),
+      primaries: [...document.querySelectorAll('#top .btn.primary')].map((n) => n.textContent.trim()),
       overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
       rows: document.querySelectorAll('#all-work li.row').length,
       mail: [...document.querySelectorAll('[data-mail]')].every((a) => a.href.startsWith('mailto:')),
@@ -69,7 +73,10 @@ try {
       yt: (() => { const b = document.querySelector('button.yt-facade'); return b ? b.getAttribute('aria-label') : null; })(),
     }), TITLE);
     check(`${width}: page 200 and no errors`, res.status() === 200 && errors.length === 0, errors.slice(0, 3).join(' | '));
-    check(`${width}: one H1: name, then the job title`, s.h1.length === 1 && s.h1[0] === `Oleg Hanukayev ${TITLE}`, s.h1.join(' / '));
+    check(`${width}: one H1, the headline offer`, s.h1.length === 1 && s.h1[0] === HEADLINE, s.h1.join(' / '));
+    check(`${width}: the job title is visible in the hero`, s.role.length === 1 && s.role[0] === TITLE, s.role.join(' / '));
+    check(`${width}: headline, supporting line and the one primary action (Contact) sit in the first viewport`,
+      s.fold.every((y) => y > 0 && y <= (mobile ? 844 : 900)) && s.primaries.length === 1 && s.primaries[0] === 'Contact', `bottoms ${s.fold.join(', ')}; ${s.primaries.join('|')}`);
     check(`${width}: no horizontal overflow`, s.overflow === 0, `${s.overflow}px`);
     check(`${width}: all ${PROJECTS} projects in the plain list`, s.rows === PROJECTS, `${s.rows}`);
     check(`${width}: email links assembled, Save contact downloads the vCard`, s.mail && s.vcf);
