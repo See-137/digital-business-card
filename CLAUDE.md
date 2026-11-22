@@ -10,7 +10,8 @@ five case studies, six more projects dealt as one deck, every project named
 in a plain HTML list). Static site, **no build step**,
 hosted on **Cloudflare Pages** (project `oleg-hanukayev`, direct upload) at
 https://oleg-hanukayev.pages.dev/ — the canonical URL, which the QR code and vCard point to.
-GitHub Pages still mirrors `main` at https://see-137.github.io/digital-business-card/.
+GitHub Pages is switched off for this repo (2026-11-22); the old github.io address no longer serves the site.
+A push or merge to `main` therefore deploys nothing by itself: deploy by hand, as below.
 Deploy to Cloudflare from a clean copy of the site files only (index.html, js/, fonts/, icons/, assets/,
 sw.js, manifest.webmanifest): `npx wrangler pages deploy <clean-dir> --project-name oleg-hanukayev --branch main`.
 
@@ -41,16 +42,16 @@ python -m http.server 3137
 npm ci
 npm test
 
-# Deploy: merge to main, then WAIT for the push-triggered Pages build. Only if
-# none appears within ~2 min, force one (a POST right after a push cancels the
-# push's build, which then reports "Page build failed").
-gh api repos/See-137/digital-business-card/pages/builds/latest --jq '.commit[0:7] + " " + .status'
-gh api -X POST repos/See-137/digital-business-card/pages/builds   # only if needed
+# Deploy (Cloudflare Pages, direct upload; nothing deploys on push):
+# 1. merge the PR to main and pull it; 2. copy ONLY the site files (index.html, sw.js,
+#    manifest.webmanifest, js/, fonts/, icons/, assets/) into a clean scratch folder; 3. upload it:
+npx wrangler pages deploy <clean-dir> --project-name oleg-hanukayev --branch main
+# then check https://oleg-hanukayev.pages.dev/ (HTTP 200, the new content, the capture sweep).
 ```
 
 **CI:** `.github/workflows/tests.yml` runs `tests/` on pushes to `main` and
 `improve/**`, on PRs, and on demand. Actions are pinned to full commit SHAs.
-Pages deploys independently of CI, so a red run does not block a deploy: read it.
+A deploy is a separate manual step, so a red run does not block one: read it first.
 
 ## Page order
 
@@ -65,7 +66,7 @@ Cardwatch is excluded from the site completely (owner decision): not in the deck
 
 ## Conventions and gotchas
 
-- **Content is the owner's.** Identity, title, the three proof figures, employers and the toolchain trace to the owner's two CVs (kept outside the repo; this file is public on Pages). Project cards describe what each system does, not activity: no counts of commits, tests, lines or rules anywhere on the page. Statuses are only Live demo (a public demo or site can be visited), In production (deployed for real operational use), Open source (the source is public) or In daily use (the owner uses it regularly). A private or locally running project gets a plain muted note instead of a pill (`.pnote` on cards and case heads: "Private repository", "Client work, unbranded"; the All work list carries no status at all). The editorial platform carries no "In production" pill while its own repository describes it as running pre-launch with the site on staging. Case-study sentences trace to the project's own README; "Evidence" is a verifiable capability or behaviour, never a count, and never implies commercial production use (CISO Agent is built and tested, not deployed; the Aegis console runs on demo data and its repository is private). There is no CV link: the CVs stay out of the public repo. Do not add a claim, number or link without a source.
+- **Content is the owner's.** Identity, title, the three proof figures, employers and the toolchain trace to the owner's two CVs (kept outside the repo; this file is public in the repository). Project cards describe what each system does, not activity: no counts of commits, tests, lines or rules anywhere on the page. Statuses are only Live demo (a public demo or site can be visited), In production (deployed for real operational use), Open source (the source is public) or In daily use (the owner uses it regularly). A private or locally running project gets a plain muted note instead of a pill (`.pnote` on cards and case heads: "Private repository", "Client work, unbranded"; the All work list carries no status at all). The editorial platform carries no "In production" pill while its own repository describes it as running pre-launch with the site on staging. Case-study sentences trace to the project's own README; "Evidence" is a verifiable capability or behaviour, never a count, and never implies commercial production use (CISO Agent is built and tested, not deployed; the Aegis console runs on demo data and its repository is private). There is no CV link: the CVs stay out of the public repo. Do not add a claim, number or link without a source.
 - **Employers are described, not named, on the page** (owner decision, 2026-11-22): "Fortune 500 enterprise SaaS", "fast-scaling FinTech and threat-intelligence SaaS companies", "telecom software". Do not reintroduce company names without the owner's say-so.
 - **Fixed content rules:** the editorial platform is shown unbranded (no client, brand, domain or org name) and claims no RAG and no agents (its orchestration is cron, a queue and a state machine); the trading projects never show P&L; private projects get no repo link.
 - **Image rules:** owner-supplied images are used as supplied (resized to 480/720/960 WebP, new filenames, never substituted with older stills). The lower half of `assistant-brief-*` is an AI-generated illustration the assistant produced: caption it as an illustration and never describe it as the product. `assistant-health-*` is in Hebrew and gets an English reading beside it. Every `<img>` has width, height, lazy loading, srcset and descriptive alt text. Only small stills go in the service-worker precache. The email is assembled at runtime in `js/site.js` (never plain in HTML); phone and city stay off the public page.
