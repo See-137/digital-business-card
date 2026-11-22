@@ -5,10 +5,14 @@ Guidance for Claude Code (claude.ai/code) working in this repository.
 ## Overview
 
 Personal site for Oleg Hanukayev: a portfolio and a digital business card in one
-page, design "The Card" (a tiltable business card as the hero, the work dealt as
-a deck, every project also listed as plain HTML). Static site, **no build step**,
-deployed by GitHub Pages (legacy branch mode, `main`, repo root) to
-https://see-137.github.io/digital-business-card/.
+page, design "The Card" (a headline with a tiltable business card as the hero,
+three case studies, the rest of the work dealt as a deck, every project listed
+in a plain HTML index). Static site, **no build step**,
+hosted on **Cloudflare Pages** (project `oleg-hanukayev`, direct upload) at
+https://oleg-hanukayev.pages.dev/ — the canonical URL, which the QR code and vCard point to.
+GitHub Pages still mirrors `main` at https://see-137.github.io/digital-business-card/.
+Deploy to Cloudflare from a clean copy of the site files only (index.html, js/, fonts/, icons/, assets/,
+sw.js, manifest.webmanifest): `npx wrangler pages deploy <clean-dir> --project-name oleg-hanukayev --branch main`.
 
 ## Files
 
@@ -48,17 +52,27 @@ gh api -X POST repos/See-137/digital-business-card/pages/builds   # only if need
 `improve/**`, on PRs, and on demand. Actions are pinned to full commit SHAs.
 Pages deploys independently of CI, so a red run does not block a deploy: read it.
 
+## Page order
+
+1. **Hero** (`#top`): kicker (name + job title), the H1 headline, the supporting line, the primary action, then the card (beside the copy on wide screens, below it on phones).
+2. **Selected work** (`#work`): CMA, Aegis, CISO Agent, in that order, each as Problem / Approach / Trade-off / Evidence / links.
+3. **More work, dealt** (`#more-work`): the deck, holding the ten projects that are not featured.
+4. **All work** (`#all-work`): the compact index of all 13 projects: name, one-line descriptor, status, one link. No bullets or stack chips.
+5. **Engineering tools and experiments** (`#tools`), **Proof**, **Specifications**, **Contact**.
+
 ## Conventions and gotchas
 
-- **Content is the owner's.** Identity, title, the three proof figures, employers and the toolchain trace to the owner's two CVs (kept outside the repo; this file is public on Pages). Project cards describe what each system does, not activity: no counts of commits, tests, lines or rules anywhere on the page. Statuses are only Live, Open source, In production or In daily use. Do not add a claim, number or link without a source.
+- **Content is the owner's.** Identity, title, the three proof figures, employers and the toolchain trace to the owner's two CVs (kept outside the repo; this file is public on Pages). Project cards describe what each system does, not activity: no counts of commits, tests, lines or rules anywhere on the page. Statuses are only Live demo (a public demo or site can be visited), In production (deployed for real operational use), Open source (the source is public) or In daily use (the owner uses it regularly); a project that fits none has no status. Case-study sentences trace to the project's own README; "Evidence" is a verifiable capability or behaviour, never a count, and never implies commercial production use (CISO Agent is built and tested, not deployed; the Aegis console runs on demo data and its repository is private). There is no CV link: the CVs stay out of the public repo. Do not add a claim, number or link without a source.
 - **Fixed content rules:** the editorial platform is shown unbranded (no client, brand, domain or org name); the trading projects never show P&L; private projects get no repo link. The email is assembled at runtime in `js/site.js` (never plain in HTML); phone and city stay off the public page.
 - **The repository is public** (since 2026-11-22, so GitHub Actions is free): everything committed on any branch is world-readable. Never commit CVs, keys, phone numbers or client names.
-- **Production card order** (deck and All work), set by the owner: FinPulse, CMA, Aegis, Editorial Automation Platform, CISO Agent.
-- **One title everywhere:** "Senior SRE & AI Platform Engineer" in the H1, `<title>`, meta, OG, JSON-LD, the card face, the manifest and the vCard.
-- **One accent:** `#ff5f2e` for marks and the primary button; `#ff7a4d` is its text-safe variant (>= 4.5:1 on every surface). The hero tagline is deliberately neutral. No glow.
+- **Production order** (All work; the deck keeps the same relative order for the cards it holds), set by the owner: FinPulse, CMA, Aegis, Editorial Automation Platform, CISO Agent.
+- **One title everywhere:** "Senior SRE & AI Platform Engineer" in the hero kicker, `<title>`, meta, OG, JSON-LD, the card face, the footer, the manifest and the vCard.
+- **The H1 is the offer:** "Making AI systems reliable enough for production." The job title sits directly above it in the kicker and must stay visible on the first screen. At 390 x 844 the headline, the supporting line and the primary action fit in the first viewport (tested).
+- **One primary action:** Contact, the email link assembled at runtime (without JavaScript it jumps to the contact section). Save contact, GitHub and LinkedIn are secondary and never need the card flipped.
+- **One accent:** `#ff5f2e` for marks and the primary button; `#ff7a4d` is its text-safe variant (>= 4.5:1 on every surface). The hero headline is deliberately neutral. No glow.
 - **The card is CSS 3D, not WebGL.** It is ordinary page content, so the QR on its back is the real SVG and stays scannable. It rests at a 4 degree tilt; pointer tilt peaks near 8 degrees. `will-change` applies only while it moves so text is sharp at rest.
 - **QR on phones:** "Show QR" is visible on touch screens and opens the code at `min(86vw, 420px)` so it can be held out to another person. Keep one label, "Show QR".
-- **The deck is the delight, the list is the record.** Every project in the deck also appears in the plain "All work" list; DOM order matches visual order.
+- **The deck is the delight, the index is the record.** No project appears more than twice: featured ones in Selected work and the index, the rest in the deck and the index. DOM order matches visual order.
 - **Motion:** nothing animates longer than 5 s; `prefers-reduced-motion` is honoured live and the card and deck still work.
 - **Dialogs** use native `<dialog>` + `showModal()` (focus containment, Escape, focus return).
 - **Service worker:** `/fonts/` and `/icons/` are cache-first (immutable: a changed font or icon needs a NEW filename); everything else is network-first with a 3 s budget (then cache; after one timeout the network counts as degraded for 20 s). It only touches caches named `c137-card-*` (the origin is shared with other projects). Bump `VERSION` in `sw.js` when changing a cache-first file or the precache list.
@@ -70,4 +84,4 @@ Pages deploys independently of CI, so a red run does not block a deploy: read it
 
 Mobile 99 / 100 / 100 / 100 (LCP 1.6 s, CLS 0, TBT 100 ms), desktop 100 / 100 / 100 / 100;
 total transfer 90 KiB; axe-core 0 violations at 390 and 1440 px; the QR decodes at
-540, 189 and 108 px and as rendered on the card back and in the dialog; `tests/` 37 checks. After the content revision the same day: mobile and desktop 100 / 100 / 100 / 100, CLS 0.024 mobile.
+540, 189 and 108 px and as rendered on the card back and in the dialog; `tests/` 37 checks. After the content revision the same day: mobile and desktop 100 / 100 / 100 / 100, CLS 0.024 mobile. After the review-handoff refinement (2026-11-22, same setup): mobile and desktop 100 / 100 / 100 / 100, CLS 0.001 mobile and 0.006 desktop, mobile transfer 126 KiB; `tests/` 58 checks.
