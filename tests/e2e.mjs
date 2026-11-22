@@ -194,6 +194,25 @@ try {
     await page.close();
   }
 
+  // Case studies: long text is collapsed by default and opens on demand.
+  {
+    const pg = await browser.newPage();
+    await pg.setViewport({ width: 1440, height: 900 });
+    await pg.goto(`${base}/index.html`, { waitUntil: 'networkidle0' });
+    const closed = await pg.evaluate(() => {
+      const d = [...document.querySelectorAll('.case details.case-more')];
+      return { n: d.length, open: d.filter((x) => x.open).length, hidden: d.every((x) => !x.querySelector('dl.cs').checkVisibility()) };
+    });
+    check('case studies: 4 collapsed by default', closed.n === 4 && closed.open === 0 && closed.hidden, JSON.stringify(closed));
+    await pg.evaluate(() => document.querySelector('.case details.case-more > summary').click());
+    const opened = await pg.evaluate(() => {
+      const d = document.querySelector('.case details.case-more');
+      return { open: d.open, h: Math.round(d.querySelector('dl.cs').getBoundingClientRect().height), dts: d.querySelectorAll('dt').length };
+    });
+    check('case study opens and shows Problem to Evidence', opened.open && opened.h > 100 && opened.dts === 4, JSON.stringify(opened));
+    await pg.close();
+  }
+
   // 4. Without JavaScript the content is all there.
   const nojs = await browser.newPage();
   await nojs.setJavaScriptEnabled(false);

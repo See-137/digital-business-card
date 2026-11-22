@@ -230,6 +230,16 @@ section{position:relative}
 .cs .ev dt{color:var(--accent-text)}
 .cs .ev dd{color:var(--ink)}
 .case .chips{margin:0}
+.case-more>summary{display:inline-flex;align-items:center;gap:var(--s2);min-height:44px;padding:0 16px;border:1px solid var(--line-2);border-radius:999px;font:600 .92rem/1 var(--body);color:var(--ink);cursor:pointer;list-style:none;user-select:none;transition:border-color .2s,background-color .2s}
+.case-more>summary::-webkit-details-marker{display:none}
+.case-more>summary:hover{border-color:var(--ink-2);background:rgba(255,255,255,.04)}
+.case-more>summary svg{width:16px;height:16px;transition:transform .25s var(--ease)}
+.case-more[open]>summary svg{transform:rotate(180deg)}
+.case-more .when-open,.case-more[open] .when-closed{display:none}
+.case-more[open] .when-open{display:inline}
+.case-more[open]>summary{margin-bottom:var(--s4)}
+.case:not(:has(.case-more[open])) .case-side .shot+.shot,.case:not(:has(.case-more[open]))>.shot.two{display:none}
+@media (prefers-reduced-motion:reduce){.case-more>summary svg{transition:none}}
 .case-note{font-size:.86rem;line-height:1.5;color:var(--mute)}
 
 /* ---------- deck ---------- */
@@ -570,12 +580,15 @@ dialog .actions{display:flex;justify-content:flex-end}
             </div><figcaption>The RAG assistant&#x27;s routing: amounts come from SQL, explanations from retrieved cost events.</figcaption></figure>
           </div>
           <div class="case-body">
-            <dl class="cs">
+            <details class="case-more">
+              <summary><span class="when-closed">Read the case study</span><span class="when-open">Hide the case study</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+              <dl class="cs">
               <div><dt>Problem</dt><dd>A provider&#x27;s billing page shows a total. It does not say which agent spent it, on which model, or why spend changed.</dd></div>
               <div><dt>Approach</dt><dd>A Python SDK patches OpenAI, Anthropic and LangChain clients in place and records tokens and cost at the call site. A FastAPI service attributes spend per agent, model and provider, checks budgets set globally or per agent and workflow, and alerts by webhook, Slack or in the app as a budget fills. Scrooge, the built-in RAG assistant, embeds cost events and rollups into a vector store and explains spend changes with cited sources.</dd></div>
               <div><dt>Trade-off</dt><dd>SQL is the source of truth and the vector store is only a cache, so a corrupted index can be rebuilt and never loses data. Scrooge answers &#x201C;how much&#x201D; from SQL and uses retrieval only for &#x201C;why&#x201D;. Retrieval quality is not scored yet: a golden-question set is still on the roadmap.</dd></div>
               <div class="ev"><dt>Evidence</dt><dd>The source is public under the MIT licence and runs on your own infrastructure with Docker Compose. A failure in the SDK never breaks the LLM call it wraps. CI checks that every database migration is reversible against a real PostgreSQL.</dd></div>
-            </dl>
+              </dl>
+            </details>
             <ul class="chips" aria-label="Stack"><li>Python</li><li>FastAPI</li><li>PostgreSQL</li><li>ChromaDB</li><li>sentence-transformers</li><li>React</li><li>Grafana</li><li>Docker Compose</li></ul>
             <div class="pc-links"><a class="btn" href="https://github.com/See-137/CMA" target="_blank" rel="noopener">Source on GitHub<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="vh"> (CMA: Cost Monitoring Agent, opens in a new tab)</span></a></div>
           </div>
@@ -599,12 +612,15 @@ dialog .actions{display:flex;justify-content:flex-end}
             </div><figcaption>The four delivery pipelines and the gate each one ends on.</figcaption></figure>
           </div>
           <div class="case-body">
-            <dl class="cs">
+            <details class="case-more">
+              <summary><span class="when-closed">Read the case study</span><span class="when-open">Hide the case study</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+              <dl class="cs">
               <div><dt>Problem</dt><dd>The dashboard is the visible part. Behind it, one engineer has to run sign-in, market data, an AI copilot and payments reliably, and ship changes safely.</dd></div>
               <div><dt>Approach</dt><dd>Terraform defines the platform: Lambda functions behind API Gateway with a Cognito authoriser and throttling, DynamoDB on demand, secrets in Secrets Manager, and the React front end on S3 behind CloudFront. Separate GitHub Actions pipelines cover checks, security scans, infrastructure and deploys. An AI copilot answers questions about your positions from its own function.</dd></div>
               <div><dt>Trade-off</dt><dd>One region and one environment: staging was retired. Deploys run without a manual approval, so the safety net is green CI, a smoke test after each deploy and a revert.</dd></div>
               <div class="ev"><dt>Evidence</dt><dd>The site is public at finpulse.me. CloudWatch alarms watch Lambda errors and API errors and latency. DynamoDB has point-in-time recovery. Market data falls back from memory to a cache table, then the live API, then a static copy. Infrastructure changes apply only from a saved Terraform plan.</dd></div>
-            </dl>
+              </dl>
+            </details>
             <ul class="chips" aria-label="Stack"><li>AWS Lambda</li><li>API Gateway</li><li>DynamoDB</li><li>Cognito</li><li>CloudFront</li><li>Terraform</li><li>GitHub Actions</li><li>React 19</li><li>TypeScript</li></ul>
             <div class="pc-links"><a class="btn primary" href="https://finpulse.me" target="_blank" rel="noopener">Visit finpulse.me<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="vh"> (FinPulse, opens in a new tab)</span></a></div>
             <p class="case-note">Private repository.</p>
@@ -632,12 +648,15 @@ dialog .actions{display:flex;justify-content:flex-end}
             </div><figcaption>What the code does when a quality check fails. A stopped article waits for a person.</figcaption></figure>
           </div>
           <div class="case-body">
-            <dl class="cs">
+            <details class="case-more">
+              <summary><span class="when-closed">Read the case study</span><span class="when-open">Hide the case study</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+              <dl class="cs">
               <div><dt>Problem</dt><dd>A Hebrew magazine wants English-language news translated quickly. Names, terms and right-to-left layout have to survive, and nothing may go out unreviewed.</dd></div>
               <div><dt>Approach</dt><dd>A cron trigger pulls allow-listed feeds on a schedule, and each new article becomes one queue message with retries and a dead-letter queue. A worker extracts clean text, then makes one model call that must return JSON matching a schema. Fixed glossary terms are masked before the call and restored after it. Every article waits in a review queue behind Cloudflare Access, where an editor approves, rejects, edits by hand or asks for a revision. Approval writes the publish record.</dd></div>
               <div><dt>Trade-off</dt><dd>Orchestration is never model-driven: cron, a queue and a state machine move each article, and the model only translates. That gives up agent flexibility for runs that can be replayed and audited. There is no retrieval step either: saved name renderings come from a plain database lookup.</dd></div>
               <div class="ev"><dt>Evidence</dt><dd>Each response is checked in code: it must parse, and every segment must come back, in order. One corrective retry, then the article stops. Refusals and truncated output are never retried. An offline evaluation harness scores names kept, glossary use, numbers, leftover English and length against thresholds. A daily spend cap is checked before every paid call.</dd></div>
-            </dl>
+              </dl>
+            </details>
             <ul class="chips" aria-label="Stack"><li>Cloudflare Workers</li><li>D1</li><li>Queues</li><li>Cron Triggers</li><li>Access</li><li>Claude API</li><li>TypeScript</li><li>React Router</li><li>Vitest</li></ul>
             <p class="case-note">Private repository. The engine runs unattended on its schedule ahead of launch; the magazine site is on staging.</p>
           </div>
@@ -651,12 +670,15 @@ dialog .actions{display:flex;justify-content:flex-end}
           </header>
           <figure class="shot"><div class="media nat"><img src="assets/work/assistant-brief-720.webp" srcset="assets/work/assistant-brief-480.webp 480w, assets/work/assistant-brief-720.webp 720w, assets/work/assistant-brief-960.webp 960w" sizes="(max-width: 860px) 92vw, 600px" width="720" height="830" loading="lazy" decoding="async" alt="A Telegram message from the assistant: a numbered morning brief with four items and a cost line for the message and the day, above an AI-generated illustration of a dashboard on a laptop."></div><figcaption>The assistant&#x27;s morning brief in Telegram, with the cost of the message and of the day so far. The picture under the text is an illustration the assistant generated, not a product screen.</figcaption></figure>
           <div class="case-body">
-            <dl class="cs">
+            <details class="case-more">
+              <summary><span class="when-closed">Read the case study</span><span class="when-open">Hide the case study</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+              <dl class="cs">
               <div><dt>Problem</dt><dd>An assistant that runs on a schedule, spends money on model calls and starts engineering work is only useful if it cannot act beyond what it was granted, and if what it did can be checked afterwards.</dd></div>
               <div><dt>Approach</dt><dd>An agent gateway on my own machine answers over Telegram. Scheduled jobs send briefs through the day and run news, market and job-scan radars. Engineering work is handed to Claude Code as tracked background jobs; cloud delegation returns its results as pull requests, which the agent never merges. Memory has layers: native notes behind a write gate, a learned model of the operator in Honcho, and an Obsidian vault for durable knowledge.</dd></div>
               <div><dt>Trade-off</dt><dd>Permissions are deny-first: paid calls, publishing and sending need my approval, and deny rules block credential files and permission-bypass flags. Recalled memory may shape how it works, but can never authorise an action. Calendar and mail are not connected in the current version, and scheduled runs get no long-term memory.</dd></div>
               <div class="ev"><dt>Evidence</dt><dd>A weekly health check, built without a model call, reports the gateway, the scheduled jobs, the nightly encrypted backup, the last restore test, disk space and model cost. Cost is estimated per message, per day and per week. A local, read-only dashboard shows the current state. Secrets stay out of git.</dd></div>
-            </dl>
+              </dl>
+            </details>
             <ul class="chips" aria-label="Stack"><li>Hermes Agent</li><li>Claude Code</li><li>Telegram</li><li>Honcho</li><li>Obsidian</li><li>Python</li><li>SQLite</li><li>Kopia</li></ul>
             <p class="case-note">Runs locally. Private repositories.</p>
           </div>
