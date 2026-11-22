@@ -228,9 +228,12 @@
       renderReadout(cards[active]);
     }
     function renderReadout(c) {
-      // the active card shows the title, media and its links: the readout adds "What it does"
       const more = $('.pc-more', c);
+      // the detail is collapsed by default; once a visitor opens it, it stays open from card to card
+      const wasOpen = !!$('details[open]', readout);
       readout.replaceChildren(...[...more.children].map((n) => n.cloneNode(true)));
+      const d = $('details', readout);
+      if (d && wasOpen) d.open = true;
     }
     function go(i, quiet) {
       const n = clamp(i, 0, cards.length - 1);

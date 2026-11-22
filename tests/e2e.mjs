@@ -194,6 +194,23 @@ try {
     await page.close();
   }
 
+  // Deck: the long text under the deck is collapsed, opens on demand, and stays open across cards.
+  {
+    const pg = await browser.newPage();
+    await pg.setViewport({ width: 1440, height: 900 });
+    await pg.goto(`${base}/index.html`, { waitUntil: 'networkidle0' });
+    const st = () => pg.evaluate(() => { const d = document.querySelector('#readout details'); return d ? { open: d.open, items: d.querySelectorAll('li').length, shown: d.querySelector('ul').checkVisibility() } : null; });
+    const a = await st();
+    check('deck detail collapsed by default', !!a && !a.open && !a.shown && a.items > 0, JSON.stringify(a));
+    await pg.evaluate(() => document.querySelector('#readout details > summary').click());
+    const b2 = await st();
+    await pg.evaluate(() => [...document.querySelectorAll('button')].find((x) => /next/i.test(x.getAttribute('aria-label') || '')).click());
+    await new Promise((r) => setTimeout(r, 300));
+    const c = await st();
+    check('deck detail opens and stays open on the next card', b2.open && b2.shown && !!c && c.open && c.shown, JSON.stringify([b2, c]));
+    await pg.close();
+  }
+
   // Case studies: long text is collapsed by default and opens on demand.
   {
     const pg = await browser.newPage();
@@ -225,10 +242,11 @@ try {
     facade: !!document.querySelector('a.yt-facade[href="https://youtu.be/4vUhPMhUVzk"][target="_blank"][rel~="noopener"]'),
     ext: [...document.querySelectorAll('a[href^="http"]')].filter((a) => a.target !== '_blank' || !/\bnoopener\b/.test(a.rel) || !/opens in a new tab/.test(a.textContent)).map((a) => a.href),
     names: [...document.querySelectorAll('#all-work li.row h3')].map((n) => n.textContent.trim()),
-    deckText: document.querySelector('#deck').innerText,
+    deckText: document.querySelector('#deck').textContent, // collapsed in native <details>, still present and openable without JS
+    deckDetails: document.querySelectorAll('#deck .pc-more > details > summary').length,
   }));
   check('no-JS: the index names all four featured projects and all eight deck projects', [...FEATURED, ...DECK].every((n) => nj.names.includes(n)), nj.names.join(', '));
-  check('no-JS: the deck cards keep their detail (trading validation, risk and execution)', /Strategy validation/.test(nj.deckText) && /Execution boundaries/.test(nj.deckText));
+  check('no-JS: the deck cards keep their detail (trading validation, risk and execution)', /Strategy validation/.test(nj.deckText) && /Execution boundaries/.test(nj.deckText) && nj.deckDetails === 7, `${nj.deckDetails} details`);
   check('no-JS: every project still listed', nj.rows === PROJECTS, `${nj.rows}`);
   check('no-JS: the four case studies are there', nj.cases === FEATURED.length, `${nj.cases}`);
   check('no-JS: Contact leads to the contact section; Save contact, GitHub and LinkedIn need no card flip', nj.contact);
