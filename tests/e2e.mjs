@@ -201,6 +201,31 @@ try {
     await page.close();
   }
 
+  // 404 page: served by the host for unknown addresses; checked here by loading the file directly.
+  for (const [w, mobile] of [[390, true], [1440, false]]) {
+    const pg = await browser.newPage();
+    await pg.setViewport({ width: w, height: 900, isMobile: mobile, hasTouch: mobile });
+    const errs = [];
+    pg.on('pageerror', (x) => errs.push(x.message));
+    pg.on('requestfailed', (r) => errs.push(`failed ${r.url()}`));
+    pg.on('response', (r) => r.status() >= 400 && errs.push(`${r.status()} ${r.url()}`));
+    await pg.goto(`${base}/404.html`, { waitUntil: 'networkidle0' });
+    await pg.evaluate(() => document.fonts.ready);
+    const n = await pg.evaluate(() => ({
+      h1: [...document.querySelectorAll('h1')].map((h) => h.textContent.trim()),
+      noindex: document.querySelector('meta[name="robots"]')?.content === 'noindex',
+      home: document.querySelector('a.btn.primary')?.getAttribute('href') === '/',
+      fonts: [...document.fonts].filter((f) => f.status === 'loaded').length,
+      overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    }));
+    check(`404 page ${w}: one H1, noindex, primary link home, fonts loaded, no overflow, no errors`,
+      n.h1.length === 1 && n.noindex && n.home && n.fonts >= 2 && n.overflow === 0 && errs.length === 0, JSON.stringify({ ...n, errs: errs.slice(0, 2) }));
+    await pg.addScriptTag({ content: AXE });
+    const ax = await pg.evaluate(async () => (await window.axe.run()).violations.map((v) => v.id));
+    check(`404 page ${w}: axe finds no violations`, ax.length === 0, ax.join(', '));
+    await pg.close();
+  }
+
   // Deck: the long text under the deck is collapsed, opens on demand, and stays open across cards.
   {
     const pg = await browser.newPage();

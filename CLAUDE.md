@@ -12,14 +12,15 @@ hosted on **Cloudflare Pages** (project `oleg-hanukayev`, direct upload) at
 https://oleg-hanukayev.pages.dev/ — the canonical URL, which the QR code and vCard point to.
 GitHub Pages is switched off for this repo (2026-11-22); the old github.io address no longer serves the site.
 A push or merge to `main` therefore deploys nothing by itself: deploy by hand, as below.
-Deploy to Cloudflare from a clean copy of the site files only (index.html, js/, fonts/, icons/, assets/,
+Deploy to Cloudflare from a clean copy of the site files only (index.html, 404.html, js/, fonts/, icons/, assets/,
 sw.js, manifest.webmanifest): `npx wrangler pages deploy <clean-dir> --project-name oleg-hanukayev --branch main`.
 
 ## Files
 
 | Path | What it is |
 |---|---|
-| `index.html` | The page: all content as static HTML, all CSS inline, meta/OG/JSON-LD. The only HTML. Reads completely with JavaScript off. |
+| `index.html` | The page: all content as static HTML, all CSS inline, meta/OG/JSON-LD. Reads completely with JavaScript off. |
+| `404.html` | The not-found page. Cloudflare Pages serves it, with a 404 status, for any address that does not exist (without it, unknown paths return the home page with 200). Root-absolute URLs so it works at any depth; `noindex`. |
 | `js/site.js` | Progressive enhancement only: card flip/drag/keys, the project deck (one continuous deck: buttons, swipe, arrow keys, aria-live position; no group tabs or filters), Share, the QR dialog, email assembly into `[data-mail]`, service-worker registration. |
 | `fonts/` | Self-hosted latin woff2 (OFL): `archivo-expanded-latin` (variable Archivo fixed at width 116, weights 650-800), `hanken-grotesk-latin-400/600`, `geist-mono-latin-400`. From `@fontsource` 5.3.0. |
 | `icons/card-*.png`, `manifest.webmanifest`, `sw.js` | PWA: icons (incl. maskable + apple-touch), manifest, offline service worker. |
@@ -43,7 +44,7 @@ npm ci
 npm test
 
 # Deploy (Cloudflare Pages, direct upload; nothing deploys on push):
-# 1. merge the PR to main and pull it; 2. copy ONLY the site files (index.html, sw.js,
+# 1. merge the PR to main and pull it; 2. copy ONLY the site files (index.html, 404.html, sw.js,
 #    manifest.webmanifest, js/, fonts/, icons/, assets/) into a clean scratch folder; 3. upload it:
 npx wrangler pages deploy <clean-dir> --project-name oleg-hanukayev --branch main
 # then check https://oleg-hanukayev.pages.dev/ (HTTP 200, the new content, the capture sweep).
