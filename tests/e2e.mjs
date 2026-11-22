@@ -11,20 +11,29 @@ import { serve } from './serve.mjs';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const TITLE = 'Senior SRE & AI Platform Engineer';
 const HEADLINE = 'Making AI systems reliable enough for production.';
-const PROJECTS = 13;
+const PROJECTS = 12;
 const STATUSES = ['Live demo', 'Open source', 'In production', 'In daily use'];
-// Selected work: these three, in this order, each as Problem / Approach / Trade-off / Evidence.
-const FEATURED = ['CMA: Cost Monitoring Agent', 'Aegis', 'CISO Agent'];
+// Selected work: these four, in this order, each as Problem / Approach / Trade-off / Evidence.
+const FEATURED = ['CMA: Cost Monitoring Agent', 'FinPulse', 'Editorial Automation Platform', 'Agentic Personal Assistance System'];
+// The one deck: everything not featured, in the owner's order.
+const DECK = ['Free Kick', 'Crypto Trading Core', 'Prediction-Market Systems', 'Happiness bakery', 'Aegis', 'CISO Agent', 'Cardwatch',
+  'Automated Video Studio: Clay Town'];
+// Private or local projects carry a plain muted note, never a status pill.
+const NOTES = ['Private repository', 'Client work, unbranded'];
 const CASE_TERMS = 'Problem|Approach|Trade-off|Evidence';
-// Status by project, as the index shows it ('' = no status). "Live demo" only where a public demo can be visited.
-const INDEX = ['FinPulse|Live demo', 'CMA: Cost Monitoring Agent|Open source', 'Aegis|', 'Editorial Automation Platform|In production',
-  'CISO Agent|Open source', 'Free Kick|Live demo', 'Happiness bakery|Live demo', 'Cardwatch|', 'Personal Agent System|In daily use',
-  'Agent Memory Layer|In daily use', 'Automated Video Studio: Clay Town|Live demo', 'Crypto Trading Core|', 'Prediction-Market Systems|'];
+// Status or note by project, as the index shows it. "Live demo" only where a public demo can be visited.
+const INDEX = ['CMA: Cost Monitoring Agent|Open source', 'FinPulse|Live demo', 'Editorial Automation Platform|Private repository',
+  'Agentic Personal Assistance System|In daily use', 'Free Kick|Live demo', 'Crypto Trading Core|Private repository',
+  'Prediction-Market Systems|Private repository', 'Happiness bakery|Live demo', 'Aegis|Private repository', 'CISO Agent|Open source',
+  'Cardwatch|Private repository', 'Automated Video Studio: Clay Town|Live demo'];
 // Third-party hosts the page may touch: only the lazy YouTube thumbnail, before any click.
 const THIRD_PARTY_OK = /^https:\/\/i\.ytimg\.com\//;
 const AXE = readFileSync(createRequire(import.meta.url).resolve('axe-core/axe.min.js'), 'utf8');
 const CHROME = [process.env.CHROME_PATH, 'C:/Program Files/Google/Chrome/Application/chrome.exe',
   '/usr/bin/google-chrome', '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'].find((p) => p && existsSync(p));
+
+// the page text between two headings (first occurrence of each)
+const document_text_of = (text, from, to) => { const a = text.indexOf(from); return a < 0 ? '' : text.slice(a, text.indexOf(to, a) > a ? text.indexOf(to, a) : undefined); };
 
 let pass = 0;
 let fail = 0;
@@ -79,11 +88,17 @@ try {
         name: c.querySelector('h3').textContent.trim(),
         terms: [...c.querySelectorAll('dl.cs dt')].map((n) => n.textContent.trim()).join('|'),
         thin: [...c.querySelectorAll('dl.cs dd')].filter((n) => n.textContent.trim().length < 40).length,
-        ratio: (() => { const r = c.querySelector('.media').getBoundingClientRect(); return r.width / r.height; })(),
+        ratios: [...c.querySelectorAll('.media:not(.nat)')].map((m) => { const r = m.getBoundingClientRect(); return r.width / r.height; }),
       })),
+      tabs: document.querySelectorAll('#groups, [data-group-btn], [data-group], #more-work [aria-pressed], #more-work [role="tab"]').length,
+      notes: [...document.querySelectorAll('.pnote, .rn')].map((n) => n.textContent.trim()),
+      pills: [...document.querySelectorAll('.status, .rs')].filter((n) => /private|local/i.test(n.textContent)).length,
+      privLinks: [...document.querySelectorAll('.pcard, #all-work li.row')].filter((n) => n.querySelector('.pnote, .rn') && n.querySelector('a[href*="github.com"]')).length,
+      evidence: [...document.querySelectorAll('#c-agentic ~ figure img, #work .case:last-child figure img')].map((i) => i.getAttribute('src')),
+      freekick: (() => { const c = document.querySelector('#d-freekick').closest('.pcard'); return `${c.querySelector('img').getAttribute('src')}|${c.querySelector('a.btn.primary')?.textContent.trim().split(' (')[0]}|${c.querySelector('a.btn.primary')?.href}`; })(),
       order: [...document.querySelectorAll('main > section')].map((n) => n.id).join(' '),
       deck: [...document.querySelectorAll('#deck .pcard h3')].map((n) => n.textContent.trim()),
-      index: [...document.querySelectorAll('#all-work li.row')].map((r) => `${r.querySelector('h4').textContent.trim()}|${r.querySelector('.rs')?.textContent.trim() ?? ''}`),
+      index: [...document.querySelectorAll('#all-work li.row')].map((r) => `${r.querySelector('h3').textContent.trim()}|${r.querySelector('.rs, .rn')?.textContent.trim() ?? ''}`),
       indexExtras: document.querySelectorAll('#all-work .row ul, #all-work .row .chips, #all-work .row .does').length,
       indexThin: [...document.querySelectorAll('#all-work li.row')].filter((r) => !(r.querySelector('.tag')?.textContent.trim().length > 20)).length,
       toolsH: document.querySelector('#tools h2')?.textContent.trim(),
@@ -105,10 +120,16 @@ try {
     const banned = (s.text.match(/\bcommits\b|tests? passing|\bpaper\b|prototype|private build/gi) || []);
     check(`${width}: no "commits", "tests passing", "paper", "prototype" or "private build" on the page`, banned.length === 0, banned.slice(0, 3).join(', '));
     check(`${width}: sections in order: hero, selected work, deck, index, tools, proof, specs, contact`, s.order === 'top work more-work all-work tools proof specs contact', s.order);
-    check(`${width}: Selected work is CMA, Aegis, CISO Agent, each with Problem / Approach / Trade-off / Evidence`,
+    check(`${width}: Selected work is exactly CMA, FinPulse, the editorial platform and the agentic system, each with Problem / Approach / Trade-off / Evidence`,
       s.cases.map((c) => c.name).join('|') === FEATURED.join('|') && s.cases.every((c) => c.terms === CASE_TERMS && c.thin === 0), JSON.stringify(s.cases.map((c) => [c.name, c.terms, c.thin])));
-    if (!mobile) check('1440: case-study media share one 16:10 frame', s.cases.every((c) => Math.abs(c.ratio - 1.6) < 0.02), s.cases.map((c) => c.ratio.toFixed(2)).join(' '));
-    check(`${width}: the deck carries the ${PROJECTS - FEATURED.length} projects that are not featured`, s.deck.length === PROJECTS - FEATURED.length && !s.deck.some((t) => FEATURED.includes(t)), s.deck.join(', '));
+    if (!mobile) check('1440: framed case-study screenshots share one 16:10 frame', s.cases.flatMap((c) => c.ratios).length >= 2 && s.cases.flatMap((c) => c.ratios).every((r) => Math.abs(r - 1.6) < 0.02), s.cases.flatMap((c) => c.ratios).map((r) => r.toFixed(2)).join(' '));
+    check(`${width}: one deck, no category tabs or filters`, s.tabs === 0, `${s.tabs}`);
+    check(`${width}: the deck holds the ${DECK.length} projects that are not featured, starting Free Kick, Crypto Trading Core, Prediction-Market Systems, Happiness bakery`,
+      s.deck.join('|') === DECK.join('|') && !s.deck.some((t) => FEATURED.includes(t)), s.deck.join(', '));
+    check(`${width}: Free Kick shows the gameplay still and a direct Play it link`, s.freekick === 'assets/work/freekick-match-720.webp|Play it|https://free-kick-demo.pages.dev/', s.freekick);
+    check(`${width}: the agentic case study shows both supplied evidence images`, ['assets/work/assistant-brief-720.webp', 'assets/work/assistant-health-720.webp'].every((f) => s.evidence.includes(f)), s.evidence.join(' '));
+    check(`${width}: private and local projects carry a plain note, not a status pill, and no repo link`,
+      s.notes.length >= 5 && s.notes.every((t) => NOTES.includes(t)) && s.pills === 0 && s.privLinks === 0, `${s.notes.join(', ')}; pills ${s.pills}; links ${s.privLinks}`);
     check(`${width}: the index lists every project in the owner's order with its status`, s.index.join(';') === INDEX.join(';'), s.index.join(';'));
     check(`${width}: index rows are compact: a one-line descriptor, no bullets or stack chips`, s.indexExtras === 0 && s.indexThin === 0, `${s.indexExtras} extras, ${s.indexThin} without a descriptor`);
     check(`${width}: Engineering tools and experiments keeps its eight tools`, s.toolsH === 'Engineering tools and experiments' && s.toolsN === 8, `${s.toolsH} / ${s.toolsN}`);
@@ -117,6 +138,8 @@ try {
     check(`${width}: external links open a new tab with noopener and say so`, s.ext.length === 0, s.ext.slice(0, 3).join(' '));
     check(`${width}: every img has alt text, width and height`, s.imgs.length === 0, s.imgs.slice(0, 3).join(' '));
     check(`${width}: YouTube facade is a named button`, s.yt === 'Play the Clay Town episode: Clyde jumps into GTA 6 on release day', String(s.yt));
+    check(`${width}: the editorial platform stays unbranded and nothing claims RAG for it`,
+      !/\bRAG\b|retrieval-augmented/i.test(document_text_of(s.text, 'Editorial Automation Platform', 'Agentic Personal Assistance System')), '');
     check(`${width}: nothing loaded from YouTube before a click but the thumbnail`, thirdParty.every((u) => THIRD_PARTY_OK.test(u)), thirdParty.filter((u) => !THIRD_PARTY_OK.test(u)).slice(0, 2).join(' '));
 
     // QR: visible button opens a modal dialog with the code; Escape closes it.
@@ -132,6 +155,38 @@ try {
     if (mobile) check('390: QR is large enough to show someone', opened.width >= 300, `${Math.round(opened.width)}px`);
     await page.keyboard.press('Escape');
     check(`${width}: Escape closes the dialog`, await page.evaluate(() => !document.getElementById('qr-dialog').open));
+
+    // The deck: arrow keys move it and announce the position; a link on a card behind brings that card forward.
+    if (!mobile) {
+      await page.evaluate(() => document.querySelector('#deck .deck-view').scrollIntoView({ block: 'center', behavior: 'instant' }));
+      await page.focus('#deck .deck-view');
+      await page.keyboard.press('ArrowRight');
+      const key = await page.evaluate(() => ({ ...window.theDeck.state(), live: document.getElementById('deck-live').textContent,
+        readout: document.getElementById('readout').textContent }));
+      check('1440: ArrowRight moves the deck and the live region says where it is',
+        key.active === 1 && key.total === DECK.length && key.live === `Crypto Trading Core, card 2 of ${DECK.length}` && /Risk controls/.test(key.readout), JSON.stringify([key.active, key.live]));
+      const pagesBefore = (await browser.pages()).length;
+      const fwd = await page.evaluate(() => {
+        const link = document.querySelector('#d-bakery').closest('.pcard').querySelector('a[href^="http"]');
+        link.click();
+        return { ...window.theDeck.state(), tab: link.tabIndex };
+      });
+      await new Promise((r) => setTimeout(r, 300));
+      check('1440: a link on a background card brings the card forward instead of navigating',
+        fwd.active === 3 && fwd.tab === 0 && (await browser.pages()).length === pagesBefore && page.url().startsWith(base), JSON.stringify(fwd));
+    } else {
+      // swipe left on the deck moves to the next card
+      await page.evaluate(() => document.querySelector('#deck .deck-view').scrollIntoView({ block: 'center', behavior: 'instant' }));
+      const box = await (await page.$('#deck .pcard.is-active h3')).boundingBox();
+      await page.mouse.move(box.x + 200, box.y + 10);
+      await page.mouse.down();
+      await page.mouse.move(box.x + 60, box.y + 12, { steps: 6 });
+      await page.mouse.up();
+      const sw = await page.evaluate(() => window.theDeck.state().active);
+      check('390: a swipe moves the deck to the next card', sw === 1, `${sw}`);
+    }
+    // let the deck's card transition finish before axe measures contrast through the dimming layer
+    await new Promise((r) => setTimeout(r, 900));
 
     await page.addScriptTag({ content: AXE });
     const axe = await page.evaluate(async () => (await window.axe.run()).violations.map((v) => v.id));
@@ -150,9 +205,13 @@ try {
       && !!document.querySelector('#top a[href="https://github.com/See-137"]') && !!document.querySelector('#top a[href^="https://www.linkedin.com/in/"]'),
     facade: !!document.querySelector('a.yt-facade[href="https://youtu.be/4vUhPMhUVzk"][target="_blank"][rel~="noopener"]'),
     ext: [...document.querySelectorAll('a[href^="http"]')].filter((a) => a.target !== '_blank' || !/\bnoopener\b/.test(a.rel) || !/opens in a new tab/.test(a.textContent)).map((a) => a.href),
+    names: [...document.querySelectorAll('#all-work li.row h3')].map((n) => n.textContent.trim()),
+    deckText: document.querySelector('#deck').innerText,
   }));
+  check('no-JS: the index names all four featured projects and all eight deck projects', [...FEATURED, ...DECK].every((n) => nj.names.includes(n)), nj.names.join(', '));
+  check('no-JS: the deck cards keep their detail (trading validation, risk and execution)', /Strategy validation/.test(nj.deckText) && /Execution boundaries/.test(nj.deckText));
   check('no-JS: every project still listed', nj.rows === PROJECTS, `${nj.rows}`);
-  check('no-JS: the three case studies are there', nj.cases === FEATURED.length, `${nj.cases}`);
+  check('no-JS: the four case studies are there', nj.cases === FEATURED.length, `${nj.cases}`);
   check('no-JS: Contact leads to the contact section; Save contact, GitHub and LinkedIn need no card flip', nj.contact);
   check('no-JS: the episode is a plain link to YouTube', nj.facade);
   check('no-JS: external links open a new tab with noopener and say so', nj.ext.length === 0, nj.ext.slice(0, 3).join(' '));
