@@ -179,13 +179,13 @@
     window.theCard = { state: () => ({ rx: +s.rx.toFixed(2), ry: +s.ry.toFixed(2), face, animating: !!raf }), flip };
   }
 
-  /* ---------- the deck: one group dealt at a time, the rest wait off-table ---------- */
+  /* ---------- the deck: every project that is not featured, dealt as one fan ---------- */
   function initDeck() {
     const root = $('#deck');
     if (!root) return;
     const view = $('.deck-view', root);
     const track = $('.deck-track', root);
-    const all = $$('.pcard', track);
+    const cards = $$('.pcard', track);
     const bar = $('.deck-bar', root);
     const prev = $('[data-deck="prev"]', root);
     const next = $('[data-deck="next"]', root);
@@ -193,11 +193,8 @@
     const count = $('.deck-count', root);
     const live = $('#deck-live');
     const readout = $('#readout');
-    const btns = $$('[data-group-btn]');
-    if (!all.length || !btns.length) return;
+    if (!cards.length) return;
 
-    let group = btns[0].dataset.groupBtn;
-    let cards = [];
     let active = 0;
     let dealt = false;
     let moved = false;
@@ -214,16 +211,8 @@
       return { t: `translateX(${x}%) translateZ(${z}px) rotateY(${ry}deg) rotateZ(${rz}deg)`, o: hidden ? 0 : 1, dim: Math.min(0.72, d * 0.24), z: 50 - d };
     }
     function layout() {
-      all.forEach((c) => {
-        const i = cards.indexOf(c);
-        if (i < 0) {
-          c.classList.add('off'); c.classList.remove('is-active');
-          c.setAttribute('aria-hidden', 'true');
-          c.style.transform = 'translateY(40px) translateZ(-240px)'; c.style.zIndex = '0';
-          return;
-        }
+      cards.forEach((c, i) => {
         const p = slot(i - active);
-        c.classList.remove('off');
         c.classList.toggle('is-active', i === active);
         c.style.transform = p.t; c.style.opacity = String(p.o); c.style.zIndex = String(p.z);
         c.style.setProperty('--dim', String(p.dim));
@@ -254,7 +243,6 @@
       if (reduced() || document.hidden) { layout(); return; }
       root.classList.add('dealing');
       cards.forEach((c, i) => {
-        c.classList.remove('off');
         c.style.transform = `translateY(60px) translateZ(-260px) rotateZ(${(i % 2 ? 1 : -1) * (2 + i)}deg)`;
         c.style.opacity = '0';
       });
@@ -264,23 +252,9 @@
       cards.forEach((c, i) => { c.style.transitionDelay = `${i * 70}ms`; });
       setTimeout(() => cards.forEach((c) => { c.style.transitionDelay = ''; }), 70 * cards.length + 800);
     }
-    function setGroup(id, announceIt) {
-      group = id;
-      cards = all.filter((c) => c.dataset.group === id);
-      active = 0;
-      pips.replaceChildren(...cards.map(() => document.createElement('i')));
-      btns.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.groupBtn === id)));
-      if (dealt) deal(); else layout();
-      if (announceIt) {
-        const name = $(`[data-group-btn="${id}"]`).firstChild.textContent;
-        live.textContent = `${name}: ${cards.length} cards dealt. ${$('h3', cards[0]).textContent}, card 1 of ${cards.length}.`;
-      }
-    }
-
-    btns.forEach((b) => b.addEventListener('click', () => { if (b.dataset.groupBtn !== group) setGroup(b.dataset.groupBtn, true); }));
     prev.addEventListener('click', () => go(active - 1));
     next.addEventListener('click', () => go(active + 1));
-    all.forEach((c) => c.addEventListener('click', (e) => {
+    cards.forEach((c) => c.addEventListener('click', (e) => {
       // a link on a card behind the active one brings that card forward instead of navigating
       if (cards.indexOf(c) !== active && e.target.closest('a[href]')) e.preventDefault();
       const i = cards.indexOf(c);
@@ -316,10 +290,10 @@
     view.addEventListener('pointerleave', (e) => { if (sx != null && e.pointerType === 'mouse') up(e); });
     phoneMq.addEventListener('change', layout);
 
-    $('#groups').hidden = false;
+    pips.replaceChildren(...cards.map(() => document.createElement('i')));
     bar.hidden = false;
     readout.hidden = false;
-    setGroup(group, false);
+    layout();
 
     // deal once when the deck first comes into view
     if ('IntersectionObserver' in window) {
@@ -328,7 +302,7 @@
       }, { threshold: 0.25 });
       io.observe(view);
     } else dealt = true;
-    window.theDeck = { state: () => ({ group, active, total: cards.length, dealt }) };
+    window.theDeck = { state: () => ({ active, total: cards.length, dealt }) };
   }
 
   /* ---------- YouTube facade: a plain link in the HTML, a click-to-load player here ----------
