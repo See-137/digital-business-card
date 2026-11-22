@@ -3,6 +3,8 @@
   Oleg Hanukayev, digital business card and portfolio. Design: "The Card".
   Static page: every fact below is plain HTML (the page reads fully with JS off);
   js/site.js only adds the card turning, the deck, Share, the QR dialog and the email.
+  Order: hero (headline, one primary action, the card), Selected work (three case studies),
+  More work (the deck: the projects not featured), All work (compact index of all 13), tools, proof, specs, contact.
   Content source: the owner's content-v2 copy (2026-11-21).
   Contrast tokens (measured with web-craft contrast.mjs, 2026-11-21):
     --ink    #eeebe6  >= 13.36:1 on every surface
@@ -175,7 +177,7 @@ img{display:block;max-width:100%}
 .hint{width:100%;text-align:center;color:var(--mute);font-size:.84rem}
 .hint kbd{font:400 .72rem var(--mono);padding:1px 6px;border:1px solid var(--line-2);border-radius:4px;color:var(--ink-2)}
 
-.intro{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:var(--s4) var(--s7);margin-top:var(--s8);padding-top:var(--s5);border-top:1px solid var(--line)}
+.intro{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:var(--s4) var(--s7);margin-top:var(--s7);padding-top:var(--s5);border-top:1px solid var(--line)}
 .badges{display:flex;flex-wrap:wrap;gap:var(--s2);list-style:none;margin:0;padding:0}
 .badges li{font:600 .84rem/1 var(--body);padding:10px 14px;border:1px solid var(--line-2);border-radius:999px;color:var(--ink-2);white-space:nowrap}
 .now{color:var(--ink-2);font-size:.95rem;max-width:48ch}
@@ -189,8 +191,8 @@ section{position:relative}
 .sec-head p{color:var(--ink-2);max-width:46ch}
 
 /* ---------- proof ---------- */
-.proof-sec .sec-head{margin-bottom:var(--s5)}
-.proof-sec .sec-head h2{font-size:clamp(1.5rem,2.6vw,2rem)}
+.minor .sec-head{margin-bottom:var(--s5)}
+.minor .sec-head h2{font-size:clamp(1.5rem,2.6vw,2rem)}
 .proof{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .proof li{display:grid;gap:10px;align-content:start;padding:20px 24px 22px}
 .proof li+li{border-left:1px solid var(--line)}
@@ -198,6 +200,29 @@ section{position:relative}
 .proof .fig{font:750 clamp(1.2rem,2.1vw,1.6rem)/1.1 var(--display);letter-spacing:-.02em;white-space:nowrap;font-variant-numeric:tabular-nums}
 .proof .txt{font-size:.93rem;line-height:1.5;color:var(--ink-2)}
 .proof .where{display:block;margin-top:4px;color:var(--mute);font-size:.82rem}
+
+/* ---------- selected work: three case studies ---------- */
+.cases{display:grid;gap:var(--s8)}
+.case{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,1fr);gap:var(--s5) var(--s7);align-items:start;padding-top:var(--s5);border-top:1px solid var(--line-2)}
+.case-head{grid-column:1/-1;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:baseline;gap:var(--s2) var(--s4)}
+.case-n{font:400 .76rem/1 var(--mono);letter-spacing:.14em;color:var(--mute)}
+.case-head h3{font-size:clamp(1.5rem,2.7vw,2.15rem)}
+.case-head .pc-tag{grid-column:2/-1;font-size:1.06rem;color:var(--ink);max-width:56ch}
+.shot{margin:0;display:grid;gap:10px}
+.shot>figcaption{font-size:.82rem;line-height:1.45;color:var(--mute)}
+.case .media{aspect-ratio:16/10}
+.case .media img{width:100%;height:100%;object-fit:cover;object-position:0 0}
+.case .media.dgm{align-content:center;gap:var(--s4);padding:var(--s5)}
+.case-body{display:grid;gap:var(--s4);min-width:0}
+.cs{margin:0;border-bottom:1px solid var(--line)}
+.cs div{display:grid;grid-template-columns:6.4rem minmax(0,1fr);gap:var(--s1) var(--s4);padding:13px 0;border-top:1px solid var(--line)}
+.cs div:first-child{border-top:0;padding-top:0}
+.cs dt{font:400 .7rem/1.7 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute);padding-top:2px}
+.cs dd{margin:0;color:var(--ink-2);font-size:.95rem;line-height:1.5}
+.cs .ev dt{color:var(--accent-text)}
+.cs .ev dd{color:var(--ink)}
+.case .chips{margin:0}
+.case-note{font-size:.86rem;color:var(--mute)}
 
 /* ---------- deck ---------- */
 .groups{display:flex;flex-wrap:wrap;gap:var(--s2);margin:0 0 var(--s5)}
@@ -230,6 +255,7 @@ section{position:relative}
 .media img{width:100%;height:auto}
 /* in the deck, a still or diagram grows to fill its card (cards in a group share one height) */
 .pcard .media{flex:1 1 auto;display:grid;align-content:center;background:var(--mbg,#101011)}
+.pcard .media:has(>img){aspect-ratio:16/10}
 .pcard .media.dgm{align-content:space-between}
 .pcard .media.yt{flex:none;display:block}
 .media.dgm{padding:16px 16px 14px;display:grid;gap:14px}
@@ -299,30 +325,26 @@ section{position:relative}
 .readout .pc-links{justify-content:flex-end}
 
 /* ---------- all work (the record) ---------- */
-.index-group+.index-group{margin-top:var(--s7)}
+.index-group+.index-group{margin-top:var(--s6)}
 .index-group h3{font:400 .76rem/1.4 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--mute);padding-bottom:var(--s3);display:flex;justify-content:space-between;gap:var(--s4)}
 .index-group h3 span{letter-spacing:.04em}
 .rows{list-style:none;margin:0;padding:0;border-top:1px solid var(--line-2)}
-.row{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr) 11rem;gap:var(--s3) var(--s6);align-items:start;padding:22px 0;border-bottom:1px solid var(--line)}
-.row h4{font:600 1.06rem/1.3 var(--body);letter-spacing:0}
-.row .tag{color:var(--ink);font-size:.95rem;line-height:1.45;margin-top:4px;max-width:68ch}
-.row .does{margin-top:12px;max-width:68ch}
-.row .does li{font-size:.88rem}
-.row .chips{margin:2px 0 0;align-content:flex-start}
-.r-side{display:grid;gap:6px;justify-items:end;align-content:start}
-.row .rs{font-size:.88rem;color:var(--ink-2);display:flex;align-items:baseline;gap:8px;white-space:nowrap}
+.row{display:grid;grid-template-columns:minmax(0,15.5rem) minmax(0,1fr) 8.5rem 11.5rem;grid-template-areas:"name tag status link";gap:0 var(--s5);align-items:center;min-height:56px;padding:6px 0;border-bottom:1px solid var(--line)}
+.row h4{grid-area:name;font:600 1rem/1.3 var(--body);letter-spacing:0}
+.row .tag{grid-area:tag;color:var(--ink-2);font-size:.93rem;line-height:1.4}
+.row .rs{grid-area:status;font-size:.86rem;color:var(--ink-2);display:flex;align-items:baseline;gap:8px;white-space:nowrap}
 .row .rs::before{content:"";flex:none;width:7px;height:7px;border-radius:50%;background:var(--mute);transform:translateY(-1px)}
 .row .rs.on::before{background:var(--ok)}
-.row .rl{font-size:.88rem;text-align:right;display:grid;justify-items:end}
-.row .rl a{display:inline-flex;align-items:center;gap:6px;min-height:44px;color:var(--ink);text-decoration:underline;text-decoration-color:rgba(255,255,255,.3);text-underline-offset:3px}
+.row .rl{grid-area:link;font-size:.88rem;justify-self:end}
+.row .rl a{display:inline-flex;align-items:center;gap:6px;min-height:44px;color:var(--ink);text-decoration:underline;text-decoration-color:rgba(255,255,255,.3);text-underline-offset:3px;white-space:nowrap}
 .row .rl a:hover{color:var(--accent-text);text-decoration-color:currentColor}
 
-/* ---------- skills ---------- */
+/* ---------- tools ---------- */
 .tools{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden}
-.tools li{background:var(--bg);padding:22px 20px 20px;display:flex;flex-direction:column;gap:10px}
-.tools h3{font:400 1.02rem/1.2 var(--mono);letter-spacing:-.01em;color:var(--ink)}
-.tools p{color:var(--ink-2);font-size:.93rem;line-height:1.45}
-.tools .stk{margin-top:auto;padding-top:6px;font:400 .72rem/1.5 var(--mono);color:var(--mute)}
+.tools li{background:var(--bg);padding:16px 18px;display:flex;flex-direction:column;gap:6px}
+.tools h3{font:400 .95rem/1.2 var(--mono);letter-spacing:-.01em;color:var(--ink)}
+.tools p{color:var(--ink-2);font-size:.88rem;line-height:1.45}
+.tools .stk{margin-top:auto;padding-top:4px;font:400 .7rem/1.5 var(--mono);color:var(--mute)}
 
 /* ---------- specs ---------- */
 .specs{display:grid;grid-template-columns:1fr;gap:var(--s7)}
@@ -366,7 +388,8 @@ dialog .actions{display:flex;justify-content:flex-end}
 
 /* ---------- smaller screens ---------- */
 @media (max-width:1060px){
-  .row{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) 10rem;gap:var(--s3) var(--s5)}
+  .row{grid-template-columns:minmax(0,13rem) minmax(0,1fr) 8rem 10.5rem;gap:0 var(--s4)}
+  .case{gap:var(--s5) var(--s6)}
   .tools{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (max-width:860px){
@@ -376,10 +399,14 @@ dialog .actions{display:flex;justify-content:flex-end}
   .proof{grid-template-columns:1fr}
   .proof li,.proof li:first-child{padding:16px 0}
   .proof li+li{border-left:0;border-top:1px solid var(--line)}
-  .row{grid-template-columns:minmax(0,1fr);gap:14px}
-  .r-side{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 16px}
-  .r-side:empty{display:none}
-  .row .rl{display:flex;flex-wrap:wrap;gap:0 18px;text-align:left}
+  .row{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"name status" "tag tag" "link link";gap:2px var(--s4);padding:14px 0 6px}
+  .row:not(:has(.rl)){padding-bottom:14px}
+  .row .rl{justify-self:start}
+  .case{grid-template-columns:1fr}
+  .case-head{grid-template-columns:minmax(0,1fr) auto}
+  .case-n{grid-column:1/-1}
+  .case-head .pc-tag{grid-column:1/-1}
+  .case .media.dgm{aspect-ratio:auto;padding:var(--s4)}
   .readout{grid-template-columns:1fr}
   .readout .pc-links{justify-content:flex-start}
 }
@@ -397,6 +424,8 @@ dialog .actions{display:flex;justify-content:flex-end}
   .pcard h3{font-size:1.28rem}
   .pips i{width:10px}.pips i.on{width:20px}
   .spec div{grid-template-columns:1fr;gap:4px}
+  .cs div{grid-template-columns:1fr;gap:2px}
+  .cases{gap:var(--s7)}
   .close{padding:var(--s8) 0}
   .groups{flex-wrap:nowrap;overflow-x:auto;margin-inline:-16px;padding:2px 16px;scrollbar-width:none}
   .groups button{flex:none}
@@ -420,8 +449,9 @@ dialog .actions{display:flex;justify-content:flex-end}
     <nav aria-label="Sections">
       <ul>
         <li><a href="#work">Work</a></li>
-        <li><a href="#skills">Skills</a></li>
+        <li><a href="#more-work">More work</a></li>
         <li><a href="#all-work">All work</a></li>
+        <li><a href="#tools">Tools</a></li>
         <li><a href="#proof">Proof</a></li>
         <li><a href="#specs">Specs</a></li>
         <li><a href="#contact">Contact</a></li>
@@ -518,12 +548,88 @@ dialog .actions{display:flex;justify-content:flex-end}
   <section class="sec" id="work" aria-labelledby="work-h">
     <div class="wrap">
       <div class="sec-head">
-        <h2 id="work-h">The work, dealt</h2>
-        <p id="work-how">Pick a group, then step through its cards with the arrows, a swipe or the arrow keys. What each one does, and where to see it, sits under the deck. Every card is also listed in All work below.</p>
+        <h2 id="work-h">Selected work</h2>
+        <p>Three systems for running LLM agents with the controls production needs: what they cost, how they fail, and what they are allowed to do.</p>
+      </div>
+      <div class="cases">
+        <article class="case" aria-labelledby="c-cma">
+          <header class="case-head">
+            <span class="case-n" aria-hidden="true">01 / 03</span>
+            <h3 id="c-cma">CMA: Cost Monitoring Agent</h3>
+            <span class="status on">Open source</span>
+            <p class="pc-tag">See which agent spent the money, and why the bill moved.</p>
+          </header>
+          <figure class="shot"><div class="media"><img src="assets/work/cma-dashboard.webp" srcset="assets/work/cma-dashboard-480.webp 480w, assets/work/cma-dashboard-720.webp 720w, assets/work/cma-dashboard.webp 960w" sizes="(max-width: 860px) 92vw, 600px" width="960" height="600" loading="lazy" decoding="async" alt="CMA dashboard in dark mode: cost, requests, active agents and tokens for the week above a cost and activity chart."></div><figcaption>The CMA dashboard: cost, requests, active agents and tokens for one week.</figcaption></figure>
+          <div class="case-body">
+            <dl class="cs">
+              <div><dt>Problem</dt><dd>A provider&#x27;s billing page shows a total. It does not say which agent spent it, on which model, or why spend changed.</dd></div>
+              <div><dt>Approach</dt><dd>A Python SDK patches OpenAI, Anthropic and LangChain clients in place and records tokens and cost at the call site. A FastAPI service attributes spend per agent, model and provider, checks budgets and sends alerts. Scrooge, a built-in RAG assistant, explains spend changes with cited sources.</dd></div>
+              <div><dt>Trade-off</dt><dd>SQL is the source of truth and the vector store is only a cache, so a corrupted index can be rebuilt and never loses data. Scrooge answers &#x201C;how much&#x201D; from SQL and uses retrieval only for &#x201C;why&#x201D;.</dd></div>
+              <div class="ev"><dt>Evidence</dt><dd>The source is public under the MIT licence and runs on your own infrastructure with Docker Compose. A failure in the SDK never breaks the LLM call it wraps. CI checks that every database migration is reversible against a real PostgreSQL.</dd></div>
+            </dl>
+            <ul class="chips" aria-label="Stack"><li>Python</li><li>FastAPI</li><li>React</li><li>Grafana</li><li>Docker Compose</li></ul>
+            <div class="pc-links"><a class="btn" href="https://github.com/See-137/CMA" target="_blank" rel="noopener">Source on GitHub<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="vh"> (CMA: Cost Monitoring Agent, opens in a new tab)</span></a></div>
+          </div>
+        </article>
+        <article class="case" aria-labelledby="c-aegis">
+          <header class="case-head">
+            <span class="case-n" aria-hidden="true">02 / 03</span>
+            <h3 id="c-aegis">Aegis</h3>
+            
+            <p class="pc-tag">Crash-test agents before they ship.</p>
+          </header>
+          <figure class="shot"><div class="media" style="background:#0d1416"><img src="assets/work/aegis-console.webp" srcset="assets/work/aegis-console-480.webp 480w, assets/work/aegis-console-720.webp 720w, assets/work/aegis-console.webp 960w" sizes="(max-width: 860px) 92vw, 600px" width="960" height="600" loading="lazy" decoding="async" alt="The Aegis console on demo data: the navigation and an overview of what needs a decision, led by a release-gate rejection."></div><figcaption>The Aegis console, running on demo data.</figcaption></figure>
+          <div class="case-body">
+            <dl class="cs">
+              <div><dt>Problem</dt><dd>A release needs evidence of how an agent behaves when its tools fail, before it ships.</dd></div>
+              <div><dt>Approach</dt><dd>Runs the agent under test against versioned scenarios in an isolated sandbox, with simulated tools and injected faults. Each candidate is compared with the baseline and passes a release gate with versioned policies; traces export to OpenTelemetry.</dd></div>
+              <div><dt>Trade-off</dt><dd>The sandbox has no network and no credentials, so the agent only ever sees simulated tool results. A live model is not supported yet.</dd></div>
+              <div class="ev"><dt>Evidence</dt><dd>A reference agent that is defective on purpose fails its scenario on every repetition, and the idempotent version passes. Approving a release needs a separate approver credential, which the API refuses. The console shown here runs on demo data.</dd></div>
+            </dl>
+            <ul class="chips" aria-label="Stack"><li>Python</li><li>REST API</li><li>OpenTelemetry</li></ul>
+            <p class="case-note">The repository is private.</p>
+          </div>
+        </article>
+        <article class="case" aria-labelledby="c-ciso">
+          <header class="case-head">
+            <span class="case-n" aria-hidden="true">03 / 03</span>
+            <h3 id="c-ciso">CISO Agent</h3>
+            <span class="status on">Open source</span>
+            <p class="pc-tag">A security officer inside every coding agent&#x27;s loop.</p>
+          </header>
+          <figure class="shot"><div class="media dgm">
+            <ol class="flow"><li><span class="t">tool call</span></li><li><span class="t">hook</span></li><li class="key"><span class="t">fixed rules <small>no model</small></span></li><li><span class="t">allow, ask or deny</span></li></ol>
+            <ol class="pol">
+              <li><code>deny-force-push-protected-branch</code><b class="vd deny">deny</b></li>
+              <li><code>ask-destructive-delete</code><b class="vd">ask</b></li>
+              <li><code>ask-package-install</code><b class="vd">ask</b></li>
+              <li><code>deny-actions-unknown-attribution</code><b class="vd deny">deny</b></li>
+            </ol>
+          </div><figcaption>How a decision is made, and four of its fixed policy rules with the decision each one makes.</figcaption></figure>
+          <div class="case-body">
+            <dl class="cs">
+              <div><dt>Problem</dt><dd>Coding agents run shell commands, edit files and push code, and a language model can be manipulated by what it reads.</dd></div>
+              <div><dt>Approach</dt><dd>A hook on the engineer&#x27;s machine checks each command, file edit and push before it runs. Fixed policy rules decide deny, ask or allow, with no model in the decision path. It ships as one Claude Code plugin, locked by organisation settings.</dd></div>
+              <div><dt>Trade-off</dt><dd>It runs in the user&#x27;s own space: the rules stop the agent, not a determined person with admin rights on their own machine. Commands are judged by their text, before they run.</dd></div>
+              <div class="ev"><dt>Evidence</dt><dd>Hooks fail closed: a crash, a timeout or a tampered ruleset blocks the action. In real runs with Claude Code, a force push to main and a file containing a fake cloud key were both denied. Switching a guard off makes a named test fail. Built and tested, not yet deployed.</dd></div>
+            </dl>
+            <ul class="chips" aria-label="Stack"><li>Python</li><li>Claude Code hooks</li><li>Policy as code</li></ul>
+            <div class="pc-links"><a class="btn" href="https://github.com/See-137/ciso-agent" target="_blank" rel="noopener">Source on GitHub<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="vh"> (CISO Agent, opens in a new tab)</span></a></div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="more-work" aria-labelledby="more-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="more-h">More work, dealt</h2>
+        <p id="work-how">The projects not featured above. Pick a group, then step through its cards with the arrows, a swipe or the arrow keys. What each one does, and where to see it, sits under the deck.</p>
       </div>
       <div class="groups" role="group" aria-labelledby="groups-l" id="groups" hidden>
         <span class="vh" id="groups-l">Project group</span>
-        <button type="button" data-group-btn="production" aria-pressed="true">Production systems<span class="n" aria-hidden="true">5</span></button>
+        <button type="button" data-group-btn="production" aria-pressed="true">Production systems<span class="n" aria-hidden="true">2</span></button>
         <button type="button" data-group-btn="apps" aria-pressed="false">Apps for small business<span class="n" aria-hidden="true">3</span></button>
         <button type="button" data-group-btn="agentic" aria-pressed="false">Agentic systems<span class="n" aria-hidden="true">3</span></button>
         <button type="button" data-group-btn="trading" aria-pressed="false">Trading systems<span class="n" aria-hidden="true">2</span></button>
@@ -532,7 +638,7 @@ dialog .actions{display:flex;justify-content:flex-end}
         <div class="deck-view" tabindex="0" role="region" aria-label="Project cards" aria-describedby="work-how">
           <div class="deck-track">
             <article class="pcard" data-group="production" aria-labelledby="d-finpulse">
-              <div class="pc-top"><span class="status on">Live</span><span class="pc-num" aria-hidden="true">01 / 05</span></div>
+              <div class="pc-top"><span class="status on">Live demo</span><span class="pc-num" aria-hidden="true">01 / 02</span></div>
               <h3 id="d-finpulse">FinPulse</h3>
               <p class="pc-tag">Your portfolio, the market and the moves that matter, on one screen.</p>
               <div class="media" style="--mbg:#e9ebf5"><img src="assets/work/finpulse.webp" srcset="assets/work/finpulse-480.webp 480w, assets/work/finpulse-720.webp 720w, assets/work/finpulse.webp 960w" sizes="(max-width: 600px) 86vw, 380px" width="960" height="600" loading="lazy" decoding="async" alt="FinPulse home page: the headline All Assets, One Pulse, beside sample-data cards for net worth, the day in one line, the top mover and the asset mix."></div>
@@ -540,50 +646,16 @@ dialog .actions{display:flex;justify-content:flex-end}
               <div class="pc-links"><a class="btn primary" href="https://finpulse.me" target="_blank" rel="noopener">Visit site<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="vh"> (FinPulse, opens in a new tab)</span></a></div>
               <div class="pc-more"><div class="does"><p class="label">What it does</p><ul><li>Tracks holdings against real-time market data</li><li>Flags whale moves and price alerts</li><li>An AI copilot answers questions about your positions</li><li>Ships through separate CI, security and deploy pipelines on AWS serverless</li></ul></div></div>
             </article>
-            <article class="pcard" data-group="production" aria-labelledby="d-cma">
-              <div class="pc-top"><span class="status on">Open source</span><span class="pc-num" aria-hidden="true">02 / 05</span></div>
-              <h3 id="d-cma">CMA: Cost Monitoring Agent</h3>
-              <p class="pc-tag">See which agent spent the money, and why the bill moved.</p>
-              <div class="media"><img src="assets/work/cma-dashboard.webp" srcset="assets/work/cma-dashboard-480.webp 480w, assets/work/cma-dashboard-720.webp 720w, assets/work/cma-dashboard.webp 960w" sizes="(max-width: 600px) 86vw, 380px" width="960" height="600" loading="lazy" decoding="async" alt="CMA dashboard in dark mode: cost, requests, active agents and tokens for the week above a cost and activity chart."></div>
-              <ul class="chips" aria-label="Stack"><li>Python</li><li>FastAPI</li><li>React</li><li>Grafana</li><li>Docker Compose</li></ul>
-              <div class="pc-links"><a class="btn" href="https://github.com/See-137/CMA" target="_blank" rel="noopener">Source on GitHub<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="vh"> (CMA: Cost Monitoring Agent, opens in a new tab)</span></a></div>
-              <div class="pc-more"><div class="does"><p class="label">What it does</p><ul><li>Captures the cost of every LLM call where it happens, per agent, model and provider</li><li>Budgets and alerts before a bill surprises you</li><li>Scrooge, a built-in RAG assistant, explains spend changes in plain language</li><li>Self-hosted, with Grafana dashboards</li></ul></div></div>
-            </article>
-            <article class="pcard" data-group="production" aria-labelledby="d-aegis">
-              <div class="pc-top"><span class="pc-num" aria-hidden="true">03 / 05</span></div>
-              <h3 id="d-aegis">Aegis</h3>
-              <p class="pc-tag">Crash-test agents before they ship.</p>
-              <div class="media" style="--mbg:#0d1416"><img src="assets/work/aegis-console.webp" srcset="assets/work/aegis-console-480.webp 480w, assets/work/aegis-console-720.webp 720w, assets/work/aegis-console.webp 960w" sizes="(max-width: 600px) 86vw, 380px" width="960" height="600" loading="lazy" decoding="async" alt="The Aegis console on demo data: the navigation and an overview of what needs a decision, led by a release-gate rejection."></div>
-              <ul class="chips" aria-label="Stack"><li>Python</li><li>REST API</li><li>OpenTelemetry</li></ul>
-              <div class="pc-more"><div class="does"><p class="label">What it does</p><ul><li>Runs an agent against versioned scenarios in a sandbox with simulated tools</li><li>Injects faults to see how it breaks</li><li>Compares each candidate with the baseline and gates the release</li><li>A separate approver signs off; traces export to OpenTelemetry</li></ul></div></div>
-            </article>
             <article class="pcard" data-group="production" aria-labelledby="d-editorial">
-              <div class="pc-top"><span class="status on">In production</span><span class="pc-num" aria-hidden="true">04 / 05</span></div>
+              <div class="pc-top"><span class="status on">In production</span><span class="pc-num" aria-hidden="true">02 / 02</span></div>
               <h3 id="d-editorial">Editorial Automation Platform</h3>
               <p class="pc-tag">English news in, publish-ready Hebrew out, with an editor&#x27;s approval as the only manual step.</p>
               <div class="media" style="--mbg:#f2ede1"><img src="assets/work/editorial-queue.webp" srcset="assets/work/editorial-queue-480.webp 480w, assets/work/editorial-queue-720.webp 720w, assets/work/editorial-queue.webp 820w" sizes="(max-width: 600px) 86vw, 380px" width="820" height="300" loading="lazy" decoding="async" alt="The approval dashboard's review queue in Hebrew: the queue title, status counters, and the fetch-and-translate and export buttons."></div>
               <ul class="chips" aria-label="Stack"><li>Cloudflare Workers</li><li>D1</li><li>Queues</li><li>Cron</li><li>Access</li><li>Claude API</li><li>React 19</li><li>TypeScript</li></ul>
               <div class="pc-more"><div class="does"><p class="label">What it does</p><ul><li>Pulls articles on a schedule and strips each to clean text</li><li>Translates with structured LLM output that keeps names, terms and right-to-left layout intact</li><li>Queues every article on an approval dashboard behind Cloudflare Access</li><li>Publishes approved pieces to a server-rendered Hebrew magazine site</li></ul></div></div>
             </article>
-            <article class="pcard" data-group="production" aria-labelledby="d-ciso">
-              <div class="pc-top"><span class="status on">Open source</span><span class="pc-num" aria-hidden="true">05 / 05</span></div>
-              <h3 id="d-ciso">CISO Agent</h3>
-              <p class="pc-tag">A security officer inside every coding agent&#x27;s loop.</p>
-              <figure class="media dgm">
-                <ol class="pol">
-                  <li><code>deny-force-push-protected-branch</code><b class="vd deny">deny</b></li>
-                  <li><code>ask-destructive-delete</code><b class="vd">ask</b></li>
-                  <li><code>ask-package-install</code><b class="vd">ask</b></li>
-                  <li><code>deny-actions-unknown-attribution</code><b class="vd deny">deny</b></li>
-                </ol>
-                <figcaption>Four of its fixed policy rules and the decision each one makes.</figcaption>
-              </figure>
-              <ul class="chips" aria-label="Stack"><li>Python</li><li>Claude Code hooks</li><li>Policy as code</li></ul>
-              <div class="pc-links"><a class="btn" href="https://github.com/See-137/ciso-agent" target="_blank" rel="noopener">Source on GitHub<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="vh"> (CISO Agent, opens in a new tab)</span></a></div>
-              <div class="pc-more"><div class="does"><p class="label">What it does</p><ul><li>Checks each command, file edit and push an agent attempts, before it runs</li><li>Fixed policy rules decide deny, ask or allow, with no model in the decision path</li><li>Fails closed if its ruleset is tampered with</li><li>Ships as one Claude Code plugin, locked by organisation settings</li></ul></div></div>
-            </article>
             <article class="pcard" data-group="apps" aria-labelledby="d-freekick">
-              <div class="pc-top"><span class="status on">Live</span><span class="pc-num" aria-hidden="true">01 / 03</span></div>
+              <div class="pc-top"><span class="status on">Live demo</span><span class="pc-num" aria-hidden="true">01 / 03</span></div>
               <h3 id="d-freekick">Free Kick</h3>
               <p class="pc-tag">Swipe, bend, score. It even works offline.</p>
               <div class="media"><img src="assets/work/freekick.webp" srcset="assets/work/freekick-480.webp 480w, assets/work/freekick-720.webp 720w, assets/work/freekick.webp 780w" sizes="(max-width: 600px) 86vw, 380px" width="780" height="488" loading="lazy" decoding="async" alt="Free Kick start screen on a phone: the game title over a night stadium, a player facing the defensive wall."></div>
@@ -592,7 +664,7 @@ dialog .actions{display:flex;justify-content:flex-end}
               <div class="pc-more"><div class="does"><p class="label">What it does</p><ul><li>Swipe to aim, speed for power, curve the swipe to bend the ball</li><li>Installs from the browser and plays with no connection</li><li>Five shots a round, with bonuses for corner finishes and streaks</li></ul></div></div>
             </article>
             <article class="pcard" data-group="apps" aria-labelledby="d-bakery">
-              <div class="pc-top"><span class="status on">Live</span><span class="pc-num" aria-hidden="true">02 / 03</span></div>
+              <div class="pc-top"><span class="status on">Live demo</span><span class="pc-num" aria-hidden="true">02 / 03</span></div>
               <h3 id="d-bakery">Happiness bakery</h3>
               <p class="pc-tag">A Hebrew storefront for a custom cake bakery.</p>
               <div class="media" style="--mbg:#f8f4ee"><img src="assets/work/bakery.webp" srcset="assets/work/bakery-480.webp 480w, assets/work/bakery-720.webp 720w, assets/work/bakery.webp 960w" sizes="(max-width: 600px) 86vw, 380px" width="960" height="600" loading="lazy" decoding="async" alt="Happiness bakery home page: the round logo, a Hebrew headline, and WhatsApp, call and Instagram buttons."></div>
@@ -628,7 +700,7 @@ dialog .actions{display:flex;justify-content:flex-end}
               <div class="pc-more"><div class="does"><p class="label">What it does</p><ul><li>An Obsidian vault holds durable knowledge, versioned in git</li><li>Honcho keeps a learned model of the operator, refreshed by a nightly pass that reviews the day&#x27;s conversations and keeps only what lasts</li><li>Every write leaves an auditable export in the vault; secrets and identifiers are excluded by rule</li><li>Recalled memory shapes how the agent works, but can never authorise an action</li></ul></div></div>
             </article>
             <article class="pcard" data-group="agentic" aria-labelledby="d-studio">
-              <div class="pc-top"><span class="status on">Live</span><span class="pc-num" aria-hidden="true">03 / 03</span></div>
+              <div class="pc-top"><span class="status on">Live demo</span><span class="pc-num" aria-hidden="true">03 / 03</span></div>
               <h3 id="d-studio">Automated Video Studio: Clay Town</h3>
               <p class="pc-tag">An AI studio that writes, animates and publishes a claymation series.</p>
               <figure class="media yt">
@@ -677,10 +749,52 @@ dialog .actions{display:flex;justify-content:flex-end}
     </div>
   </section>
 
-  <section class="sec" id="skills" aria-labelledby="skills-h">
+  <section class="sec" id="all-work" aria-labelledby="all-h">
     <div class="wrap">
       <div class="sec-head">
-        <h2 id="skills-h">Skills and tools</h2>
+        <h2 id="all-h">All work</h2>
+        <p>Every project on this page as a plain index: what it is, its status and where to see it.</p>
+      </div>
+      <div class="index-group">
+        <h3>Production systems<span aria-hidden="true">05</span></h3>
+        <ul class="rows">
+          <li class="row"><h4>FinPulse</h4><p class="tag">Your portfolio, the market and the moves that matter, on one screen.</p><span class="rs on">Live demo</span><span class="rl"><a href="https://finpulse.me" target="_blank" rel="noopener">Visit site<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="vh"> (FinPulse, opens in a new tab)</span></a></span></li>
+          <li class="row"><h4>CMA: Cost Monitoring Agent</h4><p class="tag">See which agent spent the money, and why the bill moved.</p><span class="rs on">Open source</span><span class="rl"><a href="https://github.com/See-137/CMA" target="_blank" rel="noopener">Source on GitHub<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="vh"> (CMA: Cost Monitoring Agent, opens in a new tab)</span></a></span></li>
+          <li class="row"><h4>Aegis</h4><p class="tag">Crash-test agents before they ship.</p></li>
+          <li class="row"><h4>Editorial Automation Platform</h4><p class="tag">English news in, publish-ready Hebrew out, with an editor&#x27;s approval as the only manual step.</p><span class="rs on">In production</span></li>
+          <li class="row"><h4>CISO Agent</h4><p class="tag">A security officer inside every coding agent&#x27;s loop.</p><span class="rs on">Open source</span><span class="rl"><a href="https://github.com/See-137/ciso-agent" target="_blank" rel="noopener">Source on GitHub<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="vh"> (CISO Agent, opens in a new tab)</span></a></span></li>
+        </ul>
+      </div>
+      <div class="index-group">
+        <h3>Apps for small business<span aria-hidden="true">03</span></h3>
+        <ul class="rows">
+          <li class="row"><h4>Free Kick</h4><p class="tag">Swipe, bend, score. It even works offline.</p><span class="rs on">Live demo</span><span class="rl"><a href="https://free-kick-demo.pages.dev" target="_blank" rel="noopener">Play it<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="vh"> (Free Kick, opens in a new tab)</span></a></span></li>
+          <li class="row"><h4>Happiness bakery</h4><p class="tag">A Hebrew storefront for a custom cake bakery.</p><span class="rs on">Live demo</span><span class="rl"><a href="https://see-137.github.io/happiness-bakery/" target="_blank" rel="noopener">Visit site<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="vh"> (Happiness bakery, opens in a new tab)</span></a></span></li>
+          <li class="row"><h4>Cardwatch</h4><p class="tag">Price alerts only when they matter.</p></li>
+        </ul>
+      </div>
+      <div class="index-group">
+        <h3>Agentic systems<span aria-hidden="true">03</span></h3>
+        <ul class="rows">
+          <li class="row"><h4>Personal Agent System</h4><p class="tag">A personal chief of staff that runs on my own machine.</p><span class="rs on">In daily use</span></li>
+          <li class="row"><h4>Agent Memory Layer</h4><p class="tag">An agent that learns from every conversation, and forgets what it should.</p><span class="rs on">In daily use</span></li>
+          <li class="row"><h4>Automated Video Studio: Clay Town</h4><p class="tag">An AI studio that writes, animates and publishes a claymation series.</p><span class="rs on">Live demo</span><span class="rl"><a href="https://youtu.be/4vUhPMhUVzk" target="_blank" rel="noopener">Watch the episode<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="vh"> (Clay Town on YouTube, opens in a new tab)</span></a></span></li>
+        </ul>
+      </div>
+      <div class="index-group">
+        <h3>Trading systems<span aria-hidden="true">02</span></h3>
+        <ul class="rows">
+          <li class="row"><h4>Crypto Trading Core</h4><p class="tag">A trading system that refuses bad trades.</p></li>
+          <li class="row"><h4>Prediction-Market Systems</h4><p class="tag">Prove the edge before capital moves.</p></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec minor" id="tools" aria-labelledby="tools-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="tools-h">Engineering tools and experiments</h2>
         <p>Smaller pieces I built for my own agent workflow.</p>
       </div>
       <ul class="tools">
@@ -696,49 +810,7 @@ dialog .actions{display:flex;justify-content:flex-end}
     </div>
   </section>
 
-  <section class="sec" id="all-work" aria-labelledby="all-h">
-    <div class="wrap">
-      <div class="sec-head">
-        <h2 id="all-h">All work</h2>
-        <p>The same projects as a plain list: what each one does, what it runs on, and where to see it.</p>
-      </div>
-      <div class="index-group">
-        <h3>Production systems<span aria-hidden="true">05</span></h3>
-        <ul class="rows">
-          <li class="row"><div class="r-main"><h4>FinPulse</h4><p class="tag">Your portfolio, the market and the moves that matter, on one screen.</p><ul class="does" aria-label="What it does"><li>Tracks holdings against real-time market data</li><li>Flags whale moves and price alerts</li><li>An AI copilot answers questions about your positions</li><li>Ships through separate CI, security and deploy pipelines on AWS serverless</li></ul></div><ul class="chips" aria-label="Stack"><li>AWS serverless</li><li>React 19</li><li>TypeScript</li><li>GitHub Actions</li></ul><div class="r-side"><span class="rs on">Live</span><span class="rl"><a href="https://finpulse.me" target="_blank" rel="noopener">Visit site<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="vh"> (FinPulse, opens in a new tab)</span></a></span></div></li>
-          <li class="row"><div class="r-main"><h4>CMA: Cost Monitoring Agent</h4><p class="tag">See which agent spent the money, and why the bill moved.</p><ul class="does" aria-label="What it does"><li>Captures the cost of every LLM call where it happens, per agent, model and provider</li><li>Budgets and alerts before a bill surprises you</li><li>Scrooge, a built-in RAG assistant, explains spend changes in plain language</li><li>Self-hosted, with Grafana dashboards</li></ul></div><ul class="chips" aria-label="Stack"><li>Python</li><li>FastAPI</li><li>React</li><li>Grafana</li><li>Docker Compose</li></ul><div class="r-side"><span class="rs on">Open source</span><span class="rl"><a href="https://github.com/See-137/CMA" target="_blank" rel="noopener">Source on GitHub<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="vh"> (CMA: Cost Monitoring Agent, opens in a new tab)</span></a></span></div></li>
-          <li class="row"><div class="r-main"><h4>Aegis</h4><p class="tag">Crash-test agents before they ship.</p><ul class="does" aria-label="What it does"><li>Runs an agent against versioned scenarios in a sandbox with simulated tools</li><li>Injects faults to see how it breaks</li><li>Compares each candidate with the baseline and gates the release</li><li>A separate approver signs off; traces export to OpenTelemetry</li></ul></div><ul class="chips" aria-label="Stack"><li>Python</li><li>REST API</li><li>OpenTelemetry</li></ul><div class="r-side"></div></li>
-          <li class="row"><div class="r-main"><h4>Editorial Automation Platform</h4><p class="tag">English news in, publish-ready Hebrew out, with an editor&#x27;s approval as the only manual step.</p><ul class="does" aria-label="What it does"><li>Pulls articles on a schedule and strips each to clean text</li><li>Translates with structured LLM output that keeps names, terms and right-to-left layout intact</li><li>Queues every article on an approval dashboard behind Cloudflare Access</li><li>Publishes approved pieces to a server-rendered Hebrew magazine site</li></ul></div><ul class="chips" aria-label="Stack"><li>Cloudflare Workers</li><li>D1</li><li>Queues</li><li>Cron</li><li>Access</li><li>Claude API</li><li>React 19</li><li>TypeScript</li></ul><div class="r-side"><span class="rs on">In production</span></div></li>
-          <li class="row"><div class="r-main"><h4>CISO Agent</h4><p class="tag">A security officer inside every coding agent&#x27;s loop.</p><ul class="does" aria-label="What it does"><li>Checks each command, file edit and push an agent attempts, before it runs</li><li>Fixed policy rules decide deny, ask or allow, with no model in the decision path</li><li>Fails closed if its ruleset is tampered with</li><li>Ships as one Claude Code plugin, locked by organisation settings</li></ul></div><ul class="chips" aria-label="Stack"><li>Python</li><li>Claude Code hooks</li><li>Policy as code</li></ul><div class="r-side"><span class="rs on">Open source</span><span class="rl"><a href="https://github.com/See-137/ciso-agent" target="_blank" rel="noopener">Source on GitHub<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="vh"> (CISO Agent, opens in a new tab)</span></a></span></div></li>
-        </ul>
-      </div>
-      <div class="index-group">
-        <h3>Apps for small business<span aria-hidden="true">03</span></h3>
-        <ul class="rows">
-          <li class="row"><div class="r-main"><h4>Free Kick</h4><p class="tag">Swipe, bend, score. It even works offline.</p><ul class="does" aria-label="What it does"><li>Swipe to aim, speed for power, curve the swipe to bend the ball</li><li>Installs from the browser and plays with no connection</li><li>Five shots a round, with bonuses for corner finishes and streaks</li></ul></div><ul class="chips" aria-label="Stack"><li>TypeScript</li><li>Vite</li><li>PWA</li><li>Cloudflare Pages</li></ul><div class="r-side"><span class="rs on">Live</span><span class="rl"><a href="https://free-kick-demo.pages.dev" target="_blank" rel="noopener">Play it<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="vh"> (Free Kick, opens in a new tab)</span></a></span></div></li>
-          <li class="row"><div class="r-main"><h4>Happiness bakery</h4><p class="tag">A Hebrew storefront for a custom cake bakery.</p><ul class="does" aria-label="What it does"><li>Right-to-left design built for Hebrew</li><li>Gallery with a lightbox for keyboard and touch</li><li>One-tap WhatsApp ordering button</li><li>Respects reduced-motion settings</li></ul></div><ul class="chips" aria-label="Stack"><li>HTML</li><li>CSS</li><li>JavaScript</li><li>GitHub Pages</li></ul><div class="r-side"><span class="rs on">Live</span><span class="rl"><a href="https://see-137.github.io/happiness-bakery/" target="_blank" rel="noopener">Visit site<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="vh"> (Happiness bakery, opens in a new tab)</span></a></span></div></li>
-          <li class="row"><div class="r-main"><h4>Cardwatch</h4><p class="tag">Price alerts only when they matter.</p><ul class="does" aria-label="What it does"><li>Watches the collectible cards you own and the ones you want</li><li>Alerts on a meaningful rise for owned cards and a meaningful drop for wanted ones</li><li>Explains each move in plain language</li><li>Never buys or sells</li></ul></div><ul class="chips" aria-label="Stack"><li>Python</li><li>FastAPI</li><li>SQLite</li></ul><div class="r-side"></div></li>
-        </ul>
-      </div>
-      <div class="index-group">
-        <h3>Agentic systems<span aria-hidden="true">03</span></h3>
-        <ul class="rows">
-          <li class="row"><div class="r-main"><h4>Personal Agent System</h4><p class="tag">A personal chief of staff that runs on my own machine.</p><ul class="does" aria-label="What it does"><li>Takes requests over Telegram and hands longer work to cloud coding agents, which return pull requests</li><li>Acts only within permissions granted in a ledger that code enforces</li><li>A local, read-only dashboard shows what it did and why</li><li>Backups keep secrets out of git</li></ul></div><ul class="chips" aria-label="Stack"><li>Node.js</li><li>Python</li><li>SQLite</li><li>Claude Code</li><li>Telegram</li></ul><div class="r-side"><span class="rs on">In daily use</span></div></li>
-          <li class="row"><div class="r-main"><h4>Agent Memory Layer</h4><p class="tag">An agent that learns from every conversation, and forgets what it should.</p><ul class="does" aria-label="What it does"><li>An Obsidian vault holds durable knowledge, versioned in git</li><li>Honcho keeps a learned model of the operator, refreshed by a nightly pass that reviews the day&#x27;s conversations and keeps only what lasts</li><li>Every write leaves an auditable export in the vault; secrets and identifiers are excluded by rule</li><li>Recalled memory shapes how the agent works, but can never authorise an action</li></ul></div><ul class="chips" aria-label="Stack"><li>Obsidian</li><li>Honcho</li><li>MCP</li><li>Node.js</li></ul><div class="r-side"><span class="rs on">In daily use</span></div></li>
-          <li class="row"><div class="r-main"><h4>Automated Video Studio: Clay Town</h4><p class="tag">An AI studio that writes, animates and publishes a claymation series.</p><ul class="does" aria-label="What it does"><li>Claude writes and orchestrates each episode behind review gates</li><li>Generative media and ffmpeg animate and assemble it</li><li>Publishes to Instagram and YouTube from one record per episode</li><li>Reads performance back from YouTube Analytics and Instagram insights</li></ul></div><ul class="chips" aria-label="Stack"><li>Claude</li><li>Higgsfield</li><li>ffmpeg</li><li>YouTube API</li><li>Instagram API</li></ul><div class="r-side"><span class="rs on">Live</span><span class="rl"><a href="https://youtu.be/4vUhPMhUVzk" target="_blank" rel="noopener">Watch the episode<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="vh"> (Clay Town on YouTube, opens in a new tab)</span></a><a href="https://www.instagram.com/claytown137/" target="_blank" rel="noopener">Instagram<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="vh"> (Clay Town, opens in a new tab)</span></a><a href="https://www.youtube.com/@clay-town-137" target="_blank" rel="noopener">YouTube<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="vh"> (Clay Town channel, opens in a new tab)</span></a></span></div></li>
-        </ul>
-      </div>
-      <div class="index-group">
-        <h3>Trading systems<span aria-hidden="true">02</span></h3>
-        <ul class="rows">
-          <li class="row"><div class="r-main"><h4>Crypto Trading Core</h4><p class="tag">A trading system that refuses bad trades.</p><ul class="does" aria-label="What it does"><li>Every order passes a risk gate that fails closed</li><li>Hard limits in code: per-trade risk, daily loss, drawdown, no leverage</li><li>Circuit breakers stay tripped until a person resets them</li><li>Runs strategies in parallel and keeps the ones the evidence supports</li></ul></div><ul class="chips" aria-label="Stack"><li>Python</li><li>KuCoin spot and perpetuals</li></ul><div class="r-side"></div></li>
-          <li class="row"><div class="r-main"><h4>Prediction-Market Systems</h4><p class="tag">Prove the edge before capital moves.</p><ul class="does" aria-label="What it does"><li>A latency-arbitrage engine compares fast exchange prices with slower prediction-market contracts and sizes positions with fractional Kelly</li><li>A market-making validator returns GO, KILL or INCONCLUSIVE on a strategy before money is at risk</li><li>Live execution sits behind two separate safeties</li></ul></div><ul class="chips" aria-label="Stack"><li>Python</li><li>Polymarket CLOB</li><li>Binance data</li></ul><div class="r-side"></div></li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <section class="sec proof-sec" id="proof" aria-labelledby="proof-h">
+  <section class="sec minor" id="proof" aria-labelledby="proof-h">
     <div class="wrap">
       <div class="sec-head">
         <h2 id="proof-h">Proof in production</h2>
