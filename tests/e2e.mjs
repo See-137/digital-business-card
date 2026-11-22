@@ -89,7 +89,7 @@ try {
       pills: [...document.querySelectorAll('.status, .rs')].filter((n) => /private|local/i.test(n.textContent)).length,
       privLinks: [...document.querySelectorAll('.pcard, .case')].filter((n) => n.querySelector('.pnote') && n.querySelector('a[href*="github.com"]')).length,
       evidence: [...document.querySelector('#d-agentic').closest('.pcard').querySelectorAll('img')].map((i) => `${i.getAttribute('src')}${i.closest('details') ? ':note' : ':card'}`),
-      agenticCap: /illustration the assistant generated/.test(document.querySelector('#d-agentic').closest('.pcard').textContent),
+      agenticCap: /architecture diagram/.test(document.querySelector('#d-agentic').closest('.pcard').textContent),
       freekick: (() => { const c = document.querySelector('#d-freekick').closest('.pcard'); return `${c.querySelector('img').getAttribute('src')}|${c.querySelector('a.btn.primary')?.textContent.trim().split(' (')[0]}|${c.querySelector('a.btn.primary')?.href}`; })(),
       editorial: document.querySelector('#d-editorial').closest('.pcard').textContent,
       order: [...document.querySelectorAll('main > section')].map((n) => n.id).join(' '),
@@ -131,8 +131,8 @@ try {
     check(`${width}: the deck holds exactly the ${DECK.length} projects in the owner's order, none of them featured`,
       s.deck.join('|') === DECK.join('|') && !s.deck.some((t) => FEATURED.includes(t)), s.deck.join(', '));
     check(`${width}: Free Kick shows the gameplay still and a direct Play it link`, s.freekick === 'assets/work/freekick-match-720.webp|Play it|https://free-kick-demo.pages.dev/', s.freekick);
-    check(`${width}: the agentic card shows the morning brief, keeps the health check in its note, and captions the illustration`,
-      s.evidence.join(' ') === 'assets/work/assistant-brief-720.webp:card assets/work/assistant-health-480.webp:note' && s.agenticCap, s.evidence.join(' '));
+    check(`${width}: the agentic card shows the Chief architecture image and keeps the health check in its note`,
+      s.evidence.join(' ') === 'assets/work/chief-architecture-720.webp:card assets/work/assistant-health-480.webp:note' && s.agenticCap, s.evidence.join(' '));
     check(`${width}: private and local projects carry a plain note, not a status pill, and no repo link`,
       s.notes.length >= 4 && s.notes.every((t) => NOTES.includes(t)) && s.pills === 0 && s.privLinks === 0, `${s.notes.join(', ')}; pills ${s.pills}; links ${s.privLinks}`);
     check(`${width}: All work lists the five featured then the six deck projects, with no status elements`, s.index.join(';') === [...FEATURED, ...DECK].join(';') && s.indexStatus === 0, `${s.index.join(';')}; ${s.indexStatus} status elements`);
