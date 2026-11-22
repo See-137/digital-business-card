@@ -8,8 +8,11 @@ Personal site for Oleg Hanukayev: a portfolio and a digital business card in one
 page, design "The Card" (a headline with a tiltable business card as the hero,
 three case studies, the rest of the work dealt as a deck, every project listed
 in a plain HTML index). Static site, **no build step**,
-deployed by GitHub Pages (legacy branch mode, `main`, repo root) to
-https://see-137.github.io/digital-business-card/.
+hosted on **Cloudflare Pages** (project `oleg-hanukayev`, direct upload) at
+https://oleg-hanukayev.pages.dev/ — the canonical URL, which the QR code and vCard point to.
+GitHub Pages still mirrors `main` at https://see-137.github.io/digital-business-card/.
+Deploy to Cloudflare from a clean copy of the site files only (index.html, js/, fonts/, icons/, assets/,
+sw.js, manifest.webmanifest): `npx wrangler pages deploy <clean-dir> --project-name oleg-hanukayev --branch main`.
 
 ## Files
 
