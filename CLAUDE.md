@@ -12,8 +12,9 @@ hosted on **Cloudflare Pages** (project `oleg-hanukayev`, direct upload) at
 https://oleg-hanukayev.pages.dev/ — the canonical URL, which the QR code and vCard point to.
 GitHub Pages is switched off for this repo (2026-11-22); the old github.io address no longer serves the site.
 A push or merge to `main` therefore deploys nothing by itself: deploy by hand, as below.
-Deploy to Cloudflare from a clean copy of the site files only (index.html, 404.html, js/, fonts/, icons/, assets/,
-sw.js, manifest.webmanifest): `npx wrangler pages deploy <clean-dir> --project-name oleg-hanukayev --branch main`.
+Deploy a commit, never the working tree: `git archive` the site files only (index.html, 404.html, js/, fonts/, icons/,
+assets/, sw.js, manifest.webmanifest) of the merged `main` commit into an empty folder, then
+`npx wrangler pages deploy <that-folder> --project-name oleg-hanukayev --branch main` (exact steps under Commands).
 
 ## Files
 
@@ -42,13 +43,25 @@ python -m http.server 3137
 # Regression checks (from tests/; uses the installed Chrome, CHROME_PATH overrides)
 npm ci
 npm test
-
-# Deploy (Cloudflare Pages, direct upload; nothing deploys on push):
-# 1. merge the PR to main and pull it; 2. copy ONLY the site files (index.html, 404.html, sw.js,
-#    manifest.webmanifest, js/, fonts/, icons/, assets/) into a clean scratch folder; 3. upload it:
-npx wrangler pages deploy <clean-dir> --project-name oleg-hanukayev --branch main
-# then check https://oleg-hanukayev.pages.dev/ (HTTP 200, the new content, the capture sweep).
 ```
+
+Deploy (Cloudflare Pages, direct upload; nothing deploys on push). Merge the PR to `main` and pull it, then in
+PowerShell from the repo root. It uploads exactly the commit's stored bytes, so uncommitted or untracked local files
+can never go live:
+
+```powershell
+$c = git rev-parse --short main
+$d = Join-Path $env:TEMP "oleg-site-$c"   # must not exist yet
+New-Item -ItemType Directory $d | Out-Null
+git -c core.autocrlf=false archive --format=tar -o "$d.tar" $c index.html 404.html sw.js manifest.webmanifest js fonts icons assets
+& "$env:SystemRoot\System32\tar.exe" -xf "$d.tar" -C $d
+cmd.exe /c npx wrangler pages deploy $d --project-name oleg-hanukayev --branch main --commit-hash $c
+```
+
+- `core.autocrlf=false`: without it `git archive` applies this machine's `autocrlf=true` and ships CRLF text files.
+- Windows `tar.exe` by full path: Git's GNU tar, if it comes first on PATH, reads `C:\...` as a remote host.
+- `-o` to a file, not a pipe: PowerShell 5.1 re-encodes bytes piped between native commands.
+- Then check https://oleg-hanukayev.pages.dev/ (HTTP 200, the new content, the capture sweep).
 
 **CI:** `.github/workflows/tests.yml` runs `tests/` on pushes to `main` and
 `improve/**`, on PRs, and on demand. Actions are pinned to full commit SHAs.
@@ -92,4 +105,4 @@ Cardwatch is excluded from the site completely (owner decision): not in the deck
 
 Mobile 99 / 100 / 100 / 100 (LCP 1.6 s, CLS 0, TBT 100 ms), desktop 100 / 100 / 100 / 100;
 total transfer 90 KiB; axe-core 0 violations at 390 and 1440 px; the QR decodes at
-540, 189 and 108 px and as rendered on the card back and in the dialog; `tests/` 37 checks. After the content revision the same day: mobile and desktop 100 / 100 / 100 / 100, CLS 0.024 mobile. After the review-handoff refinement (2026-11-22, same setup): mobile and desktop 100 / 100 / 100 / 100, CLS 0.001 mobile and 0.006 desktop, mobile transfer 126 KiB; `tests/` 58 checks. After the five-featured restructure (2026-11-22): `tests/` 81 checks. After the 404 page (2026-11-22): `tests/` 85 checks (85 passed, 0 failed). After the nav merge and Proof move (2026-11-24): `tests/` 87 checks (87 passed, 0 failed). First run against the live site (2026-11-24, https://oleg-hanukayev.pages.dev/, Lighthouse 13.5.0): mobile and desktop 100 / 100 / 100 / 100, mobile LCP 1.4 s, TBT 90 ms, CLS 0.001; page weight 198 KiB, 63 KiB of it the closed-note health image (fixed the same day); axe-core 4.11.0 0 violations on the home and 404 pages at 390 and 1440 px. After the note-image fix: `tests/` 90 checks (90 passed, 0 failed).
+540, 189 and 108 px and as rendered on the card back and in the dialog; `tests/` 37 checks. After the content revision the same day: mobile and desktop 100 / 100 / 100 / 100, CLS 0.024 mobile. After the review-handoff refinement (2026-11-22, same setup): mobile and desktop 100 / 100 / 100 / 100, CLS 0.001 mobile and 0.006 desktop, mobile transfer 126 KiB; `tests/` 58 checks. After the five-featured restructure (2026-11-22): `tests/` 81 checks. After the 404 page (2026-11-22): `tests/` 85 checks (85 passed, 0 failed). After the nav merge and Proof move (2026-11-24): `tests/` 87 checks (87 passed, 0 failed). First run against the live site (2026-11-24, https://oleg-hanukayev.pages.dev/, Lighthouse 13.5.0): mobile and desktop 100 / 100 / 100 / 100, mobile LCP 1.4 s, TBT 90 ms, CLS 0.001; page weight 198 KiB, 63 KiB of it the closed-note health image (fixed the same day); axe-core 4.11.0 0 violations on the home and 404 pages at 390 and 1440 px. After the note-image fix: `tests/` 90 checks (90 passed, 0 failed); live (deploy of `a028543`, same day): page weight mobile 137 KiB and desktop 161 KiB, Lighthouse mobile 99 / 99 / 100 over three runs with the other categories 100 (FCP 1.35-1.39 s on the production host, 1.22 s for the same build on its preview host), desktop 100 / 100 / 100 / 100; axe-core 0 violations on the home and 404 pages at 390 and 1440 px.
