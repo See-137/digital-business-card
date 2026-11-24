@@ -12,14 +12,14 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const TITLE = 'Senior SRE & AI Platform Engineer';
 const HEADLINE = 'Making AI systems reliable enough for production.';
 const PROJECTS = 11;
-const STATUSES = ['Live demo', 'Open source', 'In production', 'In daily use'];
+const STATUSES = ['Live demo', 'In production', 'In daily use'];
 // Selected work: these five, in this order, each as Problem / Approach / Evidence.
 const FEATURED = ['CMA: Cost Monitoring Agent', 'Aegis', 'FinPulse', 'CISO Agent', 'Autonomous Video Studio: Clay Town'];
 // The one deck: these six, in the owner's order.
 const DECK = ['Agentic Personal Assistance System', 'Free Kick', 'Crypto Trading Core', 'Prediction-Market Systems',
   'Editorial Automation Platform', 'Happiness bakery'];
-// Private or local projects carry a plain muted note, never a status pill.
-const NOTES = ['Private repository', 'Client work, unbranded'];
+// No public/private repository labels anywhere (owner decision, 2026-11-24); the only muted note left is this one.
+const NOTES = ['Client work, unbranded'];
 const CASE_TERMS = 'Problem|Approach|Evidence';
 // Third-party hosts the page may touch: only the lazy YouTube thumbnail, before any click.
 const THIRD_PARTY_OK = /^https:\/\/i\.ytimg\.com\//;
@@ -104,6 +104,7 @@ try {
       indexThin: [...document.querySelectorAll('#all-work li.row')].filter((r) => !(r.querySelector('.tag')?.textContent.trim().length > 20)).length,
       toolsH: document.querySelector('#tools h2')?.textContent.trim(),
       toolsN: document.querySelectorAll('#tools .tools li').length,
+      caseIndex: [...document.querySelectorAll('#work .case-index a')].map((a) => a.getAttribute('href')).join(' '),
       nav: [...document.querySelectorAll('.top nav a')].map((a) => `${a.textContent.trim()}>${document.querySelector(a.getAttribute('href')) ? 'ok' : 'dead'}`).join(' '),
       ext: [...document.querySelectorAll('a[href^="http"]')].filter((a) => a.target !== '_blank' || !/\bnoopener\b/.test(a.rel) || !/opens in a new tab/.test(a.textContent)).map((a) => a.href),
       imgs: [...document.querySelectorAll('img')].filter((i) => !i.getAttribute('alt') || !i.getAttribute('width') || !i.getAttribute('height')).map((i) => i.src),
@@ -120,8 +121,8 @@ try {
     check(`${width}: web fonts loaded`, s.fonts >= 4, `${s.fonts} faces`);
     const banned = (s.text.match(/\bcommits\b|tests? passing|\bpaper\b|prototype|private build/gi) || []);
     check(`${width}: no "commits", "tests passing", "paper", "prototype" or "private build" on the page`, banned.length === 0, banned.slice(0, 3).join(', '));
-    check(`${width}: sections in order: hero, selected work, deck, tools, index, proof, specs, contact (Tools precedes All work, in the nav too)`,
-      s.order === 'top work more-work tools all-work proof specs contact' && s.toolsFirst && /Tools>ok All work>ok/.test(s.nav), `${s.order}; ${s.nav}`);
+    check(`${width}: sections in order: hero, proof, selected work, deck, index, tools, specs, contact; nav is Proof, Work, Tools, Specs, Contact`,
+      s.order === 'top proof work more-work all-work tools specs contact' && !s.toolsFirst && s.nav === 'Proof>ok Work>ok Tools>ok Specs>ok Contact>ok', `${s.order}; ${s.nav}`);
     const gone = (s.html.match(/trade-?off|cardwatch/gi) || []);
     check(`${width}: no "Trade-off" and no "Cardwatch" anywhere in the document`, gone.length === 0, gone.slice(0, 3).join(', '));
     check(`${width}: Selected work is exactly CMA, Aegis, FinPulse, CISO Agent and the video studio, each with Problem / Approach / Evidence and one figure while collapsed`,
@@ -133,15 +134,16 @@ try {
     check(`${width}: Free Kick shows the gameplay still and a direct Play it link`, s.freekick === 'assets/work/freekick-match-720.webp|Play it|https://free-kick-demo.pages.dev/', s.freekick);
     check(`${width}: the agentic card shows the Chief architecture image and keeps the health check in its note`,
       s.evidence.join(' ') === 'assets/work/chief-architecture-720.webp:card assets/work/assistant-health-480.webp:note' && s.agenticCap, s.evidence.join(' '));
-    check(`${width}: private and local projects carry a plain note, not a status pill, and no repo link`,
-      s.notes.length >= 4 && s.notes.every((t) => NOTES.includes(t)) && s.pills === 0 && s.privLinks === 0, `${s.notes.join(', ')}; pills ${s.pills}; links ${s.privLinks}`);
+    check(`${width}: no public or private repository labels; the only muted note is the client one`,
+      s.notes.join('|') === NOTES.join('|') && s.pills === 0 && s.privLinks === 0 && !/private repositor|open source/i.test(s.text), `${s.notes.join(', ')}; pills ${s.pills}; links ${s.privLinks}`);
+    check(`${width}: Selected work opens with a jump index to its five cases`, s.caseIndex === '#c-cma #c-aegis #c-finpulse #c-ciso #c-studio', s.caseIndex);
     check(`${width}: All work lists the five featured then the six deck projects, with no status elements`, s.index.join(';') === [...FEATURED, ...DECK].join(';') && s.indexStatus === 0, `${s.index.join(';')}; ${s.indexStatus} status elements`);
     check(`${width}: All work links only where a public link exists, in ${mobile ? 'one column' : 'three columns'}`,
       s.indexLinks === 'https://github.com/See-137/CMA https://finpulse.me https://github.com/See-137/ciso-agent https://youtu.be/4vUhPMhUVzk https://free-kick-demo.pages.dev https://happiness-bakery-ayo.pages.dev/' && s.indexCols === (mobile ? 1 : 3), `${s.indexLinks}; ${s.indexCols} columns`);
     check(`${width}: index rows are compact: a one-line descriptor, no bullets or stack chips`, s.indexExtras === 0 && s.indexThin === 0, `${s.indexExtras} extras, ${s.indexThin} without a descriptor`);
     check(`${width}: Engineering tools and experiments keeps its eight tools`, s.toolsH === 'Engineering tools and experiments' && s.toolsN === 8, `${s.toolsH} / ${s.toolsN}`);
     check(`${width}: every nav link has a target`, s.nav.length > 0 && !/dead/.test(s.nav), s.nav);
-    check(`${width}: only the four allowed statuses`, s.statuses.length > 0 && s.statuses.every((t) => STATUSES.includes(t)), s.statuses.filter((t) => !STATUSES.includes(t)).join(', '));
+    check(`${width}: only the three allowed statuses`, s.statuses.length > 0 && s.statuses.every((t) => STATUSES.includes(t)), s.statuses.filter((t) => !STATUSES.includes(t)).join(', '));
     check(`${width}: external links open a new tab with noopener and say so`, s.ext.length === 0, s.ext.slice(0, 3).join(' '));
     check(`${width}: every img has alt text, width and height`, s.imgs.length === 0, s.imgs.slice(0, 3).join(' '));
     check(`${width}: YouTube facade is a named button`, s.yt === 'Play the Clay Town episode: Clyde jumps into GTA 6 on release day', String(s.yt));

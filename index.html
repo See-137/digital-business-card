@@ -208,6 +208,13 @@ section{position:relative}
 .case-n{font:400 .76rem/1 var(--mono);letter-spacing:.14em;color:var(--mute)}
 .case-head h3{font-size:clamp(1.5rem,2.7vw,2.15rem)}
 .case-head .pc-tag{grid-column:2/-1;font-size:1.06rem;color:var(--ink);max-width:56ch}
+.case-hit{grid-column:2/-1;margin:0;font-size:.95rem;line-height:1.5;color:var(--ink-2);max-width:60ch}
+.case-hit span{display:block;font:400 .7rem/1.7 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent-text)}
+.case-index{list-style:none;margin:calc(var(--s3) - var(--s6)) 0 var(--s6);padding:0;display:flex;flex-wrap:wrap;gap:var(--s1) var(--s4);counter-reset:ci}
+.case-index a{display:inline-flex;align-items:center;gap:8px;min-height:44px;color:var(--ink-2);font-size:.92rem;text-decoration:underline;text-decoration-color:rgba(255,255,255,.28);text-underline-offset:4px}
+.case-index a:hover{color:var(--ink)}
+.case-index li{counter-increment:ci}
+.case-index li::before{content:"0" counter(ci);font:400 .74rem/1 var(--mono);color:var(--mute);margin-right:8px}
 .shot{margin:0;display:grid;gap:10px}
 .shot>figcaption{font-size:.82rem;line-height:1.45;color:var(--mute)}
 .case .media{aspect-ratio:16/10}
@@ -419,7 +426,7 @@ dialog .actions{display:flex;justify-content:flex-end}
   .case{grid-template-columns:1fr}
   .case-head{grid-template-columns:minmax(0,1fr) auto}
   .case-n{grid-column:1/-1}
-  .case-head .pc-tag{grid-column:1/-1}
+  .case-head .pc-tag,.case-hit{grid-column:1/-1}
   .case .media.dgm{aspect-ratio:auto;padding:var(--s4)}
   .shot.two,.does.wide,.readout .does.wide{grid-template-columns:1fr}
   .readout{grid-template-columns:1fr}
@@ -460,11 +467,9 @@ dialog .actions{display:flex;justify-content:flex-end}
     <a class="mark" href="#top"><i aria-hidden="true"></i>Oleg Hanukayev</a>
     <nav aria-label="Sections">
       <ul>
-        <li><a href="#work">Work</a></li>
-        <li><a href="#more-work">More work</a></li>
-        <li><a href="#tools">Tools</a></li>
-        <li><a href="#all-work">All work</a></li>
         <li><a href="#proof">Proof</a></li>
+        <li><a href="#work">Work</a></li>
+        <li><a href="#tools">Tools</a></li>
         <li><a href="#specs">Specs</a></li>
         <li><a href="#contact">Contact</a></li>
       </ul>
@@ -479,7 +484,7 @@ dialog .actions{display:flex;justify-content:flex-end}
       <div class="hero-copy">
         <p class="who rise"><span class="eyebrow">Oleg Hanukayev</span> <span class="role">Senior SRE &amp; AI Platform Engineer</span></p>
         <h1 id="h1" class="rise d1">Making AI systems reliable enough for production.</h1>
-        <p class="sub rise d2">Ten years keeping production up, from Fortune 500 enterprises to fast-scaling startups, across SaaS, FinTech, cybersecurity and telecom. Now building the infrastructure AI systems need to earn the same trust: grounded retrieval, guarded agents, model routing and self-hosted inference. Around that core: automation and custom solutions, built end to end.</p>
+        <p class="sub rise d2">Ten years keeping production up, from Fortune 500 enterprises to fast-scaling startups, across SaaS, FinTech, cybersecurity and telecom. Now building the infrastructure AI systems need to earn the same trust: grounded retrieval, guarded agents, model routing and self-hosted inference. Proof at Fortune 500 scale: an approval-gated agent cut post-deploy checks from ~2&nbsp;h to ~30&nbsp;min.</p>
         <div class="hero-actions">
           <a class="btn primary" href="#contact" data-mail>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16v12H4zM4 7l8 6 8-6"/></svg>
@@ -558,18 +563,38 @@ dialog .actions{display:flex;justify-content:flex-end}
     </div>
   </section>
 
+  <section class="sec minor" id="proof" aria-labelledby="proof-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2 id="proof-h">Proof in production</h2>
+        <p>Three outcomes at a Fortune 500 enterprise SaaS company.</p>
+      </div>
+      <ul class="proof">
+        <li><span class="fig">50+</span><p class="txt">multi-tenant EKS clusters across 5+ AWS regions, upgraded blue/green with zero downtime<span class="where">Fortune 500 enterprise SaaS</span></p></li>
+        <li><span class="fig">-60%</span><p class="txt">alert noise after redesigning Datadog alerting, with faster MTTR<span class="where">Fortune 500 enterprise SaaS</span></p></li>
+        <li><span class="fig">~2 h to ~30 min</span><p class="txt">post-deploy checks, cut by an approval-gated deploy-validation agent<span class="where">Fortune 500 enterprise SaaS</span></p></li>
+      </ul>
+    </div>
+  </section>
+
   <section class="sec" id="work" aria-labelledby="work-h">
     <div class="wrap">
       <div class="sec-head">
         <h2 id="work-h">Selected work</h2>
         <p>Five systems, chosen for range: LLM cost and retrieval, release testing for agents, a cloud platform and its delivery pipelines, security policy in a coding agent&#x27;s loop, and a media pipeline built end to end.</p>
       </div>
+      <ol class="case-index" aria-label="Jump to a case study">
+        <li><a href="#c-cma">CMA</a></li>
+        <li><a href="#c-aegis">Aegis</a></li>
+        <li><a href="#c-finpulse">FinPulse</a></li>
+        <li><a href="#c-ciso">CISO Agent</a></li>
+        <li><a href="#c-studio">Clay Town</a></li>
+      </ol>
       <div class="cases">
         <article class="case" aria-labelledby="c-cma">
           <header class="case-head">
             <span class="case-n" aria-hidden="true">01 / 05</span>
             <h3 id="c-cma">CMA: Cost Monitoring Agent</h3>
-            <span class="status on">Open source</span>
             <p class="pc-tag">LLM cost monitoring and attribution, with a RAG assistant that explains why the bill moved.</p>
           </header>
           <div class="case-side">
@@ -600,8 +625,8 @@ dialog .actions{display:flex;justify-content:flex-end}
           <header class="case-head">
             <span class="case-n" aria-hidden="true">02 / 05</span>
             <h3 id="c-aegis">Aegis</h3>
-            <span class="pnote">Private repository</span>
             <p class="pc-tag">Crash-test agents before they ship: scenarios, injected faults and a release gate.</p>
+            <p class="case-hit"><span>In testing</span>A deliberately defective agent fails its scenario on every run; its fixed version passes.</p>
           </header>
           <div class="case-side">
             <figure class="shot"><div class="media" style="background:#0d1416"><img src="assets/work/aegis-console.webp" srcset="assets/work/aegis-console-480.webp 480w, assets/work/aegis-console-720.webp 720w, assets/work/aegis-console.webp 960w" sizes="(max-width: 860px) 92vw, 600px" width="960" height="600" loading="lazy" decoding="async" alt="The Aegis console on demo data: the navigation and an overview of what needs a decision, led by a release-gate rejection."></div><figcaption>The Aegis console, running on demo data.</figcaption></figure>
@@ -656,15 +681,15 @@ dialog .actions{display:flex;justify-content:flex-end}
             </details>
             <ul class="chips" aria-label="Stack"><li>AWS Lambda</li><li>API Gateway</li><li>DynamoDB</li><li>Cognito</li><li>CloudFront</li><li>Terraform</li><li>GitHub Actions</li><li>React 19</li><li>TypeScript</li></ul>
             <div class="pc-links"><a class="btn primary" href="https://finpulse.me" target="_blank" rel="noopener">Visit finpulse.me<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="vh"> (FinPulse, opens in a new tab)</span></a></div>
-            <p class="case-note">Private repository. One region and one environment; deploys run without a manual approval, behind green CI, a smoke test after each deploy and a revert.</p>
+            <p class="case-note">One region and one environment; deploys run without a manual approval, behind green CI, a smoke test after each deploy and a revert.</p>
           </div>
         </article>
         <article class="case" aria-labelledby="c-ciso">
           <header class="case-head">
             <span class="case-n" aria-hidden="true">04 / 05</span>
             <h3 id="c-ciso">CISO Agent</h3>
-            <span class="status on">Open source</span>
             <p class="pc-tag">A security officer inside every coding agent&#x27;s loop.</p>
+            <p class="case-hit"><span>In real runs</span>It stops a coding agent from force-pushing to main before you notice: Claude Code tried, and the push was denied.</p>
           </header>
           <div class="case-side">
             <figure class="shot"><div class="media dgm nat">
@@ -729,7 +754,6 @@ dialog .actions{display:flex;justify-content:flex-end}
             </details>
             <ul class="chips" aria-label="Stack"><li>Claude</li><li>Higgsfield</li><li>ffmpeg</li><li>ElevenLabs</li><li>YouTube API</li><li>Instagram API</li><li>Python</li></ul>
             <div class="pc-links"><a class="btn primary" href="https://youtu.be/4vUhPMhUVzk" target="_blank" rel="noopener">Watch the episode<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="vh"> (Clay Town on YouTube, opens in a new tab)</span></a><a class="btn" href="https://www.instagram.com/claytown137/" target="_blank" rel="noopener">Instagram @claytown137<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="vh"> (Clay Town, opens in a new tab)</span></a><a class="btn" href="https://www.youtube.com/@clay-town-137" target="_blank" rel="noopener">YouTube @clay-town-137<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg><span class="vh"> (Clay Town channel, opens in a new tab)</span></a></div>
-            <p class="case-note">Private repository.</p>
           </div>
         </article>
       </div>
@@ -754,7 +778,7 @@ dialog .actions{display:flex;justify-content:flex-end}
               <div class="pc-more"><details class="case-more"><summary>What it does<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary><div class="does wide">
                 <div>
                 <p class="cap">On the card: Chief, the assistant, as an architecture diagram of its interface, jobs, memory and integrations.</p>
-                <ul><li><b>Problem:</b> an assistant that runs on a schedule, spends money on model calls and starts engineering work is only useful if it cannot act beyond what it was granted, and if what it did can be checked afterwards.</li><li><b>Approach:</b> an agent gateway on my own machine answers over Telegram; scheduled jobs send briefs and run news, market and job-scan radars. Engineering work goes to Claude Code as tracked background jobs, and cloud delegation comes back as pull requests the agent never merges. Memory has layers: native notes behind a write gate, a learned model of the operator in Honcho, and an Obsidian vault.</li><li><b>Boundaries:</b> permissions are deny-first. Paid calls, publishing and sending need my approval, and recalled memory can never authorise an action. Calendar and mail are not connected in the current version.</li><li><b>Evidence:</b> a weekly health check, built without a model call, reports the gateway, the scheduled jobs, the nightly encrypted backup, the last restore test, disk space and model cost. Runs locally; private repositories.</li></ul>
+                <ul><li><b>Problem:</b> an assistant that runs on a schedule, spends money on model calls and starts engineering work is only useful if it cannot act beyond what it was granted, and if what it did can be checked afterwards.</li><li><b>Approach:</b> an agent gateway on my own machine answers over Telegram; scheduled jobs send briefs and run news, market and job-scan radars. Engineering work goes to Claude Code as tracked background jobs, and cloud delegation comes back as pull requests the agent never merges. Memory has layers: native notes behind a write gate, a learned model of the operator in Honcho, and an Obsidian vault.</li><li><b>Boundaries:</b> permissions are deny-first. Paid calls, publishing and sending need my approval, and recalled memory can never authorise an action. Calendar and mail are not connected in the current version.</li><li><b>Evidence:</b> a weekly health check, built without a model call, reports the gateway, the scheduled jobs, the nightly encrypted backup, the last restore test, disk space and model cost. Runs locally.</li></ul>
                 </div>
                 <figure class="note-fig"><img src="assets/work/assistant-health-480.webp" srcset="assets/work/assistant-health-480.webp 480w, assets/work/assistant-health-720.webp 720w, assets/work/assistant-health-960.webp 960w" sizes="(max-width: 600px) 86vw, 340px" width="480" height="437" loading="lazy" decoding="async" alt="The assistant's weekly health-check message in Hebrew: a column of green ticks for the gateway, scheduled jobs, backups, the restore test, disk space and the local dashboard, then model cost and radar runs."><figcaption>The weekly health check, in Hebrew. Line by line it reports: the gateway is running and Telegram is connected; scheduled jobs active or paused, none failed; the nightly backup passed and its copy reached a removable disk; when the last restore test passed; free disk space and the local dashboard answering; model cost for the week against the week before; radar runs that were free and those that called the model.</figcaption></figure>
               </div></details></div>
@@ -769,7 +793,7 @@ dialog .actions{display:flex;justify-content:flex-end}
               <div class="pc-more"><details class="case-more"><summary>What it does<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary><div class="does"><ul><li>Swipe to aim, speed for power, curve the swipe to bend the ball</li><li>Five shots a round, with bonuses for corner finishes and streaks</li><li>The match runs on a seeded simulation kept separate from drawing</li><li>Installs from the browser and plays with no connection</li></ul></div></details></div>
             </article>
             <article class="pcard" aria-labelledby="d-core">
-              <div class="pc-top"><span class="pnote">Private repository</span><span class="pc-num" aria-hidden="true">03 / 06</span></div>
+              <div class="pc-top"><span class="pc-num" aria-hidden="true">03 / 06</span></div>
               <h3 id="d-core">Crypto Trading Core</h3>
               <p class="pc-tag">A trading system that refuses bad trades.</p>
               <figure class="media dgm">
@@ -780,7 +804,7 @@ dialog .actions{display:flex;justify-content:flex-end}
               <div class="pc-more"><details class="case-more"><summary>How it earns trust<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary><div class="does"><ul><li><b>Strategy validation:</b> backtests run through the real engine and risk gate. Tests are registered in advance, the held-out data can be used once, and a purged walk-forward re-picks settings from earlier data only.</li><li><b>Risk controls:</b> every order passes a gate that fails closed: stale data, a tripped breaker or any error rejects it. Per-trade risk, daily loss, drawdown and exposure have hard ceilings in code, with no leverage.</li><li><b>Execution boundaries:</b> spot orders on one exchange. Live sending is switched off in code; arming it needs a dated arm file, a clear kill switch and a venue self-check. Breakers stay tripped until a named person resets them.</li><li><b>Evidence-based testing:</b> fault injection and seeded property tests on the risk gate, replay tests that compare simulated decisions with the backtester, and an append-only, hash-chained journal.</li></ul></div></details></div>
             </article>
             <article class="pcard" aria-labelledby="d-predict">
-              <div class="pc-top"><span class="pnote">Private repository</span><span class="pc-num" aria-hidden="true">04 / 06</span></div>
+              <div class="pc-top"><span class="pc-num" aria-hidden="true">04 / 06</span></div>
               <h3 id="d-predict">Prediction-Market Systems</h3>
               <p class="pc-tag">Prove the edge before capital moves.</p>
               <figure class="media dgm">
@@ -800,7 +824,7 @@ dialog .actions{display:flex;justify-content:flex-end}
                 <figcaption>The pipeline, fixed in code, and the top of the review queue in the approval dashboard (in Hebrew).</figcaption>
               </figure>
               <ul class="chips" aria-label="Stack"><li>Cloudflare Workers</li><li>D1</li><li>Queues</li><li>Cron Triggers</li><li>Access</li><li>Claude API</li><li>TypeScript</li></ul>
-              <div class="pc-more"><details class="case-more"><summary>What it does<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary><div class="does"><ul><li><b>Problem:</b> a Hebrew magazine wants English-language news translated quickly. Names, terms and right-to-left layout have to survive, and nothing may go out unreviewed.</li><li><b>Approach:</b> a cron trigger pulls allow-listed feeds, and each new article becomes one queue message with retries and a dead-letter queue. One model call must return JSON matching a schema, with fixed glossary terms masked before the call and restored after it. Cron, a queue and a state machine move each article; the model only translates.</li><li><b>Review:</b> every article waits in a review queue behind Cloudflare Access, where an editor approves, rejects, edits by hand or asks for a revision. Approval writes the publish record.</li><li><b>Evidence:</b> each response is checked in code: it must parse, and every segment must come back, in order. One corrective retry, then the article stops and waits for a person; refusals and truncated output are never retried. A daily spend cap is checked before every paid call.</li><li>Private repository. The engine runs unattended on its schedule ahead of launch; the magazine site is on staging.</li></ul></div></details></div>
+              <div class="pc-more"><details class="case-more"><summary>What it does<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary><div class="does"><ul><li><b>Problem:</b> a Hebrew magazine wants English-language news translated quickly. Names, terms and right-to-left layout have to survive, and nothing may go out unreviewed.</li><li><b>Approach:</b> a cron trigger pulls allow-listed feeds, and each new article becomes one queue message with retries and a dead-letter queue. One model call must return JSON matching a schema, with fixed glossary terms masked before the call and restored after it. Cron, a queue and a state machine move each article; the model only translates.</li><li><b>Review:</b> every article waits in a review queue behind Cloudflare Access, where an editor approves, rejects, edits by hand or asks for a revision. Approval writes the publish record.</li><li><b>Evidence:</b> each response is checked in code: it must parse, and every segment must come back, in order. One corrective retry, then the article stops and waits for a person; refusals and truncated output are never retried. A daily spend cap is checked before every paid call.</li><li>The engine runs unattended on its schedule ahead of launch; the magazine site is on staging.</li></ul></div></details></div>
             </article>
             <article class="pcard" aria-labelledby="d-bakery">
               <div class="pc-top"><span class="status on">Live demo</span><span class="pc-num" aria-hidden="true">06 / 06</span></div>
@@ -827,25 +851,6 @@ dialog .actions{display:flex;justify-content:flex-end}
     </div>
   </section>
 
-  <section class="sec minor" id="tools" aria-labelledby="tools-h">
-    <div class="wrap">
-      <div class="sec-head">
-        <h2 id="tools-h">Engineering tools and experiments</h2>
-        <p>Smaller pieces I built for my own agent workflow.</p>
-      </div>
-      <ul class="tools">
-        <li><h3>web-craft</h3><p>A field guide with scripts for designing, building and shipping web front ends.</p><span class="stk">Claude Code skill · Node.js · Python</span></li>
-        <li><h3>turnstile-spin</h3><p>One-command Cloudflare Turnstile setup in any project.</p><span class="stk">Claude Code skill · Cloudflare API</span></li>
-        <li><h3>cutaway</h3><p>Interactive 3D explainers of mechanisms, as one offline page.</p><span class="stk">Claude Code skill · three.js</span></li>
-        <li><h3>living-flow-map</h3><p>Animated maps of how a pipeline or process actually moves.</p><span class="stk">Claude Code skill · SVG</span></li>
-        <li><h3>consensus-fix</h3><p>Competing analyses must agree before a critical fix lands.</p><span class="stk">Claude Code skill</span></li>
-        <li><h3>claude-code-hooks</h3><p>A hardened SSH host-check hook for coding agents.</p><span class="stk">Python · Claude Code hooks</span></li>
-        <li><h3>higgsfield guide</h3><p>A cost-gated operating guide for a generative-media connector.</p><span class="stk">Claude Code skill</span></li>
-        <li><h3>wrapup</h3><p>A session-closing ritual: gate, commit, memory, report.</p><span class="stk">Claude Code skill</span></li>
-      </ul>
-    </div>
-  </section>
-
   <section class="sec minor" id="all-work" aria-labelledby="all-h">
     <div class="wrap">
       <div class="sec-head">
@@ -868,16 +873,21 @@ dialog .actions{display:flex;justify-content:flex-end}
     </div>
   </section>
 
-  <section class="sec minor" id="proof" aria-labelledby="proof-h">
+  <section class="sec minor" id="tools" aria-labelledby="tools-h">
     <div class="wrap">
       <div class="sec-head">
-        <h2 id="proof-h">Proof in production</h2>
-        <p>Three outcomes at a Fortune 500 enterprise SaaS company.</p>
+        <h2 id="tools-h">Engineering tools and experiments</h2>
+        <p>Smaller pieces I built for my own agent workflow.</p>
       </div>
-      <ul class="proof">
-        <li><span class="fig">50+</span><p class="txt">multi-tenant EKS clusters across 5+ AWS regions, upgraded blue/green with zero downtime<span class="where">Fortune 500 enterprise SaaS</span></p></li>
-        <li><span class="fig">-60%</span><p class="txt">alert noise after redesigning Datadog alerting, with faster MTTR<span class="where">Fortune 500 enterprise SaaS</span></p></li>
-        <li><span class="fig">~2 h to ~30 min</span><p class="txt">post-deploy checks, cut by an approval-gated deploy-validation agent<span class="where">Fortune 500 enterprise SaaS</span></p></li>
+      <ul class="tools">
+        <li><h3>web-craft</h3><p>A field guide with scripts for designing, building and shipping web front ends.</p><span class="stk">Claude Code skill · Node.js · Python</span></li>
+        <li><h3>turnstile-spin</h3><p>One-command Cloudflare Turnstile setup in any project.</p><span class="stk">Claude Code skill · Cloudflare API</span></li>
+        <li><h3>cutaway</h3><p>Interactive 3D explainers of mechanisms, as one offline page.</p><span class="stk">Claude Code skill · three.js</span></li>
+        <li><h3>living-flow-map</h3><p>Animated maps of how a pipeline or process actually moves.</p><span class="stk">Claude Code skill · SVG</span></li>
+        <li><h3>consensus-fix</h3><p>Competing analyses must agree before a critical fix lands.</p><span class="stk">Claude Code skill</span></li>
+        <li><h3>claude-code-hooks</h3><p>A hardened SSH host-check hook for coding agents.</p><span class="stk">Python · Claude Code hooks</span></li>
+        <li><h3>higgsfield guide</h3><p>A cost-gated operating guide for a generative-media connector.</p><span class="stk">Claude Code skill</span></li>
+        <li><h3>wrapup</h3><p>A session-closing ritual: gate, commit, memory, report.</p><span class="stk">Claude Code skill</span></li>
       </ul>
     </div>
   </section>
