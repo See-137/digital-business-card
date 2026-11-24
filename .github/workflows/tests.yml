@@ -2,8 +2,8 @@
 # widths, no overflow, the content contract (H1, all projects, no email in the
 # HTML), the vCard, the QR dialog, axe-core, and the no-JavaScript fallback.
 #
-# Pages deploys independently (legacy branch mode), so a red run here does not
-# block a deploy: read it.
+# Deploys are a separate manual upload to Cloudflare Pages (see CLAUDE.md), so a
+# red run here does not block one: read it.
 name: tests
 
 on:
