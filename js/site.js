@@ -387,6 +387,21 @@
     dlg.addEventListener('close', () => { if (opener) opener.focus(); });
   }
 
+  /* ---------- images in collapsed notes ---------- */
+  // An image in a closed note carries data-src / data-srcset instead of src / srcset: with a real source it was
+  // fetched on page load, note closed and loading="lazy" or not (measured 2026-11-24, 87 KiB per first visit at 3x).
+  // The deck copies notes with cloneNode, so this listens on the document and fills whichever note opens.
+  function initNoteImages() {
+    const fill = (root) => $$('img[data-src]', root).forEach((img) => {
+      if (img.dataset.srcset) img.srcset = img.dataset.srcset;
+      img.src = img.dataset.src;
+      img.removeAttribute('data-srcset');
+      img.removeAttribute('data-src');
+    });
+    // toggle does not bubble; the capture phase still reaches the document
+    document.addEventListener('toggle', (e) => { if (e.target.open) fill(e.target); }, true);
+  }
+
   /* ---------- offline support ---------- */
   function initSw() {
     if (!('serviceWorker' in navigator) || location.protocol === 'file:') return;
@@ -396,7 +411,7 @@
   }
 
   // initYouTube runs before initDeck so the deck manages the upgraded button's tab order
-  const steps = [initMail, initShare, initQr, initCard, initYouTube, initDeck, initSw];
+  const steps = [initMail, initShare, initQr, initCard, initYouTube, initNoteImages, initDeck, initSw];
   for (const step of steps) {
     try { step(); } catch (err) { console.error(`${step.name} failed:`, err); }
   }

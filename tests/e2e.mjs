@@ -88,7 +88,7 @@ try {
       notes: [...document.querySelectorAll('.pnote, .rn')].map((n) => n.textContent.trim()),
       pills: [...document.querySelectorAll('.status, .rs')].filter((n) => /private|local/i.test(n.textContent)).length,
       privLinks: [...document.querySelectorAll('.pcard, .case')].filter((n) => n.querySelector('.pnote') && n.querySelector('a[href*="github.com"]')).length,
-      evidence: [...document.querySelector('#d-agentic').closest('.pcard').querySelectorAll('img')].map((i) => `${i.getAttribute('src')}${i.closest('details') ? ':note' : ':card'}`),
+      evidence: [...document.querySelector('#d-agentic').closest('.pcard').querySelectorAll('img')].map((i) => `${i.getAttribute('src') || i.dataset.src}${i.closest('details') ? ':note' : ':card'}`),
       agenticCap: /architecture diagram/.test(document.querySelector('#d-agentic').closest('.pcard').textContent),
       freekick: (() => { const c = document.querySelector('#d-freekick').closest('.pcard'); return `${c.querySelector('img').getAttribute('src')}|${c.querySelector('a.btn.primary')?.textContent.trim().split(' (')[0]}|${c.querySelector('a.btn.primary')?.href}`; })(),
       editorial: document.querySelector('#d-editorial').closest('.pcard').textContent,
@@ -245,6 +245,39 @@ try {
     await pg.close();
   }
 
+  // The health-check image sits in the agentic card's closed note: a phone visitor must not download it until
+  // the note is opened (it cost every first visit 87 KiB at 3x). Fresh context: no shared HTTP cache.
+  {
+    const ctx = await browser.createBrowserContext();
+    const pg = await ctx.newPage();
+    await pg.setViewport({ width: 390, height: 844, deviceScaleFactor: 3, isMobile: true, hasTouch: true });
+    const got = [];
+    pg.on('request', (r) => { if (/assistant-health/.test(r.url())) got.push(r.url().split('/').pop()); });
+    await pg.goto(`${base}/index.html`, { waitUntil: 'networkidle0' });
+    await pg.evaluate(() => document.querySelector('#more-work').scrollIntoView());
+    await new Promise((r) => setTimeout(r, 1500));
+    const before = got.length;
+    const active = await pg.evaluate(() => document.querySelector('#deck .pcard.is-active h3')?.id);
+    await pg.evaluate(() => document.querySelector('#readout details > summary').click());
+    const loaded = await pg.waitForFunction(() => {
+      const i = document.querySelector('#readout details[open] img[alt]');
+      return i && i.complete && i.naturalWidth > 0;
+    }, { timeout: 5000 }).then(() => true, () => false);
+    check('deck: the health-check image is not downloaded until its note is opened, then it loads and shows',
+      active === 'd-agentic' && before === 0 && loaded && got.length === 1, JSON.stringify({ active, before, loaded, got }));
+    // the readout is re-cloned on every card change and re-opened in code: the new copy must load too
+    const step = (dir) => pg.evaluate((d) => document.querySelector(`[data-deck="${d}"]`).click(), dir);
+    await step('next');
+    await new Promise((r) => setTimeout(r, 300));
+    await step('prev');
+    const again = await pg.waitForFunction(() => {
+      const i = document.querySelector('#readout details[open] img[alt]');
+      return i && !i.hasAttribute('data-src') && i.complete && i.naturalWidth > 0;
+    }, { timeout: 5000 }).then(() => true, () => false);
+    check('deck: back on the card with the note still open, the re-rendered health-check image loads', again);
+    await ctx.close();
+  }
+
   // Case studies: long text is collapsed by default and opens on demand.
   {
     const pg = await browser.newPage();
@@ -280,7 +313,16 @@ try {
     rowsShown: [...document.querySelectorAll('#all-work li.row')].filter((n) => n.checkVisibility() && n.getBoundingClientRect().height > 20).length,
     deckText: document.querySelector('#deck').textContent, // collapsed in native <details>, still present and openable without JS
     deckDetails: document.querySelectorAll('#deck .pc-more > details > summary').length,
+    healthImg: (() => {
+      const d = document.querySelector('#d-agentic').closest('.pcard').querySelector('details');
+      d.open = true;
+      const real = d.querySelectorAll('img[src*="assistant-health"][alt][width][height]');
+      const empty = d.querySelectorAll('img[data-src]');
+      return { real: real.length, shown: [...real].filter((i) => i.checkVisibility()).length, emptyShown: [...empty].filter((i) => i.checkVisibility()).length };
+    })(),
   }));
+  check('no-JS: the opened agentic note shows the health-check image and no empty placeholder',
+    nj.healthImg.real === 1 && nj.healthImg.shown === 1 && nj.healthImg.emptyShown === 0, JSON.stringify(nj.healthImg));
   check('no-JS: the index names all five featured projects and all six deck projects', [...FEATURED, ...DECK].every((n) => nj.names.includes(n)), nj.names.join(', '));
   check('no-JS: the deck cards keep their detail (trading validation, risk and execution)', /Strategy validation/.test(nj.deckText) && /Execution boundaries/.test(nj.deckText) && nj.deckDetails === DECK.length, `${nj.deckDetails} details`);
   check('no-JS: every project still listed and readable', nj.rows === PROJECTS && nj.rowsShown === PROJECTS, `${nj.rows} / ${nj.rowsShown} shown`);
